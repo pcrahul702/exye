@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Image,StatusBar, TouchableOpacity, ScrollView } from 'react-native'
 import React from 'react'
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
 import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation ,DrawerActions} from '@react-navigation/native';
 
 const Pavilion = () => {
 
@@ -18,14 +18,50 @@ const Pavilion = () => {
     navigation.navigate('Wallet'); // Navigate to the Wallet screen
   };
 
+  const handleProfile1Navigation = () => {
+    navigation.navigate('Profile1'); // Navigate to the Wallet screen
+  };
 
+  const handleDrawerOpen= () => {
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
   return (
     <SafeAreaView style={styles.container}>
 
-      <Image source={uppershaper} style={styles.uppershape} />
+      {/* <Image source={uppershaper} style={styles.uppershape} />
       <Image source={backgroundImage} style={styles.backgroundImage} />
-      <Image source={upperLog} style={styles.upperLog} />
+      <Image source={upperLog} style={styles.upperLog} /> */}
+     
+      <StatusBar hidden={true} />
 
+      <View style={styles.header}>
+
+        <TouchableOpacity onPress={handleProfile1Navigation}>
+          <View style={styles.icon}>
+            <Image
+              source={require('../assets/profile_avatar.png')}
+              style={styles.iconImage}
+            />
+          </View>
+        </TouchableOpacity>
+
+
+        {/* <Text style={styles.headerText}>EXYE</Text> */}
+        <Image
+          source={require('../assets/Exye_Logo_B1.png')}
+          style={styles.logo}
+        />
+        <TouchableOpacity onPress={handleDrawerOpen}>
+          <View style={styles.icon2}>
+            <Image
+              source={require('../assets/hamburgerMenu.png')}
+              style={styles.iconImage2}
+            />
+          </View>
+        </TouchableOpacity>
+
+
+      </View>
       <ScrollView style={styles.scrollContainer}>
 
 
@@ -84,8 +120,77 @@ const Pavilion = () => {
 export default Pavilion
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    height: 'auto',
+    backgroundColor: '#ffa952',
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerText: {
+    flex: 1,
+    fontSize: 35,
+    color: '#EF5A5A',
+    fontWeight: '700',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+    elevation: 5,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular'
+  },
+  icon: {
+    width: 50,
+    height: 50,
+    borderRadius: 42.5,
+    backgroundColor: '#D9D9D9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    margin: 8,
+    shadowColor: 'black',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    borderColor: '#EF5A5A',
+    borderWidth: 2
+  },
+  iconImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 42.5,
+  },
+  icon2: {
+    width: 50,
+    height: 50,
+    borderRadius: 42.5,
+    backgroundColor: '#D9D9D9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    margin: 10,
+    shadowColor: 'black',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    borderColor: '#EF5A5A',
+    borderWidth: 2
+  },
+  iconImage2: {
+    width: 30,
+    height: 30,
 
+  },
+  logo: {
+    flex: 1,
+    width: 40,
+    height: 40,
+  
 
+ 
+  },
   uppershape: {
     top: 0,
     width: '100%',

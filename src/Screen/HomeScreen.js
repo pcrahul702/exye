@@ -53,7 +53,11 @@ const HomeScreen = () => {
         </TouchableOpacity>
 
 
-        <Text style={styles.headerText}>EXYE</Text>
+        {/* <Text style={styles.headerText}>EXYE</Text> */}
+        <Image
+          source={require('../assets/Exye_Logo_B1.png')}
+          style={styles.logo}
+        />
 
         <TouchableOpacity onPress={handleDrawerOpen}>
           <View style={styles.icon2}>
@@ -322,8 +326,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular'
   },
   icon: {
-    width: 85,
-    height: 85,
+    width: 50,
+    height: 50,
     borderRadius: 42.5,
     backgroundColor: '#D9D9D9',
     justifyContent: 'center',
@@ -338,13 +342,13 @@ const styles = StyleSheet.create({
     borderWidth: 2
   },
   iconImage: {
-    width: 85,
-    height: 85,
+    width: 40,
+    height: 40,
     borderRadius: 42.5,
   },
   icon2: {
-    width: 85,
-    height: 85,
+    width: 50,
+    height: 50,
     borderRadius: 42.5,
     backgroundColor: '#D9D9D9',
     justifyContent: 'center',
@@ -359,9 +363,17 @@ const styles = StyleSheet.create({
     borderWidth: 2
   },
   iconImage2: {
-    width: 48,
-    height: 44,
+    width: 30,
+    height: 30,
 
+  },
+  logo: {
+    flex: 1,
+    width: 40,
+    height: 40,
+  
+
+ 
   },
   scrollContainer: {
     width: '100%',
