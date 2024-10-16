@@ -8,7 +8,7 @@ import Profile from './Profile1Screen';
 import Wallet from './WalletPage';
 import Login from './LoginScreen';
 import CustomDrawer from '../components/CustomDrawer';
-
+import LinearGradient from 'react-native-linear-gradient';
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
@@ -17,7 +17,7 @@ export default function DrawerNavigator() {
             drawerContent={props => <CustomDrawer {...props} />}
             screenOptions={{
                 headerShown: false,
-                drawerActiveBackgroundColor: '#8C1018f5',
+                drawerActiveBackgroundColor: '#FFA952',
                 drawerActiveTintColor: '#FEFFDF',
                 drawerInactiveTintColor: 'black',
                 drawerStyle: {

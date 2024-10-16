@@ -1,6 +1,6 @@
 import { StyleSheet, View, TextInput, Text, TouchableOpacity, Dimensions, ScrollView, Image, KeyboardAvoidingView } from 'react-native';
 import React, { useState } from 'react';
-
+import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import CustomPhoneInput from '../components/CustomPhoneInput';
 import CustomInput from '../components/CustomInput';
@@ -124,8 +124,12 @@ const SignUpScreen = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}>
 
-
-            <Text style={styles.signUpText}>SIGN UP</Text>
+<LinearGradient
+            colors={['#FFA952', '#F05A5B']}
+            style={styles.view3}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}>
+             <Text style={styles.signUpText}>SIGN UP</Text>
             <Text style={styles.introText}>Start your exciting journer now!</Text>
 
             <View style={styles.inputContainer}>
@@ -180,6 +184,8 @@ const SignUpScreen = () => {
 
                 </View>
             </View>
+          </LinearGradient>
+          
 
         </KeyboardAvoidingView>
     );
@@ -190,7 +196,7 @@ export default SignUpScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#8C1018',
+        // backgroundColor: '#8C1018',
         position: 'relative',
     },
     signUpText: {
@@ -214,8 +220,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
-        borderTopWidth: 3,
-        borderColor: '#e6444a',
+        // borderTopWidth: 3,
+        // borderColor: '#e6444a',
         backgroundColor: 'white',
         paddingTop: 20,
     },
