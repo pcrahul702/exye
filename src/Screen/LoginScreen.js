@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -7,17 +7,25 @@ import {
   Platform,
   TouchableOpacity,
   Image,
+  TextInput,
+  Modal,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {postData} from '../Utils/api';
 import {useNavigation} from '@react-navigation/native';
 import CustomPhoneInput from '../components/CustomPhoneInput';
 import CustomEmailInput from '../components/CustomEmailInput';
 import LinearGradient from 'react-native-linear-gradient';
-
+import {API_URL} from '@env';
+import axios from 'axios';
 const LoginScreen = () => {
+  const refs = useRef();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [isContinueDisabled, setIsContinueDisabled] = useState(true);
   const [loginViaPhone, setloginViaPhone] = useState(true);
+  const [otp, setOtp] = useState('');
+  const [otpModalVisible, setOtpModalVisible] = useState(false);
   const navigation = useNavigation();
 
   const handlePhoneNumberChange = text => {
@@ -31,9 +39,44 @@ const LoginScreen = () => {
     setIsContinueDisabled(!emailRegex.test(email));
   };
 
-  const handleContinue = () => {
-    console.log('Continue button pressed with phone number:', phoneNumber);
-    navigation.navigate('Home');
+  // const handleContinue = () => {
+
+  //   console.log('Continue button pressed with phone number:', phoneNumber);
+  //   navigation.navigate('Home');
+  // };
+  const handleContinue = async () => {
+    // console.log("called")
+    const payload = loginViaPhone
+      ? {
+          contactType: 'PHONE',
+          phoneNo: phoneNumber,
+          otpType: 'LOGIN',
+        }
+      : {
+          contactType: 'EMAIL',
+          email: email,
+          otpType: 'LOGIN',
+        };
+
+    try {
+      const url = API_URL + '/api/v1/user/login';
+
+      const response = await axios.post(url, payload, {
+        headers: {
+          loginSource: 'OTP',
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      if (response.data.status == 'OK') {
+        setOtpModalVisible(true);
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      alert('An error occurred. Please try again.');
+    }
   };
 
   const handleSignUp = () => {
@@ -52,6 +95,49 @@ const LoginScreen = () => {
     setEmail('');
     setloginViaPhone(true);
     setIsContinueDisabled(true);
+  };
+  const handleOtpSubmit = async () => {
+    if (otp.length < 4) {
+      alert('Enter Complete OTP!');
+      return;
+    }
+
+    const payload = loginViaPhone
+      ? {
+          contactType: 'PHONE',
+          phoneNo: phoneNumber,
+          otpType: 'LOGIN',
+          otp: otp,
+        }
+      : {
+          contactType: 'EMAIL',
+          email: email,
+          otpType: 'LOGIN',
+          otp: otp,
+        };
+
+    try {
+      // Call API for OTP verification
+      const response = await postData('/api/v1/user/validate-otp', payload);
+      // console.log("response",response)
+      // Ensure response structure is correctly checked
+      if (response.status == 'OK') {
+        // console.log(response.data.token);
+        navigation.navigate('Home');
+        await AsyncStorage.setItem(
+          'token',
+          JSON.stringify(response.data.token),
+        );
+      } else {
+        alert(response.message || 'Verification failed, please try again.');
+      }
+    } catch (error) {
+      // console.error('Error during OTP verification:', error);
+      alert('An error occurred. Please try again.');
+    } finally {
+      setOtpModalVisible(false);
+      setOtp(''); 
+    }
   };
 
   return (
@@ -195,6 +281,47 @@ const LoginScreen = () => {
               </View>
             </View>
           )}
+          {/* OTP Modal */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={otpModalVisible}
+            onRequestClose={() => {
+              setOtpModalVisible(!otpModalVisible);
+            }}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>Enter OTP</Text>
+                <View style={styles.otpInputContainer}>
+                  {[...Array(4)].map((_, index) => (
+                    <TextInput
+                      key={index}
+                      style={styles.otpInput}
+                      keyboardType="numeric"
+                      maxLength={1}
+                      placeholder=""
+                      value={otp[index] || ''}
+                      onChangeText={text => {
+                        const newOtp = otp.split('');
+                        newOtp[index] = text;
+                        setOtp(newOtp.join(''));
+                        // Move to next input if character is entered
+                        if (text && index < 3) {
+                          refs[`otpInput${index + 1}`].focus();
+                        }
+                      }}
+                      ref={input => (refs[`otpInput${index}`] = input)} // Create a reference for each input
+                    />
+                  ))}
+                </View>
+                <TouchableOpacity
+                  style={styles.verifyButton}
+                  onPress={handleOtpSubmit}>
+                  <Text style={styles.verifyButtonText}>Verify OTP</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </View>
       </LinearGradient>
     </KeyboardAvoidingView>
@@ -304,6 +431,55 @@ const styles = StyleSheet.create({
     textDecorationStyle: 'dotted',
     textDecorationLine: 'underline',
     fontFamily: 'Poppins-Regular',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent background
+  },
+  modalView: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  otpInputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  otpInput: {
+    width: 50,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    textAlign: 'center',
+    fontSize: 20,
+    margin: 5,
+  },
+  verifyButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  verifyButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  closeButton: {
+    marginTop: 10,
+  },
+  closeButtonText: {
+    color: '#FF0000',
+    fontSize: 16,
   },
 });
 
