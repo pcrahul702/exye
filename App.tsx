@@ -33,11 +33,14 @@ import DrawerNavigator from './src/Screen/Drawer';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-
+import { Provider } from 'react-redux';
+import store from './src/Redux/Store';
 function App() {
   const Stack = createStackNavigator();
  
   return (
+    <Provider store={store}>
+   
     <View style={styles.container}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -82,6 +85,8 @@ function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </View>
+   
+    </Provider>
   );
 }
 
