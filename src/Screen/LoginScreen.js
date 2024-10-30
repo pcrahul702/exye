@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef,useEffect} from 'react';
 import {
   View,
   Text,
@@ -28,6 +28,7 @@ const LoginScreen = () => {
   const [otpModalVisible, setOtpModalVisible] = useState(false);
   const navigation = useNavigation();
 
+  
   const handlePhoneNumberChange = text => {
     setPhoneNumber(text);
     setIsContinueDisabled(text.length < 10);
@@ -39,13 +40,9 @@ const LoginScreen = () => {
     setIsContinueDisabled(!emailRegex.test(email));
   };
 
-  // const handleContinue = () => {
-
-  //   console.log('Continue button pressed with phone number:', phoneNumber);
-  //   navigation.navigate('Home');
-  // };
+  
   const handleContinue = async () => {
-    // console.log("called")
+    console.log("called",API_URL)
     const payload = loginViaPhone
       ? {
           contactType: 'PHONE',
@@ -60,7 +57,8 @@ const LoginScreen = () => {
 
     try {
       const url = API_URL + '/api/v1/user/login';
-
+      console.log(payload)
+console.log(url)
       const response = await axios.post(url, payload, {
         headers: {
           loginSource: 'OTP',
@@ -72,10 +70,12 @@ const LoginScreen = () => {
       if (response.data.status == 'OK') {
         setOtpModalVisible(true);
       } else {
+        console.log(response)
         alert(response.data.message);
       }
     } catch (error) {
       alert('An error occurred. Please try again.');
+      console.log(error)
     }
   };
 
@@ -119,20 +119,21 @@ const LoginScreen = () => {
     try {
       // Call API for OTP verification
       const response = await postData('/api/v1/user/validate-otp', payload);
-      // console.log("response",response)
+       console.log("response",response)
       // Ensure response structure is correctly checked
       if (response.status == 'OK') {
-        // console.log(response.data.token);
+        console.log(response.data.token);
         navigation.navigate('Home');
         await AsyncStorage.setItem(
           'token',
           JSON.stringify(response.data.token),
         );
+        console.log("response.data.token",response.data.token);
       } else {
         alert(response.message || 'Verification failed, please try again.');
       }
     } catch (error) {
-      // console.error('Error during OTP verification:', error);
+       console.error('Error during OTP verification:', error);
       alert('An error occurred. Please try again.');
     } finally {
       setOtpModalVisible(false);

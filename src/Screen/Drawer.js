@@ -6,12 +6,15 @@ import HomeScreen from './HomeScreen';
 import Pavilion from './Pavilion';
 import Profile from './Profile1Screen';
 import Wallet from './WalletPage';
-import Login from './LoginScreen';
+
 import CustomDrawer from '../components/CustomDrawer';
-import LinearGradient from 'react-native-linear-gradient';
+
+
+
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
+   
     return (
         <Drawer.Navigator
             drawerContent={props => <CustomDrawer {...props} />}
@@ -80,19 +83,8 @@ export default function DrawerNavigator() {
                     ),
                 }}
             />
-            <Drawer.Screen
-                name="Log Out"
-                component={Login}
-                options={{
-                    headerShown: false,
-                    drawerIcon: ({ color }) => (
-                        <Image
-                            source={require('../assets/logout_icon.png')}
-                            style={{ width: 22, height: 22, tintColor: 'black', resizeMode: 'contain' }} // tintColor applies the color to the image
-                        />
-                    ),
-                }}
-            />
+          
+            
         </Drawer.Navigator>
 
     );

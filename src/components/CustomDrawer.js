@@ -12,10 +12,11 @@ import {
   DrawerItemList,
 } from '@react-navigation/drawer';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import LinearGradient from 'react-native-linear-gradient';
 
 const CustomDrawer = props => {
+  console.log(props)
   const navigation = useNavigation();
 
   const handleWalletNavigation = () => {
@@ -25,7 +26,17 @@ const CustomDrawer = props => {
   const handleAddMoneyNavigation = () => {
     navigation.navigate('AddMoney');
   };
-
+  const handleLogout = async () => {
+    console.log("logout");
+    // Clear AsyncStorage
+    await AsyncStorage.removeItem('token');
+    console.log("logout");
+    // Navigate to Login screen
+    navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+    });
+};
   return (
     <View style={{flex: 1}}>
       <DrawerContentScrollView
@@ -99,8 +110,17 @@ const CustomDrawer = props => {
 
         <View style={{flex: 1, backgroundColor: '#fff', paddingTop: 10}}>
           <DrawerItemList {...props} />
+        
         </View>
+     
       </DrawerContentScrollView>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Image
+          source={require('../assets/logout_icon.png')}
+          style={styles.icon}
+        />
+        <Text style={styles.logoutText}>Log Out</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -149,6 +169,29 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontFamily: 'Poppins-Regular',
     alignSelf: 'center',
+  },
+  logoutButton: {
+    position: 'absolute',
+    
+    bottom: 20,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#FFA952',
+  },
+  logoutText: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'Poppins-Regular',
+    marginLeft: 10,
+  },
+  icon: {
+    width: 22,
+    height: 22,
+    tintColor: 'black',
+    resizeMode: 'contain',
   },
 });
 

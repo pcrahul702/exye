@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef,useState } from 'react';
 import { StyleSheet, View, Text, Image, Animated, TouchableOpacity } from 'react-native';
-
+import {getAccessToken} from '../Utils/getAccessToken';
 const GetStartedScreen = ({ navigation }) => {
   const slideAnim = useRef(new Animated.Value(100)).current; // Initial value for Y position (below the view)
 
@@ -12,9 +12,21 @@ const GetStartedScreen = ({ navigation }) => {
       useNativeDriver: true,
     }).start();
   }, [slideAnim]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    // Check for access token on app load
+    async function checkAuth() {
+      const token = await getAccessToken();
+      console.log("token",token);
+      setIsAuthenticated(!!token);
+    }
+    checkAuth();
+  }, []);
 
   const handleGetStarted = () => {
-    navigation.navigate('Login');
+    console.log("isAuthenticated",isAuthenticated);
+ isAuthenticated?
+    navigation.navigate('Home'): navigation.navigate('Login')
   };
 
   return (
