@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const CustomDrawer = props => {
-  console.log(props)
+  // console.log(props)
   const navigation = useNavigation();
 
   const handleWalletNavigation = () => {
@@ -27,7 +27,7 @@ const CustomDrawer = props => {
     navigation.navigate('AddMoney');
   };
   const handleLogout = async () => {
-    console.log("logout");
+   // console.log("logout");
     // Clear AsyncStorage
     await AsyncStorage.removeItem('token');
     // console.log("logout");

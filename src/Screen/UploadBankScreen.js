@@ -1,23 +1,50 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar, StyleSheet, View, Image, Text, TouchableOpacity, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
-
-
+import DocumentPicker from 'react-native-document-picker';
+import { postData } from '../Utils/api';
 
 const UploadBankScreen = () => {
 
     const navigation = useNavigation();
+    const [selectedFile, setSelectedFile] = useState(null);
 
-    const handleUpload = () => {
-        navigation.navigate('Profile3'); // Navigate to the Wallet screen
+    const handleUpload = async () => {
+        try {
+            const result = await DocumentPicker.pick({
+                type: [DocumentPicker.types.allFiles],
+            });
+            console.log(result);
+            setSelectedFile(result);
+    
+            const response = await postData('/api/v1/document/upload', {
+                bankAccount: result
+            });
+    
+            if (!response) {
+                Alert.alert('Upload failed');
+                throw new Error('Upload failed');
+            }
+    
+            
+            console.log('Upload successful:', response);
+            Alert.alert('Upload successful');
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                console.log('User cancelled the Upload');
+            } else {
+                console.log('Error picking document', err);
+                Alert.alert('Error', 'Failed to pick document or upload.');
+            }
+        } finally {
+            navigation.navigate('Profile1');
+        }
     };
 
-
-
-    return (
-        <ScrollView>
+return (
+    <ScrollView>
         <View style={styles.bg}>
             <Image
                 source={require('../assets/Group.png')}
@@ -47,10 +74,12 @@ const UploadBankScreen = () => {
                         You will receive confirmation via email once your document/documents are verified
                     </Text>
 
-                    <FastImage
+                    {!selectedFile ? <FastImage
                         source={require('../assets/loader.gif')} // Replace with your actual GIF path
                         style={styles.gif}
-                    />
+                    /> :
+                        <Text style={styles.fileName}>{selectedFile?.name}</Text>
+                    }
                 </View>
 
                 <View style={styles.bottomContainer}>
@@ -69,8 +98,8 @@ const UploadBankScreen = () => {
 
         </View>
 
-        </ScrollView>
-    )
+    </ScrollView>
+)
 }
 
 const styles = StyleSheet.create({
@@ -92,7 +121,7 @@ const styles = StyleSheet.create({
 
     },
     topText: {
-        width:'70%',
+        width: '70%',
         fontSize: 32,
         fontWeight: '275',
         color: '#EF5A5A',
@@ -111,7 +140,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     imageContainer: {
-        alignSelf:'center',
+        alignSelf: 'center',
         width: '80%',
         justifyContent: 'center',
         alignItems: 'center',
@@ -134,9 +163,9 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular'
     },
     gif: {
-        width:'50%',
+        width: '50%',
         height: 130,
-        top:-50,
+        top: -50,
         resizeMode: 'contain',
         alignSelf: 'center',
     },

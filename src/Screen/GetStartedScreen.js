@@ -17,7 +17,7 @@ const GetStartedScreen = ({ navigation }) => {
     // Check for access token on app load
     async function checkAuth() {
       const token = await getAccessToken();
-      console.log("token",token);
+      // console.log("token",token);
       setIsAuthenticated(!!token);
     }
     checkAuth();

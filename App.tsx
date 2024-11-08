@@ -62,9 +62,9 @@ function App() {
               <Stack.Screen name="Pavilion" component={Pavilion} />
               <Stack.Screen name="Previous" component={Previous} />
               <Stack.Screen name="Live" component={LiveScreen} />
-              <Stack.Screen name="Profile1" component={Profile1Screen} />
-              <Stack.Screen name="Profile2" component={Profile2Screen} />
-              <Stack.Screen name="Profile3" component={Profile3Screen} />
+               <Stack.Screen name="Profile1" component={Profile1Screen} />
+              {/*<Stack.Screen name="Profile2" component={Profile2Screen} />
+              <Stack.Screen name="Profile3" component={Profile3Screen} /> */}
               <Stack.Screen name="UploadPan" component={UploadPanScreen} />
               <Stack.Screen name="UploadBank" component={UploadBankScreen} />
               <Stack.Screen

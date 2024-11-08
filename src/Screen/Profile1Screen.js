@@ -14,7 +14,9 @@ const Profile1Screen = () => {
         navigation.navigate('UploadPan'); // Navigate to the Wallet screen
     };
 
-
+    const handleUploadBankDetails = () => {
+        navigation.navigate('UploadBank'); // Navigate to the Wallet screen
+    };
 
     return (
         <ScrollView style={styles.scrollContainer}>
@@ -67,7 +69,7 @@ const Profile1Screen = () => {
                             style={styles.buttonIcon}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: '#878787' }]}>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: '#878787' }]} onPress={handleUploadBankDetails}>
                         <Text style={styles.buttonText}>bank details</Text>
                         <Image
                             source={require('../assets/bankDetails.png')}

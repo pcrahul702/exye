@@ -1,6 +1,8 @@
 // services/api.js
 import axios from 'axios';
 import { API_URL } from '@env';
+import {getAccessToken} from './getAccessToken';
+
 // Create an instance of axios with default configurations
 const api = axios.create({
   baseURL: API_URL, // Replace with your API's base URL
@@ -13,15 +15,20 @@ const api = axios.create({
 
 // Interceptor to handle request (optional, can log or modify requests before sending)
 api.interceptors.request.use(
-  config => {
-    // Add Authorization token to every request if needed
-    const token = 'your-token' || null; // Replace with your token if you have one
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    try {
+      const token = await getAccessToken() || null;
+      console.log("token",token);
+      if (token) {
+         config.headers.Authorization = `Bearer eyJhbGciOiJIUzUxMiJ9.eyJtb2JpbGVOdW1iZXIiOiI4NTYxMDM4MzMwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoidXNlci0yZjQyZDNkNyIsImVtYWlsIjoicGFuZGV5cmlzaGFiaDcyNTY4QGdtYWlsLmNvbSIsInN1YiI6InJpc2hhYmg3MjQ1IiwiaWF0IjoxNzMwNTY4MDkyLCJleHAiOjE3MzMxNjAwOTJ9.TrCae4fqLJlF7zs_pCsmLxqSx99j07dL16dAupT9xF6hI-dy8wjtYadATBGEryU_Eyyt1BiJNN1gtZqGClGs_g`;
+        // config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error setting authorization header:', error);
     }
     return config;
   },
-  error => Promise.reject(error)
+  (error) => Promise.reject(error)
 );
 
 // Interceptor to handle response errors

@@ -54,29 +54,59 @@ const LoginScreen = () => {
           email: email,
           otpType: 'LOGIN',
         };
-
-    try {
-      const url = API_URL + '/api/v1/user/login';
-      console.log(payload)
-console.log(url)
-      const response = await axios.post(url, payload, {
-        headers: {
-          loginSource: 'OTP',
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
+        try {
+          
+          
+          const response = await axios({
+            method: 'POST',
+          url: 'http://43.204.140.8:8080/api/v1/user/login',
+          data:{
+            contactType : "PHONE",
+            phoneNo : "8561038000",
+            otpType : "LOGIN"
         },
-      });
+          headers: {
+            loginSource: 'OTP',
+          }
+  
+          }
+        );
+    
+          if (response.status === 200) {
+            // Handle successful login
+            console.log('res',response)
+            // You might want to store the token, redirect, etc.
+          }
+        } catch (error) {
+          console.log("error",error)
+          setValidationMessages({
+            password: 'Invalid email or password'
+          });
+        } finally {
+         
+        }
+//     try {
+//       const url = API_URL + '/api/v1/user/login';
+//       console.log(payload)
+// console.log(url)
+//       const response = await axios.post(url, payload, {
+//         headers: {
+//           loginSource: 'OTP',
+          
+          
+//         },
+//       });
 
-      if (response.data.status == 'OK') {
-        setOtpModalVisible(true);
-      } else {
-        console.log(response)
-        alert(response.data.message);
-      }
-    } catch (error) {
-      alert('An error occurred. Please try again.');
-      console.log(error)
-    }
+//       if (response.data.status == 'OK') {
+//         setOtpModalVisible(true);
+//       } else {
+//         console.log(response)
+//         alert(response.data.message);
+//       }
+//     } catch (error) {
+//       alert('An error occurred. Please try again.');
+//       console.log(error)
+//     }
   };
 
   const handleSignUp = () => {

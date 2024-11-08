@@ -1,73 +1,105 @@
 
-import React from 'react';
-import { StatusBar, StyleSheet, View, Image, Text, TouchableOpacity, ScrollView } from 'react-native'
+import React, { useState } from 'react';
+import { StatusBar, StyleSheet, View, Image, Text, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
-
-
-
+import DocumentPicker from 'react-native-document-picker';
+import { postData } from '../Utils/api';
 const UploadPanScreen = () => {
-
+    const [selectedFile, setSelectedFile] = useState(null);
     const navigation = useNavigation();
 
-    const handleUpload = () => {
-        navigation.navigate('Profile2'); // Navigate to the Wallet screen
+    const handleUpload = async () => {
+        try {
+            const result = await DocumentPicker.pick({
+                type: [DocumentPicker.types.allFiles],
+            });
+            console.log(result);
+            setSelectedFile(result);
+
+            const response = await postData('/api/v1/document/upload', {
+                pan: result
+            }
+
+
+            );
+
+            if (!response) {
+                throw new Error('Upload failed');
+
+            }
+
+
+            console.log('Upload successful:', response);
+            Alert.alert('Upload successful');
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                console.log('User cancelled the Upload');
+            } else {
+                console.log('Error picking document', err);
+            }
+        } finally {
+            navigation.navigate('Profile1');
+        }
+
     };
 
 
 
     return (
         <ScrollView>
-        <View style={styles.bg}>
-            <Image
-                source={require('../assets/Group.png')}
-                style={styles.backgroundImage}
-            />
-            <StatusBar hidden={true} />
+            <View style={styles.bg}>
+                <Image
+                    source={require('../assets/Group.png')}
+                    style={styles.backgroundImage}
+                />
+                <StatusBar hidden={true} />
 
 
-            <View style={styles.container}>
-                <Text style={styles.topText}>Upload your document here for verification</Text>
+                <View style={styles.container}>
+                    <Text style={styles.topText}>Upload your document here for verification</Text>
 
-                <TouchableOpacity onPress={handleUpload}>
-                    <Image
-                        source={require('../assets/upload.png')} // Replace with your actual image path
-                        style={styles.image}
-                    />
+                    <TouchableOpacity onPress={handleUpload}>
+                        <Image
+                            source={require('../assets/upload.png')} // Replace with your actual image path
+                            style={styles.image}
+                        />
 
-                </TouchableOpacity>
+                    </TouchableOpacity>
 
 
-                <View style={styles.imageContainer}>
-                    <Image
-                        source={require('../assets/docs.png')} // Replace with your actual image path
-                        style={styles.secondImage}
-                    />
-                    <Text style={styles.overlayText}>
-                        You will receive confirmation via email once your document/documents are verified
-                    </Text>
+                    <View style={styles.imageContainer}>
+                        <Image
+                            source={require('../assets/docs.png')} // Replace with your actual image path
+                            style={styles.secondImage}
+                        />
+                        <Text style={styles.overlayText}>
+                            You will receive confirmation via email once your document/documents are verified
+                        </Text>
 
-                    <FastImage
-                        source={require('../assets/loader.gif')} // Replace with your actual GIF path
-                        style={styles.gif}
-                    />
+                        {!selectedFile ? <FastImage
+                            source={require('../assets/loader.gif')} // Replace with your actual GIF path
+                            style={styles.gif}
+                        /> :
+                            <Text style={styles.fileName}>{selectedFile?.name}</Text>
+                        }
+                    </View>
+
+                    <View style={styles.bottomContainer}>
+                        <Image
+                            source={require('../assets/leftArrow.png')} // Replace with your actual arrow image path
+                            style={styles.arrowIcon}
+                        />
+                        <Text style={styles.bottomText}>Swipe to go back</Text>
+                    </View>
+
+
                 </View>
 
-                <View style={styles.bottomContainer}>
-                    <Image
-                        source={require('../assets/leftArrow.png')} // Replace with your actual arrow image path
-                        style={styles.arrowIcon}
-                    />
-                    <Text style={styles.bottomText}>Swipe to go back</Text>
-                </View>
+
 
 
             </View>
-
-
-
-
-        </View>
 
         </ScrollView>
     )
@@ -92,7 +124,7 @@ const styles = StyleSheet.create({
 
     },
     topText: {
-        width:'70%',
+        width: '70%',
         fontSize: 32,
         fontWeight: '275',
         color: '#EF5A5A',
@@ -111,7 +143,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     imageContainer: {
-        alignSelf:'center',
+        alignSelf: 'center',
         width: '80%',
         justifyContent: 'center',
         alignItems: 'center',
@@ -133,10 +165,21 @@ const styles = StyleSheet.create({
         paddingRight: 20,
         fontFamily: 'Poppins-Regular'
     },
+    fileName: {
+        position: 'absolute',
+        color: 'black',
+        top: '35%',
+        fontSize: 18,
+        fontWeight: '400',
+        textAlign: 'center',
+        paddingLeft: 20,
+        paddingRight: 20,
+        fontFamily: 'Poppins-Regular'
+    },
     gif: {
-        width:'50%',
+        width: '50%',
         height: 130,
-        top:-50,
+        top: -50,
         resizeMode: 'contain',
         alignSelf: 'center',
     },
