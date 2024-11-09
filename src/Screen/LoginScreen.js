@@ -1,4 +1,4 @@
-import React, {useState, useRef,useEffect} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,6 @@ const LoginScreen = () => {
   const [otpModalVisible, setOtpModalVisible] = useState(false);
   const navigation = useNavigation();
 
-  
   const handlePhoneNumberChange = text => {
     setPhoneNumber(text);
     setIsContinueDisabled(text.length < 10);
@@ -40,9 +39,8 @@ const LoginScreen = () => {
     setIsContinueDisabled(!emailRegex.test(email));
   };
 
-  
   const handleContinue = async () => {
-    console.log("called",API_URL)
+    console.log('called', API_URL);
     const payload = loginViaPhone
       ? {
           contactType: 'PHONE',
@@ -54,59 +52,26 @@ const LoginScreen = () => {
           email: email,
           otpType: 'LOGIN',
         };
-        try {
-          
-          
-          const response = await axios({
-            method: 'POST',
-          url: 'http://43.204.140.8:8080/api/v1/user/login',
-          data:{
-            contactType : "PHONE",
-            phoneNo : "8561038000",
-            otpType : "LOGIN"
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: 'http://43.204.140.8:8080/api/v1/user/login',
+        data: payload,
+        headers: {
+          loginSource: 'OTP',
         },
-          headers: {
-            loginSource: 'OTP',
-          }
-  
-          }
-        );
-    
-          if (response.status === 200) {
-            // Handle successful login
-            console.log('res',response)
-            // You might want to store the token, redirect, etc.
-          }
-        } catch (error) {
-          console.log("error",error)
-          setValidationMessages({
-            password: 'Invalid email or password'
-          });
-        } finally {
-         
-        }
-//     try {
-//       const url = API_URL + '/api/v1/user/login';
-//       console.log(payload)
-// console.log(url)
-//       const response = await axios.post(url, payload, {
-//         headers: {
-//           loginSource: 'OTP',
-          
-          
-//         },
-//       });
+      });
 
-//       if (response.data.status == 'OK') {
-//         setOtpModalVisible(true);
-//       } else {
-//         console.log(response)
-//         alert(response.data.message);
-//       }
-//     } catch (error) {
-//       alert('An error occurred. Please try again.');
-//       console.log(error)
-//     }
+      if (response.data.status == 'OK') {
+                setOtpModalVisible(true);
+              } else {
+                console.log(response)
+                alert(response.data.message);
+              }
+    } catch (error) {
+      console.log('error', error);
+      alert('An error occurred. Please try again.');
+    }
   };
 
   const handleSignUp = () => {
@@ -149,7 +114,7 @@ const LoginScreen = () => {
     try {
       // Call API for OTP verification
       const response = await postData('/api/v1/user/validate-otp', payload);
-       console.log("response",response)
+      console.log('response', response);
       // Ensure response structure is correctly checked
       if (response.status == 'OK') {
         console.log(response.data.token);
@@ -158,16 +123,16 @@ const LoginScreen = () => {
           'token',
           JSON.stringify(response.data.token),
         );
-        console.log("response.data.token",response.data.token);
+        console.log('response.data.token', response.data.token);
       } else {
         alert(response.message || 'Verification failed, please try again.');
       }
     } catch (error) {
-       console.error('Error during OTP verification:', error);
+      console.error('Error during OTP verification:', error);
       alert('An error occurred. Please try again.');
     } finally {
       setOtpModalVisible(false);
-      setOtp(''); 
+      setOtp('');
     }
   };
 
