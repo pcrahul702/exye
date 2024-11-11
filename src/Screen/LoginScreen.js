@@ -61,16 +61,13 @@ const LoginScreen = () => {
           loginSource: 'OTP',
         },
       });
-
-      if (response.data.status == 'OK') {
-                setOtpModalVisible(true);
-              } else {
-                console.log(response)
-                alert(response.data.message);
-              }
+      console.log(response.status);
+      if (response.status == 200) {
+        setOtpModalVisible(true);
+      }
     } catch (error) {
       console.log('error', error);
-      alert('An error occurred. Please try again.');
+      alert(error?.response?.data?.message);
     }
   };
 
@@ -115,7 +112,6 @@ const LoginScreen = () => {
       // Call API for OTP verification
       const response = await postData('/api/v1/user/validate-otp', payload);
       console.log('response', response);
-      // Ensure response structure is correctly checked
       if (response.status == 'OK') {
         console.log(response.data.token);
         navigation.navigate('Home');
@@ -123,13 +119,11 @@ const LoginScreen = () => {
           'token',
           JSON.stringify(response.data.token),
         );
-        console.log('response.data.token', response.data.token);
-      } else {
-        alert(response.message || 'Verification failed, please try again.');
+       // console.log('response.data.token', response.data.token);
       }
     } catch (error) {
       console.error('Error during OTP verification:', error);
-      alert('An error occurred. Please try again.');
+      alert(error?.response?.data?.message);
     } finally {
       setOtpModalVisible(false);
       setOtp('');
@@ -456,6 +450,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+    color:'black',
     textAlign: 'center',
     fontSize: 20,
     margin: 5,
