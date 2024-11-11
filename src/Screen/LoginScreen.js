@@ -117,7 +117,7 @@ const LoginScreen = () => {
         navigation.navigate('Home');
         await AsyncStorage.setItem(
           'token',
-          JSON.stringify(response.data.token),
+          (response.data.token),
         );
        // console.log('response.data.token', response.data.token);
       }

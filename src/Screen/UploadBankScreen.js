@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { StatusBar, StyleSheet, View, Image, Text, TouchableOpacity, ScrollView } from 'react-native'
+import { StatusBar, StyleSheet, View, Image, Text, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import DocumentPicker from 'react-native-document-picker';
@@ -13,35 +13,32 @@ const UploadBankScreen = () => {
 
     const handleUpload = async () => {
         try {
-            const result = await DocumentPicker.pick({
-                type: [DocumentPicker.types.allFiles],
-            });
-            console.log(result);
-            setSelectedFile(result);
+          const result = await DocumentPicker.pick({
+            type: [DocumentPicker.types.allFiles],
+          });
+          console.log(result);
+          setSelectedFile(result);
     
-            const response = await postData('/api/v1/document/upload', {
-                bankAccount: result
-            });
+          const response = await postData('/api/v1/document/upload', {
+            pan: result,
+          });
     
-            if (!response) {
-                Alert.alert('Upload failed');
-                throw new Error('Upload failed');
-            }
+          if (!response) {
+            throw new Error('Upload failed');
+          }
     
-            
-            console.log('Upload successful:', response);
-            Alert.alert('Upload successful');
+          console.log('Upload successful:', response);
+         Alert.alert('Upload successful');
         } catch (err) {
-            if (DocumentPicker.isCancel(err)) {
-                console.log('User cancelled the Upload');
-            } else {
-                console.log('Error picking document', err);
-                Alert.alert('Error', 'Failed to pick document or upload.');
-            }
+          if (DocumentPicker.isCancel(err)) {
+            console.log('User cancelled the Upload');
+          } else {
+            console.log('Error picking document', err);
+          }
         } finally {
-            navigation.navigate('Profile1');
+          navigation.navigate('Profile1');
         }
-    };
+      };
 
 return (
     <ScrollView>

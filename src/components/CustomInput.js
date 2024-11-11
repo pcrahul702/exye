@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   input: {
+    color:'black',
     flex: 1,
     fontSize: 16,
     height: 50,

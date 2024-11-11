@@ -30,7 +30,7 @@ const CustomDrawer = props => {
    // console.log("logout");
     // Clear AsyncStorage
     await AsyncStorage.removeItem('token');
-    // console.log("logout");
+    console.log("logout");
     // Navigate to Login screen
     navigation.reset({
         index: 0,

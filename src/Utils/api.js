@@ -17,11 +17,10 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     try {
-      const token = await getAccessToken() || null;
-      console.log("token",token);
+      const token = await getAccessToken();
+      console.log('Token in Interceptor:', token); // Log token to confirm it's retrieved correctly
       if (token) {
-         config.headers.Authorization = `Bearer eyJhbGciOiJIUzUxMiJ9.eyJtb2JpbGVOdW1iZXIiOiI4NTYxMDM4MzMwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoidXNlci0yZjQyZDNkNyIsImVtYWlsIjoicGFuZGV5cmlzaGFiaDcyNTY4QGdtYWlsLmNvbSIsInN1YiI6InJpc2hhYmg3MjQ1IiwiaWF0IjoxNzMwNTY4MDkyLCJleHAiOjE3MzMxNjAwOTJ9.TrCae4fqLJlF7zs_pCsmLxqSx99j07dL16dAupT9xF6hI-dy8wjtYadATBGEryU_Eyyt1BiJNN1gtZqGClGs_g`;
-        // config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
       console.error('Error setting authorization header:', error);
@@ -29,7 +28,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
-);
+);;
 
 // Interceptor to handle response errors
 api.interceptors.response.use(

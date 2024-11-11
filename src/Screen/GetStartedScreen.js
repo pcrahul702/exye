@@ -32,7 +32,12 @@ const GetStartedScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        {/* <Image source={require('../assets/logo.png')} style={styles.logo} /> */}
+        <Animated.Image
+        source={require('../assets/logo.png')}
+        resizeMode="contain"
+        style={[styles.logo, { transform: [{ translateY: slideAnim }] }]} // Apply animated translation
+      />
         {/* <Text style={styles.maintext}>EXYE Present's</Text> */}
         <Text style={styles.slogan}>Challenge your brain with our quiz game!</Text>
 
@@ -44,11 +49,11 @@ const GetStartedScreen = ({ navigation }) => {
 
 
       </View>
-      <Animated.Image
+      {/* <Animated.Image
         source={require('../assets/Group29.png')}
         resizeMode="contain"
         style={[styles.image, { transform: [{ translateY: slideAnim }] }]} // Apply animated translation
-      />
+      /> */}
     </View>
   );
 };
@@ -61,7 +66,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center', // Center content horizontally
-    top: '10%'
+    justifyContent:'center'
   },
   logo: {
     width: 180,

@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     // borderTopWidth: 3,
     // borderColor: '#e6444a',
+    color:'black',
     backgroundColor: 'white',
     paddingTop: 20,
   },

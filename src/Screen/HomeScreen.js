@@ -1,6 +1,6 @@
 
 import { useNavigation, DrawerActions } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { StyleSheet, View, Text, StatusBar, Image, TouchableOpacity, ScrollView, Modal, Pressable } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient';
 
