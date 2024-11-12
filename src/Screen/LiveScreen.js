@@ -1,16 +1,20 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView } from 'react-native'
-import React,{useState,useEffect} from 'react'
+import {
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
-import { getData } from '../Utils/api';
+import {getData} from '../Utils/api';
 
-const liveContest = async () => {
-  const response = await getData('/api/v1/quiz?status=CREATED');
-  return response;
-};
 // const contestData = [
 //   { id: 1, players: 10, price: 100 },
 //   { id: 2, players: 15, price: 150 },
@@ -19,17 +23,14 @@ const liveContest = async () => {
 //   // Add more contests here
 // ];
 
-const LiveScreen = () => {
-const [contestData,setContestData] = useState([]);
-useEffect(() => {
- const liveContestData = async () => {
-  console.log("liveContestData");
-  const response = await liveContest();
-  console.log("response",response);
-  setContestData(response);
- }
- liveContestData();
-}, []);
+const LiveScreen = ({route}) => {
+  const {LiveContestData} = route.params;
+  console.log("LiveContestData",LiveContestData)
+ // [{"contestId": "contest-0e20a0f3", "contestName": "Live Contests", "contestType": "LIVE", "playerJoined": 0, "prizePerContestant": 100}]
+  const [contestData, setContestData] = useState([]);
+  useEffect(() => {
+    setContestData(LiveContestData);
+  }, [LiveContestData]);
   const navigation = useNavigation();
 
   const handleHomeNavigation = () => {
@@ -46,7 +47,6 @@ useEffect(() => {
 
   return (
     <SafeAreaView style={styles.container}>
-
       <Image source={uppershaper} style={styles.uppershape} />
       <Image source={backgroundImage} style={styles.backgroundImage} />
       <Image source={upperLog} style={styles.upperLog} />
@@ -56,51 +56,76 @@ useEffect(() => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollView}>
-      {contestData && contestData.length > 0 ? (
-  contestData.map((contest) => (
-    <TouchableOpacity key={contest.id} onPress={handleLiveDetailsNavigation} style={styles.touchableOpacity}>
-      <View style={styles.contestContainer}>
-        <Image
-          source={require('../assets/contestBG.png')}
-          style={styles.contestBackground}
-        />
-        <Text style={styles.contestText1}>Contest {contest.id}</Text>
-        <Text style={styles.contestText2}>Now Playing: {contest.players}</Text>
-        <Text style={styles.contestText3}>Prize Pool per Contestant: ₹ {contest.price}</Text>
-        <View style={styles.progressBarContainer}>
-          <LinearGradient
-            colors={['#FF612F', '#A32FFF8F']} // Gradient colors
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[styles.progressBar, { width: `${Math.min((contest.players / 20), 1) * 100}%` }]}
-          />
-        </View>
-      </View>
-    </TouchableOpacity>
-  ))
-) : (
-  <Text style={styles.noContentText}>No Content Available</Text>
-)}
-
+        {contestData && contestData.length > 0 ? (
+          contestData.map(contest => (
+            <TouchableOpacity
+              key={contest.contestId}
+              onPress={handleLiveDetailsNavigation}
+              style={styles.touchableOpacity}>
+              <View style={styles.contestContainer}>
+                <Image
+                  source={require('../assets/contestBG.png')}
+                  style={styles.contestBackground}
+                />
+                <Text style={styles.contestText1}>Contest {contest.contestName}</Text>
+                <Text style={styles.contestText2}>
+                  Now Playing: {contest.playerJoined}
+                </Text>
+                <Text style={styles.contestText3}>
+                  Prize Pool per Contestant: ₹ {contest.prizePerContestant}
+                </Text>
+                <View style={styles.progressBarContainer}>
+                  <LinearGradient
+                    colors={['#FF612F', '#A32FFF8F']} // Gradient colors
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}
+                    style={[
+                      styles.progressBar,
+                      {width: `${Math.min(contest.players / 20, 1) * 100}%`},
+                    ]}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.noContentText}>No Content Available</Text>
+        )}
       </ScrollView>
 
       <TouchableOpacity onPress={handleHomeNavigation} style={styles.xyz}>
-        <Image source={require("../assets/unfilledHome.png")} style={styles.bottomNavIcons} />
+        <Image
+          source={require('../assets/unfilledHome.png')}
+          style={styles.bottomNavIcons}
+        />
       </TouchableOpacity>
-      <TouchableOpacity onPress={handleWalletNavigation} style={styles.WalletIcon}>
-        <Image source={require("../assets/unfilledWallet.png")} style={styles.bottomNavIcons} />
+      <TouchableOpacity
+        onPress={handleWalletNavigation}
+        style={styles.WalletIcon}>
+        <Image
+          source={require('../assets/unfilledWallet.png')}
+          style={styles.bottomNavIcons}
+        />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => {/* Handle onPress event */ }} style={styles.NotificationIcon}>
-        <Image source={require("../assets/filledNotification.png")} style={styles.bottomNavIcons} />
+      <TouchableOpacity
+        onPress={() => {
+          /* Handle onPress event */
+        }}
+        style={styles.NotificationIcon}>
+        <Image
+          source={require('../assets/filledNotification.png')}
+          style={styles.bottomNavIcons}
+        />
       </TouchableOpacity>
       <Image
         source={require('../assets/BottomNav.png')}
-        style={styles.bottomNav} />
+        style={styles.bottomNav}
+      />
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default LiveScreen
+export default LiveScreen;
 
 const styles = StyleSheet.create({
   uppershape: {
@@ -135,7 +160,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 50,
     shadowColor: '#000',
-    shadowOffset: { width: 10, height: 10 },
+    shadowOffset: {width: 10, height: 10},
     shadowOpacity: 0.8,
     shadowRadius: 10,
     elevation: 10,
@@ -156,7 +181,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     paddingBottom: 130,
-    marginTop:15
+    marginTop: 15,
   },
   touchableOpacity: {
     width: '90%',
@@ -209,7 +234,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D9D9D9',
     overflow: 'hidden',
     position: 'relative',
-    marginBottom:30
+    marginBottom: 30,
   },
   progressBar: {
     height: 16,
@@ -253,4 +278,4 @@ const styles = StyleSheet.create({
     width: 70,
     left: '40%',
   },
-})
+});

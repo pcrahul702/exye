@@ -1,18 +1,56 @@
-
-import { useNavigation, DrawerActions } from '@react-navigation/native';
-import React, { useState,useEffect } from 'react';
-import { StyleSheet, View, Text, StatusBar, Image, TouchableOpacity, ScrollView, Modal, Pressable } from 'react-native'
+import {useNavigation, DrawerActions} from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  Pressable,
+  Alert,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-
+import {getData} from '../Utils/api';
 
 const HomeScreen = () => {
   const [selectedRadio, setSelectedRadio] = useState(0);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [profiledata, setProfileData] = useState([]);
   const navigation = useNavigation();
 
+  useEffect(() => {
+    getProfileData();
+  }, []);
+  const getProfileData = async () => {
+    try {
+      const res = await getData('/api/v1/dashboard');
+      console.log('res', res);
+      setProfileData(res);
+    } catch (error) {
+      console, log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    }
+  };
+  function extractMinutesAndSeconds(isoDate) {
+    // Convert the ISO string to a Date object
+    const date = new Date(isoDate);
+    
+    // Extract minutes and seconds, adding a leading zero if needed
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    
+    // Return the formatted mm:ss string
+    return `${minutes}:${seconds}`;
+  }
+    const [timeLeft, setTimeLeft] = useState('');
+  
+  
   const handleSubmit = () => {
-    navigation.navigate('Topic')
+    navigation.navigate('Topic');
   };
 
   const handleWalletNavigation = () => {
@@ -27,13 +65,11 @@ const HomeScreen = () => {
     navigation.navigate('Profile1'); // Navigate to the Wallet screen
   };
 
-  const handleDrawerOpen= () => {
+  const handleDrawerOpen = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
 
-
   return (
-
     <View style={styles.bg}>
       <Image
         source={require('../assets/Group.png')}
@@ -42,7 +78,6 @@ const HomeScreen = () => {
       <StatusBar hidden={true} />
 
       <View style={styles.header}>
-
         <TouchableOpacity onPress={handleProfile1Navigation}>
           <View style={styles.icon}>
             <Image
@@ -51,7 +86,6 @@ const HomeScreen = () => {
             />
           </View>
         </TouchableOpacity>
-
 
         {/* <Text style={styles.headerText}>EXYE</Text> */}
         <Image
@@ -67,36 +101,31 @@ const HomeScreen = () => {
             />
           </View>
         </TouchableOpacity>
-
-
       </View>
 
-
       <ScrollView style={styles.scrollContainer}>
-
-
         <View style={styles.view1}>
-          <Text style={styles.text1}>Next quiz in 00:00</Text>
+          <Text style={styles.text1}>Next quiz in {extractMinutesAndSeconds(profiledata?.nextQuizTime)}</Text>
           <Image
             source={require('../assets/stopwatch_icon.png')}
             style={styles.icon1}
           />
-
         </View>
 
         <View style={styles.view2}>
           <Text style={styles.text2}>Choose amount for participation :</Text>
 
-
           <View style={styles.radioPanel1}>
             <View style={styles.radioFrame}>
-              <TouchableOpacity onPress={() => { setSelectedRadio(1) }}>
-                <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedRadio(1);
+                }}>
+                <View style={{flexDirection: 'row'}}>
                   <View style={styles.radio}>
-                    {
-                      selectedRadio === 1 ? <View style={styles.radioFill}></View> : null
-                    }
-
+                    {selectedRadio === 1 ? (
+                      <View style={styles.radioFill}></View>
+                    ) : null}
                   </View>
                   <Text style={styles.radioText}>₹ 10</Text>
                 </View>
@@ -104,13 +133,15 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.radioFrame}>
-              <TouchableOpacity onPress={() => { setSelectedRadio(2) }}>
-                <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedRadio(2);
+                }}>
+                <View style={{flexDirection: 'row'}}>
                   <View style={styles.radio}>
-                    {
-                      selectedRadio === 2 ? <View style={styles.radioFill}></View> : null
-                    }
-
+                    {selectedRadio === 2 ? (
+                      <View style={styles.radioFill}></View>
+                    ) : null}
                   </View>
                   <Text style={styles.radioText}>₹ 20</Text>
                 </View>
@@ -118,13 +149,15 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.radioFrame}>
-              <TouchableOpacity onPress={() => { setSelectedRadio(3) }}>
-                <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedRadio(3);
+                }}>
+                <View style={{flexDirection: 'row'}}>
                   <View style={styles.radio}>
-                    {
-                      selectedRadio === 3 ? <View style={styles.radioFill}></View> : null
-                    }
-
+                    {selectedRadio === 3 ? (
+                      <View style={styles.radioFill}></View>
+                    ) : null}
                   </View>
                   <Text style={styles.radioText}>₹ 30</Text>
                 </View>
@@ -132,30 +165,33 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.radioFrame}>
-              <TouchableOpacity onPress={() => { setSelectedRadio(4) }}>
-                <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedRadio(4);
+                }}>
+                <View style={{flexDirection: 'row'}}>
                   <View style={styles.radio}>
-                    {
-                      selectedRadio === 4 ? <View style={styles.radioFill}></View> : null
-                    }
-
+                    {selectedRadio === 4 ? (
+                      <View style={styles.radioFill}></View>
+                    ) : null}
                   </View>
                   <Text style={styles.radioText}>₹ 50</Text>
                 </View>
               </TouchableOpacity>
             </View>
-
           </View>
 
           <View style={styles.radioPanel1}>
             <View style={styles.radioFrame}>
-              <TouchableOpacity onPress={() => { setSelectedRadio(5) }}>
-                <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedRadio(5);
+                }}>
+                <View style={{flexDirection: 'row'}}>
                   <View style={styles.radio}>
-                    {
-                      selectedRadio === 5 ? <View style={styles.radioFill}></View> : null
-                    }
-
+                    {selectedRadio === 5 ? (
+                      <View style={styles.radioFill}></View>
+                    ) : null}
                   </View>
                   <Text style={styles.radioText}>₹ 100</Text>
                 </View>
@@ -163,13 +199,15 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.radioFrame}>
-              <TouchableOpacity onPress={() => { setSelectedRadio(6) }}>
-                <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedRadio(6);
+                }}>
+                <View style={{flexDirection: 'row'}}>
                   <View style={styles.radio}>
-                    {
-                      selectedRadio === 6 ? <View style={styles.radioFill}></View> : null
-                    }
-
+                    {selectedRadio === 6 ? (
+                      <View style={styles.radioFill}></View>
+                    ) : null}
                   </View>
                   <Text style={styles.radioText}>₹ 150</Text>
                 </View>
@@ -177,13 +215,15 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.radioFrame}>
-              <TouchableOpacity onPress={() => { setSelectedRadio(7) }}>
-                <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedRadio(7);
+                }}>
+                <View style={{flexDirection: 'row'}}>
                   <View style={styles.radio}>
-                    {
-                      selectedRadio === 7 ? <View style={styles.radioFill}></View> : null
-                    }
-
+                    {selectedRadio === 7 ? (
+                      <View style={styles.radioFill}></View>
+                    ) : null}
                   </View>
                   <Text style={styles.radioText}>₹ 200</Text>
                 </View>
@@ -191,29 +231,37 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.radioFrame}>
-              <TouchableOpacity onPress={() => { setSelectedRadio(8) }}>
-                <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedRadio(8);
+                }}>
+                <View style={{flexDirection: 'row'}}>
                   <View style={styles.radio}>
-                    {
-                      selectedRadio === 8 ? <View style={styles.radioFill}></View> : null
-                    }
-
+                    {selectedRadio === 8 ? (
+                      <View style={styles.radioFill}></View>
+                    ) : null}
                   </View>
                   <Text style={styles.radioText}>₹ 500</Text>
                 </View>
               </TouchableOpacity>
             </View>
-
           </View>
-
         </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Live')}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate('Live')}> */}
+        <TouchableOpacity
+          onPress={() => {
+            // Pass data as params to the 'Live' screen
+            navigation.navigate('Live', {
+              LiveContestData: profiledata?.liveContests,
+             
+            });
+          }}>
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}>
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}>
             <Text style={styles.text3}>Live Contest</Text>
             <Image
               source={require('../assets/live_contest_image.png')}
@@ -229,62 +277,105 @@ const HomeScreen = () => {
               source={require('../assets/semiRect2.png')}
               style={styles.cardImage}
             />
-
           </View>
-
         </TouchableOpacity>
-
 
         <TouchableOpacity
           style={[
             styles.submitButton,
             {
-              backgroundColor: isSubmitDisabled
-                ? 'green'
-                : 'green',
+              backgroundColor: isSubmitDisabled ? 'green' : 'green',
             },
           ]}
           onPress={handleSubmit}>
           <Text style={styles.submitText}>SUBMIT</Text>
         </TouchableOpacity>
-
       </ScrollView>
-
 
       <Modal
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
           setModalVisible(false);
-        }}
-      >
-      <Pressable style={styles.modalOverlay} >
+        }}>
+        <Pressable style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContents}>
-              <Text style={{ fontSize: 20, color: '#fa5962', fontWeight: '500', fontFamily: 'Poppins-Regular' }}>Hello User</Text>
-              <TouchableOpacity style={{ marginTop: 15 }} onPress={handleProfile1Navigation}>
-                <Text style={{ fontSize: 16, fontWeight: '600', fontFamily: 'Poppins-Regular'  }}>Profile</Text>
+              <Text
+                style={{
+                  fontSize: 20,
+                  color: '#fa5962',
+                  fontWeight: '500',
+                  fontFamily: 'Poppins-Regular',
+                }}>
+                Hello User
+              </Text>
+              <TouchableOpacity
+                style={{marginTop: 15}}
+                onPress={handleProfile1Navigation}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    fontFamily: 'Poppins-Regular',
+                  }}>
+                  Profile
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ marginTop: 15 }} onPress={handleWalletNavigation}>
-                <Text style={{ fontSize: 16, fontWeight: '600', fontFamily: 'Poppins-Regular'  }}>Wallet</Text>
+              <TouchableOpacity
+                style={{marginTop: 15}}
+                onPress={handleWalletNavigation}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    fontFamily: 'Poppins-Regular',
+                  }}>
+                  Wallet
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ marginTop: 15 }} onPress={handlePavailionNavigation}>
-                <Text style={{ fontSize: 16, fontWeight: '600', fontFamily: 'Poppins-Regular'  }}>Pavilion</Text>
+              <TouchableOpacity
+                style={{marginTop: 15}}
+                onPress={handlePavailionNavigation}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    fontFamily: 'Poppins-Regular',
+                  }}>
+                  Pavilion
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </Pressable>
       </Modal>
 
-
-      <TouchableOpacity onPress={() => {/* Handle onPress event */ }} style={styles.xyz}>
-        <Image source={require("../assets/filledHome.png")} style={styles.bottomNavIcons} />
+      <TouchableOpacity
+        onPress={() => {
+          /* Handle onPress event */
+        }}
+        style={styles.xyz}>
+        <Image
+          source={require('../assets/filledHome.png')}
+          style={styles.bottomNavIcons}
+        />
       </TouchableOpacity>
-      <TouchableOpacity onPress={handleWalletNavigation} style={styles.WalletIcon}>
-        <Image source={require("../assets/unfilledWallet.png")} style={styles.bottomNavIcons} />
+      <TouchableOpacity
+        onPress={handleWalletNavigation}
+        style={styles.WalletIcon}>
+        <Image
+          source={require('../assets/unfilledWallet.png')}
+          style={styles.bottomNavIcons}
+        />
       </TouchableOpacity>
-      <TouchableOpacity onPress={handlePavailionNavigation} style={styles.NotificationIcon}>
-        <Image source={require("../assets/notification.png")} style={styles.bottomNavIcons} />
+      <TouchableOpacity
+        onPress={handlePavailionNavigation}
+        style={styles.NotificationIcon}>
+        <Image
+          source={require('../assets/notification.png')}
+          style={styles.bottomNavIcons}
+        />
       </TouchableOpacity>
 
       <Image
@@ -292,17 +383,14 @@ const HomeScreen = () => {
         resizeMode="contain"
         style={styles.image}
       />
-
-
     </View>
-  )
-
-}
+  );
+};
 
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
-    backgroundColor: '#e9e9e9'
+    backgroundColor: '#e9e9e9',
   },
   header: {
     flexDirection: 'row',
@@ -319,11 +407,11 @@ const styles = StyleSheet.create({
     color: '#EF5A5A',
     fontWeight: '700',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: -1, height: 1 },
+    textShadowOffset: {width: -1, height: 1},
     textShadowRadius: 10,
     elevation: 5,
     textAlign: 'center',
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   icon: {
     width: 50,
@@ -335,11 +423,11 @@ const styles = StyleSheet.create({
     elevation: 5,
     margin: 8,
     shadowColor: 'black',
-    shadowOffset: { width: 2, height: 2 },
+    shadowOffset: {width: 2, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: '#EF5A5A',
-    borderWidth: 2
+    borderWidth: 2,
   },
   iconImage: {
     width: 40,
@@ -356,24 +444,20 @@ const styles = StyleSheet.create({
     elevation: 5,
     margin: 10,
     shadowColor: 'black',
-    shadowOffset: { width: 2, height: 2 },
+    shadowOffset: {width: 2, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: '#EF5A5A',
-    borderWidth: 2
+    borderWidth: 2,
   },
   iconImage2: {
     width: 30,
     height: 30,
-
   },
   logo: {
     flex: 1,
     width: 40,
     height: 40,
-  
-
- 
   },
   scrollContainer: {
     width: '100%',
@@ -393,7 +477,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 8,
     shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },
@@ -402,7 +486,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '700',
     marginLeft: 15,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   icon1: {
     width: 40,
@@ -419,18 +503,18 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     elevation: 8,
     shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: 'white',
-    borderWidth: 2
+    borderWidth: 2,
   },
   text2: {
     fontSize: 22,
     color: 'white',
     fontWeight: '700',
     margin: 20,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   view3: {
     width: '90%',
@@ -441,7 +525,7 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     elevation: 8,
     shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: 'white',
@@ -449,7 +533,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
-    verticalAlign: 'middle'
+    verticalAlign: 'middle',
   },
   text3: {
     fontSize: 28,
@@ -457,7 +541,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     alignSelf: 'center',
     margin: 15,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   image3: {
     width: 111,
@@ -475,12 +559,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 8,
     shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
     justifyContent: 'center',
     position: 'relative',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   cardImage: {
     position: 'absolute',
@@ -495,7 +579,7 @@ const styles = StyleSheet.create({
     color: '#ffa952',
     fontWeight: '700',
     zIndex: 1,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   submitButton: {
     width: '60%',
@@ -510,7 +594,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
 
     shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
@@ -519,21 +603,21 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   radioPanel1: {
     flex: 0.5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 8
+    margin: 8,
   },
   radioText: {
     fontSize: 16,
     textAlignVertical: 'center',
     color: 'white',
     fontWeight: '700',
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   radio: {
     height: 16,
@@ -541,17 +625,17 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderRadius: 20,
     margin: 6,
-    borderWidth: 2
+    borderWidth: 2,
   },
   radioFill: {
     height: 9,
     width: 9,
     backgroundColor: '#F05A5B',
     borderRadius: 20,
-    margin: 1
+    margin: 1,
   },
   radioFrame: {
-    flex: 1
+    flex: 1,
   },
   backgroundImage: {
     width: '100%',
@@ -565,7 +649,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    resizeMode: 'stretch'
+    resizeMode: 'stretch',
   },
   xyz: {
     position: 'absolute',
@@ -609,15 +693,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 20,
     height: '100%',
-    left: 0
+    left: 0,
   },
   modalContents: {
-    width: '100%'
+    width: '100%',
   },
-
-}
-)
-
-
+});
 
 export default HomeScreen;
