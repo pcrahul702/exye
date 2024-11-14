@@ -61,10 +61,10 @@ const UploadPanScreen = () => {
       });
   
       if (response.data) {
-        console.log('Upload successful:', response.data);
-        Alert.alert('Upload successful');
+        console.log('PAN Upload successful:', response.data);
+        Alert.alert('PAN Upload successful');
       } else {
-        throw new Error('Upload failed');
+        throw new Error('PAN Upload failed');
       }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {

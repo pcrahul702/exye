@@ -90,7 +90,7 @@ const SignUpScreen = () => {
       validateMobileNo(mobileNo) &&
       validateUsername(username)
     ) {
-      let role = 'user';
+      let role = 'USER';
       const payload = {
         fullName: name,
         username: username,
