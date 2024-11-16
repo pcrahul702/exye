@@ -1,4 +1,4 @@
-import React, {useState,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StatusBar,
   StyleSheet,
@@ -9,34 +9,59 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
 
 const Profile1Screen = () => {
   const [profileData, setProfileData] = useState([]);
+  const [panCardUploaded, setPanCardUploaded] = useState(false);
+  const [bankDetailsUploaded, setBankDetailsUploaded] = useState(false);
   const navigation = useNavigation();
 
-  useEffect(()=>{
+  useEffect(() => {
     getProfiledata();
-  },[])
-  const getProfiledata=async ()=>{
-try {
-    const response=await getData('/api/v1/profile')
-    setProfileData(response)
-    console.log("response.data",response)
-} catch (error) {
-    console.log('error',error);
-    Alert.alert(error?.response?.data?.message);
-}
+  }, [])
+  const getProfiledata = async () => {
+    try {
+      const response = await getData('/api/v1/profile')
+      setProfileData(response)
+
+      // Check if Pan Card is uploaded
+      if (response.document?.panDetails?.url) {
+        setPanCardUploaded(true);
+      } else {
+        setPanCardUploaded(false);
+      }
+
+      // Check if Bank Details are uploaded
+      if (response.document?.bankDetails?.url) {
+        setBankDetailsUploaded(true);
+      } else {
+        setBankDetailsUploaded(false);
+      }
+
+      console.log("response.data", response)
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    }
   }
-  const handleUploadPanCard = () => {
-    navigation.navigate('UploadPan'); // Navigate to the Wallet screen
+  
+  const handlePanButtonPress = () => {
+    if (!panCardUploaded) {
+      navigation.navigate('UploadPan'); // Navigate to the Pan Card upload screen
+    }
+    // Else, do nothing
   };
 
-  const handleUploadBankDetails = () => {
-    navigation.navigate('UploadBank'); // Navigate to the Wallet screen
+  const handleBankButtonPress = () => {
+    if (!bankDetailsUploaded) {
+      navigation.navigate('UploadBank'); // Navigate to the Bank Details upload screen
+    }
+    // Else, do nothing
   };
+
 
   return (
     <ScrollView style={styles.scrollContainer}>
@@ -57,8 +82,8 @@ try {
           <LinearGradient
             colors={['#FFFFFF', '#FE7503']}
             style={styles.gradientBorder}
-            start={{x: 0, y: 1}}
-            end={{x: 1, y: 0}}>
+            start={{ x: 0, y: 1 }}
+            end={{ x: 1, y: 0 }}>
             <View style={styles.header}>
               <Text style={styles.headerText}>MY PROFILE</Text>
             </View>
@@ -77,17 +102,20 @@ try {
         <Text style={styles.text1}>Mobile No. : {profileData.phoneNo}</Text>
 
         <View style={styles.myView}>
-          <TouchableOpacity style={styles.button} onPress={handleUploadPanCard}>
-            <Text style={styles.buttonText}>pan card</Text>
+        <TouchableOpacity
+            style={[styles.button, { backgroundColor: panCardUploaded ? '#28A745' : '#EF5A5A' }]}
+            onPress={handlePanButtonPress}>
+            <Text style={styles.buttonText}>Pan Card</Text>
             <Image
               source={require('../assets/panCard.png')}
               style={styles.buttonIcon}
             />
           </TouchableOpacity>
+
           <TouchableOpacity
-            style={[styles.button, {backgroundColor: '#878787'}]}
-            onPress={handleUploadBankDetails}>
-            <Text style={styles.buttonText}>bank details</Text>
+            style={[styles.button, { backgroundColor: bankDetailsUploaded ? '#28A745' : '#EF5A5A' }]}
+            onPress={handleBankButtonPress}>
+            <Text style={styles.buttonText}>Bank Details</Text>
             <Image
               source={require('../assets/bankDetails.png')}
               style={styles.buttonIcon}
@@ -137,7 +165,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 5,
     shadowColor: 'black',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: '#ffa952',
@@ -180,7 +208,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 30,
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
+    textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 5,
     fontFamily: 'Poppins-Regular',
   },
@@ -207,7 +235,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF5A5A',
     elevation: 5,
     shadowColor: 'black',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },

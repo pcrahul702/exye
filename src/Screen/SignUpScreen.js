@@ -73,15 +73,6 @@ const SignUpScreen = () => {
     }
   };
 
-  // const validatePassword = (password) => {
-  //     if (password.length >= 6) {
-  //         setPasswordError('');
-  //         return true;
-  //     } else {
-  //         setPasswordError('Password must be of minimum 6 characters!');
-  //         return false;
-  //     }
-  // };
 
   const handleContinue = async () => {
     if (

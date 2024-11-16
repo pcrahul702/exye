@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,30 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const CustomDrawer = props => {
-  // console.log(props)
+  
+  const [name, setName] = useState(''); // State to hold the user's name
+  const [balance, setBalance] = useState('₹ 0'); // Example balance, update it as needed
   const navigation = useNavigation();
+
+  useEffect(() => {
+
+    const getNameFromStorage = async () => {
+      try {
+        const storedName = await AsyncStorage.getItem('name');
+        setName(storedName || '');
+
+      } catch (error) {
+        console.error('Error retrieving name:', error);
+      }
+    };
+
+    getNameFromStorage();
+  }, []); // Empty dependency array means this effect runs once when the component mounts
 
   const handleWalletNavigation = () => {
     navigation.navigate('Wallet'); // Navigate to the Wallet screen
@@ -27,25 +44,26 @@ const CustomDrawer = props => {
     navigation.navigate('AddMoney');
   };
   const handleLogout = async () => {
-   // console.log("logout");
-    // Clear AsyncStorage
+    
     await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('name');
+
     console.log("logout");
     // Navigate to Login screen
     navigation.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
+      index: 0,
+      routes: [{ name: 'Login' }],
     });
-};
+  };
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <DrawerContentScrollView
         {...props}
-        contentContainerStyle={{backgroundColor: '#FFA952'}}>
+        contentContainerStyle={{ backgroundColor: '#FFA952' }}>
         <ImageBackground
           backgroundColor='#FFA952'
-          style={{padding: 20}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          style={{ padding: 20 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
               source={require('../assets/profile_icon.png')}
               style={{
@@ -55,7 +73,7 @@ const CustomDrawer = props => {
                 marginBottom: 10,
               }}
             />
-            <View style={{marginLeft: 12}}>
+            <View style={{ marginLeft: 12 }}>
               <Text
                 style={{
                   color: '#fff',
@@ -64,7 +82,7 @@ const CustomDrawer = props => {
                   marginBottom: 5,
                   fontWeight: '700',
                 }}>
-                John Doe
+                {name}
               </Text>
               <Text
                 style={{
@@ -80,9 +98,9 @@ const CustomDrawer = props => {
         </ImageBackground>
 
         {/* add button here */}
-        <View style={{paddingHorizontal: 18, marginBottom: 18}}>
+        <View style={{ paddingHorizontal: 18, marginBottom: 18 }}>
           <TouchableOpacity
-            style={{zIndex: 1}}
+            style={{ zIndex: 1 }}
             onPress={handleWalletNavigation}>
             <View style={styles.balanceButton}>
               <Image
@@ -100,7 +118,7 @@ const CustomDrawer = props => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={{marginTop: 0, zIndex: 0}}
+            style={{ marginTop: 0, zIndex: 0 }}
             onPress={handleAddMoneyNavigation}>
             <View style={styles.addMoneyButton}>
               <Text style={styles.addMoneyText}>Add Money</Text>
@@ -108,11 +126,11 @@ const CustomDrawer = props => {
           </TouchableOpacity>
         </View>
 
-        <View style={{flex: 1, backgroundColor: '#fff', paddingTop: 10}}>
+        <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: 10 }}>
           <DrawerItemList {...props} />
-        
+
         </View>
-     
+
       </DrawerContentScrollView>
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Image
@@ -172,7 +190,7 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     position: 'absolute',
-    
+
     bottom: 20,
     width: '100%',
     flexDirection: 'row',

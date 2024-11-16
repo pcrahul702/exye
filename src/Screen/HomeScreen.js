@@ -20,17 +20,21 @@ const HomeScreen = () => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [profiledata, setProfileData] = useState([]);
+  const [timeLeft, setTimeLeft] = useState('');
   const navigation = useNavigation();
 
   useEffect(() => {
     getProfileData();
   }, []);
+
   const getProfileData = async () => {
     try {
       const res = await getData('/api/v1/dashboard');
-      console.log('res', res);
+      
       setProfileData(res);
+
       fillRadioButtons(res.participationAmount); // call function to fill radio buttons
+      startCountdown(res.nextQuizTime); // Start the countdown based on quiz time
     } catch (error) {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
@@ -48,19 +52,31 @@ const HomeScreen = () => {
     setSelectedRadio(index); // update selected radio index
   };
 
-  function extractMinutesAndSeconds(isoDate) {
-    // Convert the ISO string to a Date object
-    const date = new Date(isoDate);
+  const startCountdown = (quizTime) => {
+    const interval = setInterval(() => {
+      updateTimeLeft(quizTime, interval);
+    }, 1000);
+  };
 
-    // Extract minutes and seconds, adding a leading zero if needed
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
+  const updateTimeLeft = (quizTime, interval) => {
+    const now = new Date();
+    const quizDate = new Date(quizTime);
+    const timeDiff = quizDate - now;
 
-    // Return the formatted mm:ss string
-    return `${minutes}:${seconds}`;
-  }
-  const [timeLeft, setTimeLeft] = useState('');
+    if (timeDiff > 0) {
+      const remainingSeconds = Math.floor(timeDiff / 1000); // Convert milliseconds to seconds
+      setTimeLeft(formatTime(remainingSeconds)); // Update the countdown with formatted time
+    } else {
+      setTimeLeft('00:00');
+      clearInterval(interval); // Stop the countdown once time is up
+    }
+  };
 
+  const formatTime = (remainingSeconds) => {
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
 
   const handleSubmit = () => {
     navigation.navigate('Topic');
@@ -100,7 +116,6 @@ const HomeScreen = () => {
           </View>
         </TouchableOpacity>
 
-        {/* <Text style={styles.headerText}>EXYE</Text> */}
         <Image
           source={require('../assets/Exye_Logo_B1.png')}
           style={styles.logo}
@@ -118,7 +133,7 @@ const HomeScreen = () => {
 
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.view1}>
-          <Text style={styles.text1}>Next quiz in {extractMinutesAndSeconds(profiledata?.nextQuizTime)}</Text>
+          <Text style={styles.text1}>Next quiz in {timeLeft}</Text>
           <Image
             source={require('../assets/stopwatch_icon.png')}
             style={styles.icon1}
@@ -143,13 +158,10 @@ const HomeScreen = () => {
           </View>
         </View>
 
-        {/* <TouchableOpacity onPress={() => navigation.navigate('Live')}> */}
         <TouchableOpacity
           onPress={() => {
-            // Pass data as params to the 'Live' screen
             navigation.navigate('Live', {
               LiveContestData: profiledata?.liveContests,
-
             });
           }}>
           <LinearGradient
@@ -176,12 +188,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.submitButton,
-            {
-              backgroundColor: isSubmitDisabled ? 'green' : 'green',
-            },
-          ]}
+          style={[styles.submitButton, { backgroundColor: isSubmitDisabled ? 'green' : 'green' }]}
           onPress={handleSubmit}>
           <Text style={styles.submitText}>SUBMIT</Text>
         </TouchableOpacity>
@@ -247,9 +254,7 @@ const HomeScreen = () => {
       </Modal>
 
       <TouchableOpacity
-        onPress={() => {
-          /* Handle onPress event */
-        }}
+        onPress={() => {}}
         style={styles.xyz}>
         <Image
           source={require('../assets/filledHome.png')}
@@ -281,7 +286,6 @@ const HomeScreen = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
@@ -503,7 +507,7 @@ const styles = StyleSheet.create({
   radioContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding:8,
+    padding: 8,
     justifyContent: 'space-between',
   },
   radioWrapper: {
