@@ -14,52 +14,58 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-const CustomDrawer = props => {
-  
-  const [name, setName] = useState(''); // State to hold the user's name
-  const [balance, setBalance] = useState('₹ 0'); // Example balance, update it as needed
+const CustomDrawer = (props) => {
+  const [name, setName] = useState('');  // State to store the name
+  const [loading, setLoading] = useState(true);  // State to track loading status
   const navigation = useNavigation();
 
   useEffect(() => {
-
     const getNameFromStorage = async () => {
       try {
-        const storedName = await AsyncStorage.getItem('name');
-        setName(storedName || '');
+        let storedName = await AsyncStorage.getItem('name');
+        
+        while (storedName===null)
+        {
+          storedName = await AsyncStorage.getItem('name');
+        }
 
+        setName(storedName || '');  // Set the name from storage (or default to empty)
+        setLoading(false);  // Set loading to false once the name is fetched
       } catch (error) {
         console.error('Error retrieving name:', error);
+        setLoading(false);  // Set loading to false if there is an error
       }
     };
 
     getNameFromStorage();
-  }, []); // Empty dependency array means this effect runs once when the component mounts
+  }, []);  // Empty dependency array to run once when the component mounts
 
   const handleWalletNavigation = () => {
-    navigation.navigate('Wallet'); // Navigate to the Wallet screen
+    navigation.navigate('Wallet');  // Navigate to the Wallet screen
   };
 
   const handleAddMoneyNavigation = () => {
     navigation.navigate('AddMoney');
   };
+
   const handleLogout = async () => {
-    
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('name');
-
-    console.log("logout");
+    console.log("Logged out");
     // Navigate to Login screen
     navigation.reset({
       index: 0,
       routes: [{ name: 'Login' }],
     });
   };
+
+  if (loading) {
+    return null;  // Don't render the drawer until the name is fetched
+  }
+
   return (
     <View style={{ flex: 1 }}>
-      <DrawerContentScrollView
-        {...props}
-        contentContainerStyle={{ backgroundColor: '#FFA952' }}>
+      <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: '#FFA952' }}>
         <ImageBackground
           backgroundColor='#FFA952'
           style={{ padding: 20 }}>
@@ -82,7 +88,7 @@ const CustomDrawer = props => {
                   marginBottom: 5,
                   fontWeight: '700',
                 }}>
-                {name}
+                {name || 'User'}  {/* Display name or fallback to 'User' */}
               </Text>
               <Text
                 style={{
@@ -91,17 +97,14 @@ const CustomDrawer = props => {
                   fontFamily: 'Poppins-Regular',
                   marginRight: 5,
                 }}>
-                Balance : ₹ 108
+                Balance: ₹ 108 {/* Keep existing balance */}
               </Text>
             </View>
           </View>
         </ImageBackground>
 
-        {/* add button here */}
         <View style={{ paddingHorizontal: 18, marginBottom: 18 }}>
-          <TouchableOpacity
-            style={{ zIndex: 1 }}
-            onPress={handleWalletNavigation}>
+          <TouchableOpacity style={{ zIndex: 1 }} onPress={handleWalletNavigation}>
             <View style={styles.balanceButton}>
               <Image
                 source={require('../assets/wallet_icon.png')}
@@ -110,7 +113,7 @@ const CustomDrawer = props => {
                   height: 22,
                   tintColor: 'black',
                   resizeMode: 'contain',
-                }} // tintColor applies the color to the image
+                }}
               />
               <Text style={styles.balanceButtonText}>My Balance</Text>
               <Text style={styles.balanceButtonText2}>₹ 108</Text>
@@ -128,10 +131,9 @@ const CustomDrawer = props => {
 
         <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: 10 }}>
           <DrawerItemList {...props} />
-
         </View>
-
       </DrawerContentScrollView>
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Image
           source={require('../assets/logout_icon.png')}
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     flexDirection: 'row',
-    alignItems: 'center', // Center the items vertically
+    alignItems: 'center',
   },
   balanceButtonText: {
     color: 'black',
@@ -161,7 +163,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontFamily: 'Poppins-Regular',
     marginLeft: 10,
-    flex: 1, // Allow text to take available space
+    flex: 1,
   },
   balanceButtonText2: {
     color: 'black',
@@ -179,7 +181,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     borderWidth: 1,
     borderColor: 'gray',
-    alignItems: 'center', // Center the items vertically
+    alignItems: 'center',
   },
   addMoneyText: {
     color: '#164928',
@@ -190,7 +192,6 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     position: 'absolute',
-
     bottom: 20,
     width: '100%',
     flexDirection: 'row',

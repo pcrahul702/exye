@@ -24,13 +24,13 @@ import {getData} from '../Utils/api';
 // ];
 
 const LiveScreen = ({route}) => {
-  const {LiveContestData} = route.params;
-  console.log("LiveContestData",LiveContestData)
+  // const {LiveContestData} = route.params;
+  // console.log("LiveContestData",LiveContestData)
  // [{"contestId": "contest-0e20a0f3", "contestName": "Live Contests", "contestType": "LIVE", "playerJoined": 0, "prizePerContestant": 100}]
   const [contestData, setContestData] = useState([]);
-  useEffect(() => {
-    setContestData(LiveContestData);
-  }, [LiveContestData]);
+  // useEffect(() => {
+  //   setContestData(LiveContestData);
+  // }, [LiveContestData]);
   const navigation = useNavigation();
 
   const handleHomeNavigation = () => {
