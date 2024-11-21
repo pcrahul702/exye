@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   StatusBar,
   StyleSheet,
@@ -9,10 +9,9 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import DocumentPicker from 'react-native-document-picker';
-import {postData} from '../Utils/api';
 import axios from 'axios';
 import { getAccessToken } from '../Utils/getAccessToken';
 
@@ -20,63 +19,54 @@ const UploadPanScreen = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const navigation = useNavigation();
 
+  // Handle file upload
   const handleUpload = async () => {
     try {
-      const result = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
+      // Pick the file using DocumentPicker
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.images], // Only allow image file types
       });
-  
-      console.log("Selected file:", result);
-  
-      // If you selected multiple files, ensure you loop through them
+      setSelectedFile(res[0]);
+
       const formData = new FormData();
-      const token = await getAccessToken();
-      // If result is an array, loop through all selected files
-      if (Array.isArray(result)) {
-        result.forEach(file => {
-          formData.append(file.name, {
-            uri: file.uri,
-            type: file.type,
-            name: file.name,
-          });
-        });
-      } else {
-        // If only one file is selected, handle it as a single file
-        formData.append(result.name, {
-          uri: result.uri,
-          type: result.type,
-          name: result.name,
-        });
-      }
-  
-      // Add additional data (if necessary)
-      formData.append('pan', result.uri); // Add PAN file
-      // If you want to add more files, ensure you're appending them correctly
-  
-      const response = await axios.post('http://43.204.140.8:8080/api/v1/document/upload', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
+      formData.append('pan', {
+        uri: res[0].uri,  // URI of the image file
+        type: res[0].type, // MIME type of the image
+        name: res[0].name, // File name
       });
-  
-      if (response.data) {
-        console.log('PAN Upload successful:', response.data);
-        Alert.alert('PAN Upload successful');
+
+      const token = await getAccessToken(); // Replace with your logic to fetch the token
+
+      const response = await axios.post(
+        'http://43.204.140.8:8080/api/v1/document/upload', 
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        Alert.alert("Success", "Document uploaded successfully");
+        // Optionally navigate to another screen or handle the response here
       } else {
-        throw new Error('PAN Upload failed');
+        Alert.alert("Error", "Failed to upload document");
       }
+
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
-        console.log('User cancelled the Upload');
+        console.log('User cancelled the document picker');
       } else {
-        console.error('Error picking document or uploading:', err);
-        Alert.alert('Error', err.message);
+        console.error(err);
+        Alert.alert("Error", "Something went wrong during file upload");
       }
     } finally {
       navigation.navigate('Profile1');
     }
   };
+  
 
   return (
     <ScrollView>
@@ -158,7 +148,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: '8%',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
+    textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 5,
     fontFamily: 'Poppins-Regular',
   },

@@ -8,20 +8,30 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Modal,
+  TouchableWithoutFeedback,
+  Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
 
+const { width, height } = Dimensions.get('window');
+
 const Profile1Screen = () => {
   const [profileData, setProfileData] = useState([]);
   const [panCardUploaded, setPanCardUploaded] = useState(false);
   const [bankDetailsUploaded, setBankDetailsUploaded] = useState(false);
+  const [panURL, setPanURL] = useState(null);
+  const [bankURL, setBankURL] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [imageToShow, setImageToShow] = useState(null); // Stores the URL to display
   const navigation = useNavigation();
 
   useEffect(() => {
     getProfiledata();
-  }, [])
+  }, []);
+
   const getProfiledata = async () => {
     try {
       const response = await getData('/api/v1/profile')
@@ -30,6 +40,7 @@ const Profile1Screen = () => {
       // Check if Pan Card is uploaded
       if (response.document?.panDetails?.url) {
         setPanCardUploaded(true);
+        setPanURL(response.document.panDetails.url);
       } else {
         setPanCardUploaded(false);
       }
@@ -37,6 +48,7 @@ const Profile1Screen = () => {
       // Check if Bank Details are uploaded
       if (response.document?.bankDetails?.url) {
         setBankDetailsUploaded(true);
+        setBankURL(response.document.bankDetails.url);
       } else {
         setBankDetailsUploaded(false);
       }
@@ -47,19 +59,33 @@ const Profile1Screen = () => {
       Alert.alert(error?.response?.data?.message);
     }
   }
-  
+
   const handlePanButtonPress = () => {
     if (!panCardUploaded) {
       navigation.navigate('UploadPan'); // Navigate to the Pan Card upload screen
     }
-    // Else, do nothing
+    else {
+      //view pan
+      console.log("pan: " + panURL);
+      setImageToShow(panURL);
+      setModalVisible(true); // Show modal to view pan card
+    }
   };
 
   const handleBankButtonPress = () => {
     if (!bankDetailsUploaded) {
       navigation.navigate('UploadBank'); // Navigate to the Bank Details upload screen
     }
-    // Else, do nothing
+    else {
+      //view bank 
+      console.log("bank: " + bankURL);
+      setImageToShow(bankURL);
+      setModalVisible(true); // Show modal to view pan card
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false); // Hide modal
   };
 
 
@@ -102,7 +128,7 @@ const Profile1Screen = () => {
         <Text style={styles.text1}>Mobile No. : {profileData.phoneNo}</Text>
 
         <View style={styles.myView}>
-        <TouchableOpacity
+          <TouchableOpacity
             style={[styles.button, { backgroundColor: panCardUploaded ? '#28A745' : '#EF5A5A' }]}
             onPress={handlePanButtonPress}>
             <Text style={styles.buttonText}>Pan Card</Text>
@@ -128,6 +154,25 @@ const Profile1Screen = () => {
           resizeMode="contain"
           style={styles.image}
         />
+
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeModal}>
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalBackground}>
+              <View
+                style={styles.modalContent}>
+                <Image
+                  source={{ uri: imageToShow }}
+                  style={styles.modalImage}
+                />
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+
       </View>
     </ScrollView>
   );
@@ -249,6 +294,26 @@ const styles = StyleSheet.create({
   buttonIcon: {
     width: 55,
     height: 55,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  modalContent: {
+    width: width * 0.9,
+    height: height * 0.7,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+  },
+  modalImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
 

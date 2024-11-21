@@ -4,99 +4,119 @@ import { StatusBar, StyleSheet, View, Image, Text, TouchableOpacity, ScrollView,
 import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import DocumentPicker from 'react-native-document-picker';
-import { postData } from '../Utils/api';
+import axios from 'axios';
+import { getAccessToken } from '../Utils/getAccessToken';
 
 const UploadBankScreen = () => {
 
     const navigation = useNavigation();
     const [selectedFile, setSelectedFile] = useState(null);
 
+    // Handle file upload
     const handleUpload = async () => {
         try {
-          const result = await DocumentPicker.pick({
-            type: [DocumentPicker.types.allFiles],
-          });
-          console.log(result);
-          setSelectedFile(result);
-    
-          const response = await postData('/api/v1/document/upload', {
-            pan: result,
-          });
-    
-          if (!response) {
-            throw new Error('Upload failed');
-          }
-    
-          console.log('Upload successful:', response);
-         Alert.alert('Upload successful');
-        } catch (err) {
-          if (DocumentPicker.isCancel(err)) {
-            console.log('User cancelled the Upload');
-          } else {
-            console.log('Error picking document', err);
-          }
-        } finally {
-          navigation.navigate('Profile1');
-        }
-      };
+            // Pick the file using DocumentPicker
+            const res = await DocumentPicker.pick({
+                type: [DocumentPicker.types.images], // Only allow image file types
+            });
+            setSelectedFile(res[0]);
 
-return (
-    <ScrollView>
-        <View style={styles.bg}>
-            <Image
-                source={require('../assets/Group.png')}
-                style={styles.backgroundImage}
-            />
-            <StatusBar hidden={true} />
+            const formData = new FormData();
+            formData.append('bankAccount', {
+                uri: res[0].uri,  // URI of the image file
+                type: res[0].type, // MIME type of the image
+                name: res[0].name, // File name
+            });
 
+            const token = await getAccessToken(); // Replace with your logic to fetch the token
 
-            <View style={styles.container}>
-                <Text style={styles.topText}>Upload your document here for verification</Text>
-
-                <TouchableOpacity onPress={handleUpload}>
-                    <Image
-                        source={require('../assets/upload.png')} // Replace with your actual image path
-                        style={styles.image}
-                    />
-
-                </TouchableOpacity>
-
-
-                <View style={styles.imageContainer}>
-                    <Image
-                        source={require('../assets/docs.png')} // Replace with your actual image path
-                        style={styles.secondImage}
-                    />
-                    <Text style={styles.overlayText}>
-                        You will receive confirmation via email once your document/documents are verified
-                    </Text>
-
-                    {!selectedFile ? <FastImage
-                        source={require('../assets/loader.gif')} // Replace with your actual GIF path
-                        style={styles.gif}
-                    /> :
-                        <Text style={styles.fileName}>{selectedFile?.name}</Text>
+            const response = await axios.post(
+                'http://43.204.140.8:8080/api/v1/document/upload',
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data',
                     }
+                }
+            );
+
+            if (response.status === 200) {
+                Alert.alert("Success", "Document uploaded successfully");
+                // Optionally navigate to another screen or handle the response here
+            } else {
+                Alert.alert("Error", "Failed to upload document");
+            }
+
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                console.log('User cancelled the document picker');
+            } else {
+                console.error(err);
+                Alert.alert("Error", "Something went wrong during file upload");
+            }
+        } finally {
+            navigation.navigate('Profile1');
+          }
+    };
+
+    return (
+        <ScrollView>
+            <View style={styles.bg}>
+                <Image
+                    source={require('../assets/Group.png')}
+                    style={styles.backgroundImage}
+                />
+                <StatusBar hidden={true} />
+
+
+                <View style={styles.container}>
+                    <Text style={styles.topText}>Upload your document here for verification</Text>
+
+                    <TouchableOpacity onPress={handleUpload}>
+                        <Image
+                            source={require('../assets/upload.png')} // Replace with your actual image path
+                            style={styles.image}
+                        />
+
+                    </TouchableOpacity>
+
+
+                    <View style={styles.imageContainer}>
+                        <Image
+                            source={require('../assets/docs.png')} // Replace with your actual image path
+                            style={styles.secondImage}
+                        />
+                        <Text style={styles.overlayText}>
+                            You will receive confirmation via email once your document/documents are verified
+                        </Text>
+
+                        {!selectedFile ? <FastImage
+                            source={require('../assets/loader.gif')} // Replace with your actual GIF path
+                            style={styles.gif}
+                        /> :
+                            <Text style={styles.fileName}>{selectedFile?.name}</Text>
+                        }
+                    </View>
+
+                    <View style={styles.bottomContainer}>
+                        <Image
+                            source={require('../assets/leftArrow.png')} // Replace with your actual arrow image path
+                            style={styles.arrowIcon}
+                        />
+                        <Text style={styles.bottomText}>Swipe to go back</Text>
+                    </View>
+
+
                 </View>
 
-                <View style={styles.bottomContainer}>
-                    <Image
-                        source={require('../assets/leftArrow.png')} // Replace with your actual arrow image path
-                        style={styles.arrowIcon}
-                    />
-                    <Text style={styles.bottomText}>Swipe to go back</Text>
-                </View>
+
 
 
             </View>
 
-
-
-
-        </View>
-
-    </ScrollView>
-)
+        </ScrollView>
+    )
 }
 
 const styles = StyleSheet.create({
