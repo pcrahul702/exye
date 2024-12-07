@@ -1,5 +1,5 @@
 import { useNavigation, DrawerActions } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,6 +11,7 @@ import {
   Modal,
   Pressable,
   Alert,
+  Animated,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
@@ -20,7 +21,11 @@ const HomeScreen = () => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [profiledata, setProfileData] = useState([]);
+  const [liveContestsData, setLiveContestsData] = useState([]);
+  const [isContestVisible, setIsContestVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
+  const carouselScrollX = useRef(new Animated.Value(0)).current;
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -30,8 +35,11 @@ const HomeScreen = () => {
   const getProfileData = async () => {
     try {
       const res = await getData('/api/v1/dashboard');
-      
+
       setProfileData(res);
+      console.log(profiledata.liveContests);
+      setLiveContestsData(profiledata.liveContests);
+      setIsContestVisible(true);
 
       fillRadioButtons(res.participationAmount); // call function to fill radio buttons
       startCountdown(res.nextQuizTime); // Start the countdown based on quiz time
@@ -39,6 +47,11 @@ const HomeScreen = () => {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
     }
+  };
+
+
+  const handleCardPress = (name) => {
+    alert(`You selected: ${name}`);
   };
 
   const fillRadioButtons = (participationAmount) => {
@@ -140,7 +153,69 @@ const HomeScreen = () => {
           />
         </View>
 
-        <View style={styles.view2}>
+        {profiledata?.liveContests?.length > 0 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: carouselScrollX } } }],
+              { useNativeDriver: false }
+            )}
+            scrollEventThrottle={16}
+            contentContainerStyle={styles.carouselContent}
+          >
+            {profiledata.liveContests.map((item, index) => (
+              <Animated.View
+                key={index}
+                style={[styles.contestContainer, {
+                  opacity: carouselScrollX.interpolate({
+                    inputRange: [
+                      (index - 1) * 360,
+                      index * 360,
+                      (index + 1) * 360,
+                    ],
+                    outputRange: [0.5, 1, 0.5],
+                    extrapolate: 'clamp',
+                  })
+                }]}
+              >
+                <Image
+                  source={require('../assets/contestBG.png')}
+                  style={styles.contestBackground}
+                />
+
+
+                <TouchableOpacity
+                  style={styles.cardContent}
+                  onPress={() => handleCardPress(item.name)}
+                  
+                >
+                  <Text style={styles.contestText1}>{item.contestName}</Text>
+                  <Text style={styles.contestText2}>{item.contestType}</Text>
+                  <Text style={styles.contestText3}>Prize: Rs.{item.prizePerContestant}</Text>
+
+                </TouchableOpacity>
+
+                <View style={styles.progressBarContainer}>
+                  <LinearGradient
+                    colors={['#FF612F', '#A32FFF8F']} // Gradient colors
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    // style={[styles.progressBar, { width: `${Math.min((item.playerJoined / 20), 1) * 100}%` }]}
+                    style={[styles.progressBar, { width: `${Math.min((14 / 20), 1) * 100}%` }]}
+                  />
+                </View>
+
+              </Animated.View>
+            ))}
+          </ScrollView>
+        ) : (
+          null
+        )}
+
+
+
+        {/* <View style={styles.view2}>
           <Text style={styles.text2}>Choose amount for participation :</Text>
 
           <View style={styles.radioContainer}>
@@ -156,7 +231,7 @@ const HomeScreen = () => {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </View> */}
 
         <TouchableOpacity
           onPress={() => {
@@ -254,7 +329,7 @@ const HomeScreen = () => {
       </Modal>
 
       <TouchableOpacity
-        onPress={() => {}}
+        onPress={() => { }}
         style={styles.xyz}>
         <Image
           source={require('../assets/filledHome.png')}
@@ -299,18 +374,6 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  headerText: {
-    flex: 1,
-    fontSize: 35,
-    color: '#EF5A5A',
-    fontWeight: '700',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-    elevation: 5,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
   },
   icon: {
     width: 50,
@@ -369,7 +432,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     backgroundColor: '#F05A5B',
     alignSelf: 'center',
-    margin: 20,
+    margin: 15,
     borderRadius: 10,
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -393,6 +456,73 @@ const styles = StyleSheet.create({
     borderRadius: 42.5,
     margin: 6,
     marginRight: 15,
+  },
+  contestContainer: {
+    width: 360,
+    height: 'auto',
+    alignItems: 'center',
+    marginLeft:17,
+    marginTop:7,
+    borderRadius:35,
+    borderColor:'white',
+    borderWidth:2,
+    backgroundColor: 'transparent', // Ensure container doesn't have an extra background color
+  },
+  contestBackground: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    resizeMode: 'stretch',
+    borderRadius:35,
+  },
+  carouselContent: {
+    alignItems: 'center',
+    paddingRight:15,
+  },
+  contestText1: {
+    fontSize: 24,
+    color: 'white',
+    marginTop: 10,
+    fontWeight: '900',
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+  },
+  contestText2: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: 'white',
+    marginTop: 12,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+  },
+  contestText3: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: 'white',
+    marginTop: 8,
+    letterSpacing: 2,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+  },
+  progressBarContainer: {
+    width: '60%',
+    marginTop: 20,
+    borderRadius: 20,
+    padding: 3,
+    backgroundColor: '#D9D9D9',
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 30
+  },
+  progressBar: {
+    height: 16,
+    borderRadius: 20,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 15,
   },
   view2: {
     width: '90%',
@@ -422,7 +552,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center',
     borderRadius: 35,
-    elevation: 8,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,

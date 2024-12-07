@@ -87,7 +87,7 @@ const SignUpScreen = () => {
         username: username,
         email:email ,
         phoneNo: mobileNo,
-        role:role
+        userRole:role
       };
       console.log("payload data".payload)
       try {
@@ -98,7 +98,6 @@ const SignUpScreen = () => {
         console.error('Error during registration:', error);
         alert('An error occurred while registering. Please try again.');
       }
-     
     }
   };
 

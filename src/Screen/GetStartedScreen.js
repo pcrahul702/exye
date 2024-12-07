@@ -1,6 +1,9 @@
-import React, { useEffect, useRef,useState } from 'react';
-import { StyleSheet, View, Text, Image, Animated, TouchableOpacity } from 'react-native';
-import {getAccessToken} from '../Utils/getAccessToken';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, Text, Image, Animated, TouchableOpacity, Alert } from 'react-native';
+import { getAccessToken } from '../Utils/getAccessToken';
+import { getData2 } from '../Utils/apiForRelease';
+import { getData } from '../Utils/api';
+
 const GetStartedScreen = ({ navigation }) => {
   const slideAnim = useRef(new Animated.Value(100)).current; // Initial value for Y position (below the view)
 
@@ -24,9 +27,9 @@ const GetStartedScreen = ({ navigation }) => {
   }, []);
 
   const handleGetStarted = () => {
-    console.log("isAuthenticated",isAuthenticated);
- isAuthenticated?
-    navigation.navigate('Home'): navigation.navigate('Login')
+    console.log("isAuthenticated", isAuthenticated);
+    isAuthenticated ?
+      navigation.navigate('Home') : navigation.navigate('Login')
   };
 
   return (
@@ -34,10 +37,10 @@ const GetStartedScreen = ({ navigation }) => {
       <View style={styles.content}>
         {/* <Image source={require('../assets/logo.png')} style={styles.logo} /> */}
         <Animated.Image
-        source={require('../assets/logo.png')}
-        resizeMode="contain"
-        style={[styles.logo, { transform: [{ translateY: slideAnim }] }]} // Apply animated translation
-      />
+          source={require('../assets/logo.png')}
+          resizeMode="contain"
+          style={[styles.logo, { transform: [{ translateY: slideAnim }] }]} // Apply animated translation
+        />
         {/* <Text style={styles.maintext}>EXYE Present's</Text> */}
         <Text style={styles.slogan}>Challenge your brain with our quiz game!</Text>
 
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center', // Center content horizontally
-    justifyContent:'center'
+    justifyContent: 'center'
   },
   logo: {
     width: 180,
@@ -88,16 +91,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 15, // Space below the slogan
     fontFamily: 'Poppins-Regular',
-    marginHorizontal:12
+    marginHorizontal: 12
   },
   button: {
     marginTop: '12%',
     backgroundColor: '#ef5a5a00', // Button background color
-    padding: 10, 
-    borderRadius:50,
-    borderWidth:5,
-    borderColor:'#ef5a5a',
-    alignSelf:'flex-end'
+    padding: 10,
+    borderRadius: 50,
+    borderWidth: 5,
+    borderColor: '#ef5a5a',
+    alignSelf: 'flex-end'
   },
   buttonText: {
     color: '#ef5a5a', // Text color
@@ -105,7 +108,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontWeight: '700',
     paddingHorizontal: 4,
-    alignSelf:'center'
+    alignSelf: 'center'
   },
   image: {
     width: '80%',
