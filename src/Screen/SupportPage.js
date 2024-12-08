@@ -6,8 +6,9 @@ import {
     Text,
     TouchableOpacity,
     StatusBar,
+    ScrollView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getData } from '../Utils/api';
 import { getAccessToken } from '../Utils/getAccessToken';
 
@@ -16,9 +17,11 @@ const SupportPage = () => {
     const navigation = useNavigation();
     const [previousTickets, setPreviousTickets] = useState(null);
 
-    useEffect(() => {
-        getComplaintsData();
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            getComplaintsData();
+        }, [])
+    );
 
     const getComplaintsData = async () => {
 
@@ -75,43 +78,48 @@ const SupportPage = () => {
                 <Text style={styles.supportText}>Support</Text>
             </View>
 
-            <Text style={styles.dispText}>New Complaint</Text>
+            <ScrollView>
+                <Text style={styles.dispText}>New Complaint</Text>
 
-            <TouchableOpacity onPress={handleClickHere}>
-                <View style={styles.buttonView}>
-                    <Text style={styles.buttonText}>Click here</Text>
-                </View>
-            </TouchableOpacity>
+                <TouchableOpacity onPress={handleClickHere}>
+                    <View style={styles.buttonView}>
+                        <Text style={styles.buttonText}>Click here</Text>
+                    </View>
+                </TouchableOpacity>
 
-            <Text style={[styles.dispText, { marginBottom: 18 }]}>Previous Complaints</Text>
+                <Text style={[styles.dispText, { marginBottom: 18 }]}>Previous Complaints</Text>
 
-            {previousTickets === null || previousTickets.length === 0 ? (
-                <Text style={styles.noComplaintsText}>No previous complaints</Text>
-            ) : (
+                {previousTickets === null || previousTickets.length === 0 ? (
+                    <Text style={styles.noComplaintsText}>No previous complaints</Text>
+                ) : (
 
-                <View style={styles.previousComplaintsContainer}>
+                    <View style={styles.previousComplaintsContainer}>
 
-                    {previousTickets.map((ticket) => (
-                        <View key={ticket.ticketId} style={styles.ticketCard}>
-                            <Text style={styles.ticketTitle}>Title: {ticket.title}</Text>
-                            <Text style={styles.ticketDate}>Created On: {formatDate(ticket.createdAt)}</Text>
-                            <Text style={styles.ticketStatus}>Status: {ticket.status}</Text>
+                        {previousTickets.map((ticket) => (
+                            <View key={ticket.ticketId} style={styles.ticketCard}>
+                                <Text style={styles.ticketTitle}>Title: {ticket.title}</Text>
+                                <Text style={styles.ticketDate}>Created On: {formatDate(ticket.createdAt)}</Text>
+                                <Text style={styles.ticketStatus}>Status: {ticket.status}</Text>
 
-                            <TouchableOpacity
-                                style={styles.detailsButton}
-                                onPress={() => handleDetailsClick(ticket.ticketId)}
-                            >
-                                <Text style={styles.detailsText}>Get Details</Text>
-                                <Image
-                                    source={require('../assets/rightArrow.png')} // Replace with your actual arrow image path
-                                    style={styles.arrowIcon}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                    ))}
+                                <TouchableOpacity
+                                    style={styles.detailsButton}
+                                    onPress={() => handleDetailsClick(ticket.ticketId)}
+                                >
+                                    <Text style={styles.detailsText}>Get Details</Text>
+                                    <Image
+                                        source={require('../assets/rightArrow.png')} // Replace with your actual arrow image path
+                                        style={styles.arrowIcon}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        ))}
 
-                </View>
-            )}
+                    </View>
+                )}
+
+            </ScrollView>
+
+
 
         </View>
 

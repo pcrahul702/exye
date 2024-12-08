@@ -102,7 +102,7 @@ const NewComplaintPage = () => {
                         style={styles.arrowIcon}
                     />
                 </TouchableOpacity>
-                <Text style={styles.supportText}>New Complaint</Text>
+                <Text style={styles.headerText}>New Complaint</Text>
             </View>
 
             <Text style={styles.label}>Title</Text>
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
     },
-    supportText: {
+    headerText: {
         fontSize: 28,
         fontWeight: '700',
         color: '#000000',
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         zIndex: 1,
         fontFamily: 'Poppins-Regular',
-        marginLeft: 14,
+        marginLeft: '5%',
         marginTop: 12,
     },
     input: {

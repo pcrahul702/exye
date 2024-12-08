@@ -6,24 +6,25 @@ import {
     Text,
     TouchableOpacity,
     StatusBar,
+    ScrollView,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { getData } from '../Utils/api';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { getData, putData } from '../Utils/api';
 import { getAccessToken } from '../Utils/getAccessToken';
 
 const TicketDetailsPage = () => {
 
     const navigation = useNavigation();
 
-    const route = useRoute();  // Get the route object which contains params
-    const { ticketId } = route.params; // Destructure ticketId from the params
-    console.log("tickme: ", ticketId);
+    const route = useRoute(); 
+    const { ticketId } = route.params;
     const [ticketDetails, setTicketDetails] = useState(null);
 
-    useEffect(() => {
-        // You can now fetch the ticket details using the ticketId
-        fetchTicketDetails(ticketId);
-    }, [ticketId]);
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchTicketDetails(ticketId);
+        }, [ticketId])  
+    );
 
     const fetchTicketDetails = async (id) => {
 
@@ -31,9 +32,7 @@ const TicketDetailsPage = () => {
 
         try {
             const response = await getData(`/ticket/${id}`);
-            console.log('Response Object: ', response);
 
-            
             if (response && response.data) {
                 setTicketDetails(response.data);
             } else {
@@ -49,6 +48,21 @@ const TicketDetailsPage = () => {
         navigation.goBack(); // This will take the user to the previous screen
     };
 
+    const handleWithdrawComplaint = async () => {
+        console.log("tickmeup", ticketId);
+
+        try {
+            
+            const response = await putData(`/ticket/${ticketId}`, {});  // Send PUT request to withdraw the complaint
+
+            console.log("API Response:", response);  // Log the complete response object for better debugging
+
+            alert('Complaint withdrawn successfully.');
+        } catch (error) {
+            console.error('Error withdrawing complaint:', error);
+            // Handle any unexpected errors (e.g., network issues)
+        }
+    };
 
 
     return (
@@ -68,8 +82,40 @@ const TicketDetailsPage = () => {
                     />
                 </TouchableOpacity>
 
-                <Text style={styles.supportText}>My Ticket</Text>
+                <Text style={styles.headerText}>My Ticket</Text>
             </View>
+
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                {ticketDetails ? (
+                    <>
+                        <View style={styles.ticketDetailContainer}>
+                            <Text style={styles.label}>Title:</Text>
+                            <Text style={styles.detailText}>{ticketDetails.title}</Text>
+
+                            <Text style={styles.label}>Message:</Text>
+                            <Text style={styles.detailText}>{ticketDetails.message}</Text>
+
+                            <Text style={styles.label}>Status:</Text>
+                            <Text style={styles.detailText}>{ticketDetails.status}</Text>
+
+                            <Text style={styles.label}>Phone:</Text>
+                            <Text style={styles.detailText}>{ticketDetails.phoneNo}</Text>
+
+                            <Text style={styles.label}>Email:</Text>
+                            <Text style={styles.detailText}>{ticketDetails.userEmail}</Text>
+
+                            <Text style={styles.label}>Created On:</Text>
+                            <Text style={styles.detailText}>{ticketDetails.createdAt}</Text>
+                        </View>
+                    </>
+                ) : (
+                    <Text style={styles.noDataText}>Loading ticket details...</Text>
+                )}
+            </ScrollView>
+
+            <TouchableOpacity style={styles.withdrawButton} onPress={handleWithdrawComplaint}>
+                <Text style={styles.withdrawButtonText}>Withdraw Complaint</Text>
+            </TouchableOpacity>
 
 
 
@@ -104,13 +150,67 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
     },
-    supportText: {
+    headerText: {
         fontSize: 28,
         fontWeight: '700',
         color: '#000000',
         textAlign: 'center',
         flex: 1,
         fontFamily: 'Poppins-Regular'
+    },
+    scrollContainer: {
+        padding: 16,
+        paddingBottom: 80, // Space for the withdraw button
+    },
+    ticketDetailContainer: {
+        marginBottom: 20,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#F05A5B',
+        marginBottom: 6,
+        fontFamily: 'Poppins-Regular',
+    },
+    detailText: {
+        fontSize: 20,
+        color: '#666',
+        marginBottom: 12,
+        fontWeight: '700',
+        fontFamily: 'Poppins-Regular',
+    },
+    noDataText: {
+        fontSize: 20,
+        color: '#888',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+    withdrawButton: {
+        width: '90%',
+        height: 50,
+        backgroundColor: '#Ffffdf',
+        alignSelf: 'center',
+        marginTop: 14,
+        bottom: 20,
+        borderRadius: 10,
+        borderColor: '#F05A5B',
+        borderWidth: 2,
+        alignItems: 'center',
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+    },
+    withdrawButtonText: {
+        position: 'absolute',
+        fontSize: 24,
+        color: '#F05A5B',
+        fontWeight: '700',
+        zIndex: 1,
+        fontFamily: 'Poppins-Regular',
     },
 
 });
