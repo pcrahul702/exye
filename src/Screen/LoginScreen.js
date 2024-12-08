@@ -125,6 +125,16 @@ const LoginScreen = () => {
         await AsyncStorage.setItem(
           'name',
           (response.data.fullName),
+        ); 
+
+        await AsyncStorage.setItem(
+          'email',
+          (response.data.email),
+        ); 
+
+        await AsyncStorage.setItem(
+          'phoneNo',
+          (response.data.phoneNo),
         );        
 
       }

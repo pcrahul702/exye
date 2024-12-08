@@ -26,6 +26,8 @@ import TransactionHistoryScreen from './src/Screen/TransactionHistoryScreen';
 import ReferScreen from './src/Screen/ReferScreen';
 import WithdrawalScreen from './src/Screen/WithdrawalScreen';
 import LiveDetailsScreen from './src/Screen/LiveDetailsScreen';
+import NewComplaintPage from './src/Screen/NewComplaintPage';
+import TicketDetailsPage from './src/Screen/TicketDetailsPage';
 
 // Import the DrawerNavigator
 import DrawerNavigator from './src/Screen/Drawer';
@@ -35,6 +37,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import { Provider } from 'react-redux';
 import store from './src/Redux/store';
+
 function App() {
   const Stack = createStackNavigator();
 
@@ -80,6 +83,8 @@ function App() {
               <Stack.Screen name="Refer" component={ReferScreen} />
               <Stack.Screen name="Withdraw" component={WithdrawalScreen} />
               <Stack.Screen name="LiveDetails" component={LiveDetailsScreen} />
+              <Stack.Screen name="NewComplaint" component={NewComplaintPage} />
+              <Stack.Screen name="TicketDetails" component={TicketDetailsPage} />
             
           
         </Stack.Navigator>
