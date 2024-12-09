@@ -24,6 +24,7 @@ const Profile1Screen = () => {
   const [bankDetailsUploaded, setBankDetailsUploaded] = useState(false);
   const [panURL, setPanURL] = useState(null);
   const [bankURL, setBankURL] = useState(null);
+  const [modalText, setmodalText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [imageToShow, setImageToShow] = useState(null); // Stores the URL to display
   const navigation = useNavigation();
@@ -59,16 +60,38 @@ const Profile1Screen = () => {
       Alert.alert(error?.response?.data?.message);
     }
   }
+  // 2 functions which display doc image on click
+  // const handlePanButtonPress = () => {
+  //   if (!panCardUploaded) {
+  //     navigation.navigate('UploadPan'); // Navigate to the Pan Card upload screen
+  //   }
+  //   else {
+  //     //view pan
+  //     console.log("pan: " + panURL);
+  //     setImageToShow(panURL);
+  //     setModalVisible(true); // Show modal to view pan card
+  //   }
+  // };
 
+  // const handleBankButtonPress = () => {
+  //   if (!bankDetailsUploaded) {
+  //     navigation.navigate('UploadBank'); // Navigate to the Bank Details upload screen
+  //   }
+  //   else {
+  //     //view bank 
+  //     console.log("bank: " + bankURL);
+  //     setImageToShow(bankURL);
+  //     setModalVisible(true); // Show modal to view pan card
+  //   }
+  // };
+  //2 funtions to show message doc uplaoded
   const handlePanButtonPress = () => {
     if (!panCardUploaded) {
       navigation.navigate('UploadPan'); // Navigate to the Pan Card upload screen
     }
     else {
-      //view pan
-      console.log("pan: " + panURL);
-      setImageToShow(panURL);
-      setModalVisible(true); // Show modal to view pan card
+      setmodalText("PAN Card Uplaoded");
+      setModalVisible(true);
     }
   };
 
@@ -77,10 +100,8 @@ const Profile1Screen = () => {
       navigation.navigate('UploadBank'); // Navigate to the Bank Details upload screen
     }
     else {
-      //view bank 
-      console.log("bank: " + bankURL);
-      setImageToShow(bankURL);
-      setModalVisible(true); // Show modal to view pan card
+      setmodalText("Bank Details Uplaoded");
+      setModalVisible(true);
     }
   };
 
@@ -123,9 +144,11 @@ const Profile1Screen = () => {
           </View>
         </View>
 
-        <Text style={styles.text1}>name : {profileData.name}</Text>
-        {/* <Text style={styles.text1}>email :{profileData.email}</Text> */}
-        <Text style={styles.text1}>Mobile No. : {profileData.phoneNo}</Text>
+        <View style={styles.profileInfoContainer}>
+          <Text style={styles.profileInfoText}>Name: {profileData.name}</Text>
+          <Text style={styles.profileInfoText}>Email: {profileData.email}</Text>
+          <Text style={styles.profileInfoText}>Mobile No: {profileData.phoneNo}</Text>
+        </View>
 
         <View style={styles.myView}>
           <TouchableOpacity
@@ -155,6 +178,26 @@ const Profile1Screen = () => {
           style={styles.image}
         />
 
+        {/* modal for image display */}
+        {/* <Modal
+          visible={modalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeModal}>
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalBackground}>
+              <View
+                style={styles.modalContentImage}>
+                <Image
+                  source={{ uri: imageToShow }}
+                  style={styles.modalImage}
+                />
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal> */}
+
+        {/* modal for message display */}
         <Modal
           visible={modalVisible}
           transparent={true}
@@ -163,11 +206,10 @@ const Profile1Screen = () => {
           <TouchableWithoutFeedback onPress={closeModal}>
             <View style={styles.modalBackground}>
               <View
-                style={styles.modalContent}>
-                <Image
-                  source={{ uri: imageToShow }}
-                  style={styles.modalImage}
-                />
+                style={styles.modalContentMessage}>
+                <Text style={styles.modalText}>
+                  {modalText}
+                </Text>
               </View>
             </View>
           </TouchableWithoutFeedback>
@@ -226,6 +268,28 @@ const styles = StyleSheet.create({
     borderColor: '#EF5A5A',
     borderWidth: 4,
   },
+  profileInfoContainer: {
+    marginTop: 30,
+    backgroundColor: '#ffa952',
+    opacity: 1,
+    borderRadius: 10,
+    padding: 20,
+    marginHorizontal: 20,
+    elevation: 5,
+    justifyContent:'center',
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  profileInfoText: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#EF5A5A',
+    marginBottom: 10,
+    alignSelf:'center',
+    fontFamily: 'Poppins-Regular',
+  },
   gradientBorder: {
     padding: 3, // Border width
     borderRadius: 60,
@@ -244,17 +308,6 @@ const styles = StyleSheet.create({
     fontSize: 27,
     fontWeight: '600',
     color: '#FFFFFF',
-    fontFamily: 'Poppins-Regular',
-  },
-  text1: {
-    fontSize: 30,
-    fontWeight: '400',
-    color: '#ffa952',
-    alignSelf: 'center',
-    marginTop: 30,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
     fontFamily: 'Poppins-Regular',
   },
   image: {
@@ -301,9 +354,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
-  modalContent: {
+  modalContentImage: {
     width: width * 0.9,
     height: height * 0.7,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+  },
+  modalContentMessage: {
+    width: '90%',
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
@@ -314,6 +376,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  modalText: {
+    fontSize: 17,
+    fontWeight: '300',
+    color: 'black',
+    fontFamily: 'Poppins-Regular',
   },
 });
 

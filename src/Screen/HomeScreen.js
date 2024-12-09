@@ -262,11 +262,11 @@ const HomeScreen = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[styles.submitButton, { backgroundColor: isSubmitDisabled ? 'green' : 'green' }]}
           onPress={handleSubmit}>
           <Text style={styles.submitText}>SUBMIT</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
 
       <Modal
@@ -583,6 +583,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#Ffffdf',
     alignSelf: 'center',
     marginTop: 20,
+    marginBottom: 20,
     borderRadius: 20,
     alignItems: 'center',
     elevation: 8,

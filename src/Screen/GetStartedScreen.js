@@ -5,16 +5,26 @@ import { getData2 } from '../Utils/apiForRelease';
 import { getData } from '../Utils/api';
 
 const GetStartedScreen = ({ navigation }) => {
-  const slideAnim = useRef(new Animated.Value(100)).current; // Initial value for Y position (below the view)
+
+  // Animation values for scaling and opacity
+  const scaleAnim = useRef(new Animated.Value(0.5)).current; // Initial scale value (small)
+  const opacityAnim = useRef(new Animated.Value(0)).current; // Initial opacity (invisible)
 
   useEffect(() => {
-    // Start the slide up animation
-    Animated.timing(slideAnim, {
-      toValue: 0, // Final value for Y position (in the view)
-      duration: 2000, // Animation duration in milliseconds
+    // Start the pop-up effect
+    Animated.timing(scaleAnim, {
+      toValue: 1, // Final scale value (normal size)
+      duration: 2000, // Duration of the animation
       useNativeDriver: true,
     }).start();
-  }, [slideAnim]);
+
+    Animated.timing(opacityAnim, {
+      toValue: 1, // Final opacity value (fully visible)
+      duration: 2000, // Same duration for smooth transition
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
     // Check for access token on app load
@@ -35,13 +45,19 @@ const GetStartedScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {/* <Image source={require('../assets/logo.png')} style={styles.logo} /> */}
+
         <Animated.Image
           source={require('../assets/logo.png')}
           resizeMode="contain"
-          style={[styles.logo, { transform: [{ translateY: slideAnim }] }]} // Apply animated translation
+          style={[
+            styles.logo,
+            {
+              transform: [{ scale: scaleAnim }], // Apply scale animation
+              opacity: opacityAnim, // Apply opacity animation
+            },
+          ]}
         />
-        {/* <Text style={styles.maintext}>EXYE Present's</Text> */}
+
         <Text style={styles.slogan}>Challenge your brain with our quiz game!</Text>
 
         <TouchableOpacity onPress={handleGetStarted}>

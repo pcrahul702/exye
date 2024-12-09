@@ -58,7 +58,7 @@ export default function DrawerNavigator() {
                     ),
                 }}
             />
-            <Drawer.Screen
+            {/* <Drawer.Screen
                 name="Pavilion"
                 component={Pavilion}
                 options={{
@@ -83,7 +83,7 @@ export default function DrawerNavigator() {
                         />
                     ),
                 }}
-            />
+            /> */}
             <Drawer.Screen
                 name="Support"
                 component={Support}
@@ -92,6 +92,19 @@ export default function DrawerNavigator() {
                     drawerIcon: ({ color }) => (
                         <Image
                             source={require('../assets/support_icon.png')}
+                            style={{ width: 22, height: 22, tintColor: 'black', resizeMode: 'contain' }} // tintColor applies the color to the image
+                        />
+                    ),
+                }}
+            />
+            <Drawer.Screen
+                name="Terms and Conditions"
+                component={Support}
+                options={{
+                    headerShown: false,
+                    drawerIcon: ({ color }) => (
+                        <Image
+                            source={require('../assets/tnc_icon.png')}
                             style={{ width: 22, height: 22, tintColor: 'black', resizeMode: 'contain' }} // tintColor applies the color to the image
                         />
                     ),
