@@ -6,6 +6,7 @@ import HomeScreen from './HomeScreen';
 import Pavilion from './Pavilion';
 import Profile from './Profile1Screen';
 import Wallet from './WalletPage';
+import Support from './SupportPage';
 
 import CustomDrawer from '../components/CustomDrawer';
 
@@ -57,7 +58,7 @@ export default function DrawerNavigator() {
                     ),
                 }}
             />
-            <Drawer.Screen
+            {/* <Drawer.Screen
                 name="Pavilion"
                 component={Pavilion}
                 options={{
@@ -78,6 +79,32 @@ export default function DrawerNavigator() {
                     drawerIcon: ({ color }) => (
                         <Image
                             source={require('../assets/wallet_icon.png')}
+                            style={{ width: 22, height: 22, tintColor: 'black', resizeMode: 'contain' }} // tintColor applies the color to the image
+                        />
+                    ),
+                }}
+            /> */}
+            <Drawer.Screen
+                name="Support"
+                component={Support}
+                options={{
+                    headerShown: false,
+                    drawerIcon: ({ color }) => (
+                        <Image
+                            source={require('../assets/support_icon.png')}
+                            style={{ width: 22, height: 22, tintColor: 'black', resizeMode: 'contain' }} // tintColor applies the color to the image
+                        />
+                    ),
+                }}
+            />
+            <Drawer.Screen
+                name="Terms and Conditions"
+                component={Support}
+                options={{
+                    headerShown: false,
+                    drawerIcon: ({ color }) => (
+                        <Image
+                            source={require('../assets/tnc_icon.png')}
                             style={{ width: 22, height: 22, tintColor: 'black', resizeMode: 'contain' }} // tintColor applies the color to the image
                         />
                     ),

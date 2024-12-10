@@ -1,7 +1,7 @@
 // services/api.js
 import axios from 'axios';
 import { API_URL } from '@env';
-import {getAccessToken} from './getAccessToken';
+import { getAccessToken } from './getAccessToken';
 
 // Create an instance of axios with default configurations
 const api = axios.create({
@@ -18,7 +18,7 @@ api.interceptors.request.use(
   async (config) => {
     try {
       const token = await getAccessToken();
-      console.log('Token in Interceptor:', token); // Log token to confirm it's retrieved correctly
+      //console.log('Token in Interceptor:', token); // Log token to confirm it's retrieved correctly
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -57,7 +57,7 @@ export const getData = async (endpoint) => {
 // Example POST request
 export const postData = async (endpoint, data) => {
   try {
-    console.log('indie api post',endpoint,data)
+    console.log('indie api post', endpoint, data)
     const response = await api.post(endpoint, data);
     return response.data;
   } catch (error) {

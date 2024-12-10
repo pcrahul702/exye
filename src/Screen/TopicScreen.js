@@ -1,12 +1,59 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, StatusBar, Image, Text, TouchableOpacity } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { getAccessToken } from '../Utils/getAccessToken';
+import axios from 'axios';
 
 const TopicScreen = () => {
     const [selectedCard, setSelectedCard] = useState(null);
     const [isReadyButtonDisabled, setIsReadyButtonDisabled] = useState(true);
+    const [data, setData] = useState([]); // State to hold the filtered topics
     const navigation = useNavigation();
+    useEffect(() => {
+        // Make the API call when the screen loads
+        const fetchData = async () => {
+            try {
+
+                const token = await getAccessToken();
+                console.log(token);
+
+                const response = await axios.get('http://43.204.140.8:8080/api/v1/dashboard/all-active-topics', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,  // Example of an Authorization header
+                        'Content-Type': 'application/json',         // Specify content type
+                    },
+                });
+                console.log('API Data:', response.data);
+                //add data from api to data const
+
+                const filteredData = response.data.data.map(topic => ({
+                    id: topic.id,
+                    text: topic.topicName,
+                    description: topic.topicDescription,
+                    image: { uri: `${topic.topicImageUrl}` },
+                }));
+
+                // Update state with the filtered data
+                setData(filteredData);
+
+            } catch (error) {
+                if (error.response) {
+                    console.error('Error Response:', error.response);
+                } else if (error.request) {
+                    console.error('Error Request:', error.request);
+                } else {
+                    console.error('Error Message:', error.message);
+                }
+            }
+        };
+
+        fetchData(); // Call the API when the component mounts
+
+
+
+
+    }, []);
 
     const handleReady = () => {
         navigation.navigate('Progress');
@@ -19,18 +66,6 @@ const TopicScreen = () => {
 
     };
 
-    const data = [
-        { id: 1, image: require('../assets/peacock.png'), text: 'Environment', description: 'This topic will include question of various Floras and Faunas around us.' },
-        { id: 2, image: require('../assets/india.png'), text: 'India', description: 'This topic will include question of various events and people of India.' },
-        { id: 3, image: require('../assets/sports.png'), text: 'Sports', description: 'This topic will include question on sport and.' },
-        { id: 4, image: require('../assets/internationalAff.png'), text: 'World', description: 'This topic will include question on various events and people around the globe.' },
-        { id: 5, image: require('../assets/astronomy.png'), text: 'Astronomy', description: 'This topic will include question on Space and Universe.' },
-        { id: 6, image: require('../assets/gk.png'), text: 'G.K.', description: 'This topic will include question on various general topics and subjects.' },
-        { id: 7, image: require('../assets/science.png'), text: 'Science', description: 'This topic will include question on Biology, Physics and Chemistry.' },
-        { id: 8, image: require('../assets/history.png'), text: 'History', description: 'This topic will include question on various Historical events around us.' },
-        { id: 9, image: require('../assets/bollywood.png'), text: 'Bollywood', description: 'This topic will include question on Bollywood movie stars and event on the big screen.' },
-        { id: 10, image: require('../assets/geography.png'), text: 'Geography', description: 'This topic will include question on landscape and geography around the globe.' },
-    ];
 
     const chunkArray = (arr, size) => {
         const result = [];
@@ -60,9 +95,13 @@ const TopicScreen = () => {
                                 style={[styles.card, selectedCard === item.id && styles.selectedCard]}
                                 onPress={() => toggleCardSelection(item.id)}
                             >
-                                <Image source={item.image} style={styles.cardImage} />
+                                {/* <Image source={item.image} style={styles.cardImage} /> */}
                                 <Text style={styles.cardText}>{item.text}</Text>
-                                <Text style={styles.cardDescription}>{item.description}</Text>
+                                <Text style={styles.cardDescription}>
+                                    {item.description.length > 64
+                                        ? item.description.slice(0, item.description.lastIndexOf(' ', 64)) + ' ...'
+                                        : item.description}
+                                </Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -108,11 +147,11 @@ const styles = StyleSheet.create({
         width: '100%',
         resizeMode: 'stretch',
     },
-    header:{
-        alignSelf:'center',
-        color:'green',
-        fontSize:25,
-        fontWeight:'700',
+    header: {
+        alignSelf: 'center',
+        color: 'green',
+        fontSize: 25,
+        fontWeight: '700',
         fontFamily: 'Poppins-Regular'
     },
     scrollContainer: {
@@ -148,6 +187,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         fontWeight: 'bold',
         color: '#EF5A5A',
+        textAlign: 'center',
         fontFamily: 'Poppins-Regular'
     },
     cardDescription: {
@@ -207,7 +247,7 @@ const styles = StyleSheet.create({
         color: 'white',
         padding: 10,
         alignSelf: 'center',
-        fontFamily: 'Poppins-Regular' ,
+        fontFamily: 'Poppins-Regular',
     },
 });
 

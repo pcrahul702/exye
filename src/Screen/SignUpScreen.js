@@ -73,15 +73,6 @@ const SignUpScreen = () => {
     }
   };
 
-  // const validatePassword = (password) => {
-  //     if (password.length >= 6) {
-  //         setPasswordError('');
-  //         return true;
-  //     } else {
-  //         setPasswordError('Password must be of minimum 6 characters!');
-  //         return false;
-  //     }
-  // };
 
   const handleContinue = async () => {
     if (
@@ -90,13 +81,13 @@ const SignUpScreen = () => {
       validateMobileNo(mobileNo) &&
       validateUsername(username)
     ) {
-      let role = 'user';
+      let role = 'USER';
       const payload = {
         fullName: name,
         username: username,
         email:email ,
         phoneNo: mobileNo,
-        role:role
+        userRole:role
       };
       console.log("payload data".payload)
       try {
@@ -107,7 +98,6 @@ const SignUpScreen = () => {
         console.error('Error during registration:', error);
         alert('An error occurred while registering. Please try again.');
       }
-     
     }
   };
 

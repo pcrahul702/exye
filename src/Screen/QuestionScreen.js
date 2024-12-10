@@ -6,6 +6,8 @@ const { width, height } = Dimensions.get('window');
 
 const QuestionScreen = () => {
     const [selectedRadio, setSelectedRadio] = useState(0);
+    const [isAnsSubmited, setIsAnsSubmitted]=useState(0);
+    const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
     const navigation = useNavigation();
     const fontSize = width * 0.05; // Adjust font size to be a percentage of screen width
 
@@ -14,10 +16,10 @@ const QuestionScreen = () => {
     };
 
     const options = [
-        { id: 1, name: "option1" },
-        { id: 2, name: "option2" },
-        { id: 3, name: "option3" },
-        { id: 4, name: "option4" }
+        { id: 1, name: "South Africa" },
+        { id: 2, name: "China" },
+        { id: 3, name: "Hungary" },
+        { id: 4, name: "USA" }
     ];
 
     return (
@@ -34,14 +36,15 @@ const QuestionScreen = () => {
             <ScrollView contentContainerStyle={styles.scrollContainer}>
 
                 <Text style={styles.question}>
-                Question will display here
+                Right to emergency medical aid is a
                 </Text>
 
                 <View style={styles.optionsContainer}>
                     {options.map((item) => (
                         <TouchableOpacity
                             key={item.id}
-                            onPress={() => setSelectedRadio(item.id)}
+                            onPress={() => {setSelectedRadio(item.id);
+                                setIsSubmitDisabled(false);}}
                             style={styles.optionItem}
                         >
                             <View style={styles.radio}>
@@ -51,7 +54,15 @@ const QuestionScreen = () => {
                         </TouchableOpacity>
                     ))}
                     <TouchableOpacity
-                        style={styles.submitButton}
+                        style={[
+                            styles.submitButton,
+                            {
+                              backgroundColor: isSubmitDisabled
+                                ? 'rgba(61, 196, 103, 0.6)'
+                                : 'green',
+                            },
+                          ]}
+                          disabled={isSubmitDisabled}
                         onPress={handleSubmit}
                     >
                         <Text style={styles.submitText}>Submit</Text>

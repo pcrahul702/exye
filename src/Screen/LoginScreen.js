@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,14 @@ import {
   Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {postData} from '../Utils/api';
-import {useNavigation} from '@react-navigation/native';
+import { postData } from '../Utils/api';
+import { useNavigation } from '@react-navigation/native';
 import CustomPhoneInput from '../components/CustomPhoneInput';
 import CustomEmailInput from '../components/CustomEmailInput';
 import LinearGradient from 'react-native-linear-gradient';
-import {API_URL} from '@env';
+import { API_URL } from '@env';
 import axios from 'axios';
+
 const LoginScreen = () => {
   const refs = useRef();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -43,15 +44,15 @@ const LoginScreen = () => {
     console.log('called', API_URL);
     const payload = loginViaPhone
       ? {
-          contactType: 'PHONE',
-          phoneNo: phoneNumber,
-          otpType: 'LOGIN',
-        }
+        contactType: 'PHONE',
+        phoneNo: phoneNumber,
+        otpType: 'LOGIN',
+      }
       : {
-          contactType: 'EMAIL',
-          email: email,
-          otpType: 'LOGIN',
-        };
+        contactType: 'EMAIL',
+        email: email,
+        otpType: 'LOGIN',
+      };
     try {
       const response = await axios({
         method: 'POST',
@@ -96,30 +97,46 @@ const LoginScreen = () => {
 
     const payload = loginViaPhone
       ? {
-          contactType: 'PHONE',
-          phoneNo: phoneNumber,
-          otpType: 'LOGIN',
-          otp: otp,
-        }
+        contactType: 'PHONE',
+        phoneNo: phoneNumber,
+        otpType: 'LOGIN',
+        otp: otp,
+      }
       : {
-          contactType: 'EMAIL',
-          email: email,
-          otpType: 'LOGIN',
-          otp: otp,
-        };
+        contactType: 'EMAIL',
+        email: email,
+        otpType: 'LOGIN',
+        otp: otp,
+      };
 
     try {
       // Call API for OTP verification
       const response = await postData('/api/v1/user/validate-otp', payload);
-      console.log('response', response);
+
       if (response.status == 'OK') {
-        console.log(response.data.token);
+        
         navigation.navigate('Home');
+
         await AsyncStorage.setItem(
           'token',
           (response.data.token),
         );
-       // console.log('response.data.token', response.data.token);
+
+        await AsyncStorage.setItem(
+          'name',
+          (response.data.fullName),
+        ); 
+
+        await AsyncStorage.setItem(
+          'email',
+          (response.data.email),
+        ); 
+
+        await AsyncStorage.setItem(
+          'phoneNo',
+          (response.data.phoneNo),
+        );        
+
       }
     } catch (error) {
       console.error('Error during OTP verification:', error);
@@ -137,8 +154,8 @@ const LoginScreen = () => {
       <LinearGradient
         colors={['#FFA952', '#F05A5B']}
         style={styles.view3}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 0}}>
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}>
         {/* <Text style={styles.text3}>Live Contest</Text>
             <Image
               source={require('../assets/live_contest_image.png')}
@@ -172,7 +189,7 @@ const LoginScreen = () => {
 
               <Text style={styles.tncText}>
                 By continuing, I agree to EXYE's{' '}
-                <Text style={[styles.tncText, {fontWeight: '900'}]}>T&Cs</Text>.
+                <Text style={[styles.tncText, { fontWeight: '900' }]}>T&Cs</Text>.
               </Text>
 
               <View style={styles.optionsView}>
@@ -215,7 +232,7 @@ const LoginScreen = () => {
 
               <Text style={styles.tncText}>
                 By continuing, I agree to EXYE's{' '}
-                <Text style={[styles.tncText, {fontWeight: '900'}]}>T&Cs</Text>.
+                <Text style={[styles.tncText, { fontWeight: '900' }]}>T&Cs</Text>.
               </Text>
 
               <View
@@ -227,7 +244,7 @@ const LoginScreen = () => {
                   alignSelf: 'center',
                   margin: 15,
                 }}>
-                <Text style={{color: 'black', padding: 5, alignSelf: 'center'}}>
+                <Text style={{ color: 'black', padding: 5, alignSelf: 'center' }}>
                   OR
                 </Text>
               </View>
@@ -450,7 +467,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    color:'black',
+    color: 'black',
     textAlign: 'center',
     fontSize: 20,
     margin: 5,

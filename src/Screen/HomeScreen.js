@@ -1,5 +1,5 @@
-import {useNavigation, DrawerActions} from '@react-navigation/native';
-import React, {useState, useEffect} from 'react';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,44 +11,86 @@ import {
   Modal,
   Pressable,
   Alert,
+  Animated,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {getData} from '../Utils/api';
+import { getData } from '../Utils/api';
 
 const HomeScreen = () => {
   const [selectedRadio, setSelectedRadio] = useState(0);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [profiledata, setProfileData] = useState([]);
+  const [liveContestsData, setLiveContestsData] = useState([]);
+  const [isContestVisible, setIsContestVisible] = useState(false);
+  const [timeLeft, setTimeLeft] = useState('');
+  const carouselScrollX = useRef(new Animated.Value(0)).current;
+
   const navigation = useNavigation();
 
   useEffect(() => {
     getProfileData();
   }, []);
+
   const getProfileData = async () => {
     try {
       const res = await getData('/api/v1/dashboard');
-      console.log('res', res);
+
       setProfileData(res);
+      console.log(profiledata.liveContests);
+      setLiveContestsData(profiledata.liveContests);
+      setIsContestVisible(true);
+
+      fillRadioButtons(res.participationAmount); // call function to fill radio buttons
+      startCountdown(res.nextQuizTime); // Start the countdown based on quiz time
     } catch (error) {
-      console, log('error', error);
+      console.log('error', error);
       Alert.alert(error?.response?.data?.message);
     }
   };
-  function extractMinutesAndSeconds(isoDate) {
-    // Convert the ISO string to a Date object
-    const date = new Date(isoDate);
-    
-    // Extract minutes and seconds, adding a leading zero if needed
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    
-    // Return the formatted mm:ss string
-    return `${minutes}:${seconds}`;
-  }
-    const [timeLeft, setTimeLeft] = useState('');
-  
-  
+
+
+  const handleCardPress = (name) => {
+    alert(`You selected: ${name}`);
+  };
+
+  const fillRadioButtons = (participationAmount) => {
+    const selectedAmountIndex = participationAmount.findIndex(item => item.tick); // find index of selected amount
+    if (selectedAmountIndex !== -1) {
+      setSelectedRadio(selectedAmountIndex); // set the selected radio index based on tick status
+    }
+  };
+
+  const handleRadioPress = (index) => {
+    setSelectedRadio(index); // update selected radio index
+  };
+
+  const startCountdown = (quizTime) => {
+    const interval = setInterval(() => {
+      updateTimeLeft(quizTime, interval);
+    }, 1000);
+  };
+
+  const updateTimeLeft = (quizTime, interval) => {
+    const now = new Date();
+    const quizDate = new Date(quizTime);
+    const timeDiff = quizDate - now;
+
+    if (timeDiff > 0) {
+      const remainingSeconds = Math.floor(timeDiff / 1000); // Convert milliseconds to seconds
+      setTimeLeft(formatTime(remainingSeconds)); // Update the countdown with formatted time
+    } else {
+      setTimeLeft('00:00');
+      clearInterval(interval); // Stop the countdown once time is up
+    }
+  };
+
+  const formatTime = (remainingSeconds) => {
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
+
   const handleSubmit = () => {
     navigation.navigate('Topic');
   };
@@ -87,7 +129,6 @@ const HomeScreen = () => {
           </View>
         </TouchableOpacity>
 
-        {/* <Text style={styles.headerText}>EXYE</Text> */}
         <Image
           source={require('../assets/Exye_Logo_B1.png')}
           style={styles.logo}
@@ -105,163 +146,104 @@ const HomeScreen = () => {
 
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.view1}>
-          <Text style={styles.text1}>Next quiz in {extractMinutesAndSeconds(profiledata?.nextQuizTime)}</Text>
+          <Text style={styles.text1}>Next quiz in {timeLeft}</Text>
           <Image
             source={require('../assets/stopwatch_icon.png')}
             style={styles.icon1}
           />
         </View>
 
-        <View style={styles.view2}>
+        {profiledata?.liveContests?.length > 0 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: carouselScrollX } } }],
+              { useNativeDriver: false }
+            )}
+            scrollEventThrottle={16}
+            contentContainerStyle={styles.carouselContent}
+          >
+            {profiledata.liveContests.map((item, index) => (
+              <Animated.View
+                key={index}
+                style={[styles.contestContainer, {
+                  opacity: carouselScrollX.interpolate({
+                    inputRange: [
+                      (index - 1) * 360,
+                      index * 360,
+                      (index + 1) * 360,
+                    ],
+                    outputRange: [0.5, 1, 0.5],
+                    extrapolate: 'clamp',
+                  })
+                }]}
+              >
+                <Image
+                  source={require('../assets/contestBG.png')}
+                  style={styles.contestBackground}
+                />
+
+
+                <TouchableOpacity
+                  style={styles.cardContent}
+                  onPress={() => handleCardPress(item.name)}
+                  
+                >
+                  <Text style={styles.contestText1}>{item.contestName}</Text>
+                  <Text style={styles.contestText2}>{item.contestType}</Text>
+                  <Text style={styles.contestText3}>Prize: Rs.{item.prizePerContestant}</Text>
+
+                </TouchableOpacity>
+
+                <View style={styles.progressBarContainer}>
+                  <LinearGradient
+                    colors={['#FF612F', '#A32FFF8F']} // Gradient colors
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    // style={[styles.progressBar, { width: `${Math.min((item.playerJoined / 20), 1) * 100}%` }]}
+                    style={[styles.progressBar, { width: `${Math.min((14 / 20), 1) * 100}%` }]}
+                  />
+                </View>
+
+              </Animated.View>
+            ))}
+          </ScrollView>
+        ) : (
+          null
+        )}
+
+
+
+        {/* <View style={styles.view2}>
           <Text style={styles.text2}>Choose amount for participation :</Text>
 
-          <View style={styles.radioPanel1}>
-            <View style={styles.radioFrame}>
+          <View style={styles.radioContainer}>
+            {profiledata?.participationAmount?.map((item, index) => (
               <TouchableOpacity
-                onPress={() => {
-                  setSelectedRadio(1);
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <View style={styles.radio}>
-                    {selectedRadio === 1 ? (
-                      <View style={styles.radioFill}></View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.radioText}>₹ 10</Text>
+                key={index}
+                onPress={() => handleRadioPress(index)}
+                style={styles.radioWrapper}>
+                <View style={styles.radio}>
+                  {selectedRadio === index ? <View style={styles.radioFill} /> : null}
                 </View>
+                <Text style={styles.radioText}>₹ {item.amount}</Text>
               </TouchableOpacity>
-            </View>
-
-            <View style={styles.radioFrame}>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedRadio(2);
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <View style={styles.radio}>
-                    {selectedRadio === 2 ? (
-                      <View style={styles.radioFill}></View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.radioText}>₹ 20</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.radioFrame}>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedRadio(3);
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <View style={styles.radio}>
-                    {selectedRadio === 3 ? (
-                      <View style={styles.radioFill}></View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.radioText}>₹ 30</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.radioFrame}>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedRadio(4);
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <View style={styles.radio}>
-                    {selectedRadio === 4 ? (
-                      <View style={styles.radioFill}></View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.radioText}>₹ 50</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+            ))}
           </View>
+        </View> */}
 
-          <View style={styles.radioPanel1}>
-            <View style={styles.radioFrame}>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedRadio(5);
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <View style={styles.radio}>
-                    {selectedRadio === 5 ? (
-                      <View style={styles.radioFill}></View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.radioText}>₹ 100</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.radioFrame}>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedRadio(6);
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <View style={styles.radio}>
-                    {selectedRadio === 6 ? (
-                      <View style={styles.radioFill}></View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.radioText}>₹ 150</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.radioFrame}>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedRadio(7);
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <View style={styles.radio}>
-                    {selectedRadio === 7 ? (
-                      <View style={styles.radioFill}></View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.radioText}>₹ 200</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.radioFrame}>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedRadio(8);
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <View style={styles.radio}>
-                    {selectedRadio === 8 ? (
-                      <View style={styles.radioFill}></View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.radioText}>₹ 500</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* <TouchableOpacity onPress={() => navigation.navigate('Live')}> */}
         <TouchableOpacity
           onPress={() => {
-            // Pass data as params to the 'Live' screen
             navigation.navigate('Live', {
               LiveContestData: profiledata?.liveContests,
-             
             });
           }}>
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}>
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}>
             <Text style={styles.text3}>Live Contest</Text>
             <Image
               source={require('../assets/live_contest_image.png')}
@@ -280,16 +262,11 @@ const HomeScreen = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            {
-              backgroundColor: isSubmitDisabled ? 'green' : 'green',
-            },
-          ]}
+        {/* <TouchableOpacity
+          style={[styles.submitButton, { backgroundColor: isSubmitDisabled ? 'green' : 'green' }]}
           onPress={handleSubmit}>
           <Text style={styles.submitText}>SUBMIT</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
 
       <Modal
@@ -311,7 +288,7 @@ const HomeScreen = () => {
                 Hello User
               </Text>
               <TouchableOpacity
-                style={{marginTop: 15}}
+                style={{ marginTop: 15 }}
                 onPress={handleProfile1Navigation}>
                 <Text
                   style={{
@@ -323,7 +300,7 @@ const HomeScreen = () => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={{marginTop: 15}}
+                style={{ marginTop: 15 }}
                 onPress={handleWalletNavigation}>
                 <Text
                   style={{
@@ -335,7 +312,7 @@ const HomeScreen = () => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={{marginTop: 15}}
+                style={{ marginTop: 15 }}
                 onPress={handlePavailionNavigation}>
                 <Text
                   style={{
@@ -352,9 +329,7 @@ const HomeScreen = () => {
       </Modal>
 
       <TouchableOpacity
-        onPress={() => {
-          /* Handle onPress event */
-        }}
+        onPress={() => { }}
         style={styles.xyz}>
         <Image
           source={require('../assets/filledHome.png')}
@@ -386,7 +361,6 @@ const HomeScreen = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
@@ -401,18 +375,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerText: {
-    flex: 1,
-    fontSize: 35,
-    color: '#EF5A5A',
-    fontWeight: '700',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
-    textShadowRadius: 10,
-    elevation: 5,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
-  },
   icon: {
     width: 50,
     height: 50,
@@ -423,7 +385,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     margin: 8,
     shadowColor: 'black',
-    shadowOffset: {width: 2, height: 2},
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: '#EF5A5A',
@@ -444,7 +406,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     margin: 10,
     shadowColor: 'black',
-    shadowOffset: {width: 2, height: 2},
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: '#EF5A5A',
@@ -470,14 +432,14 @@ const styles = StyleSheet.create({
     height: 'auto',
     backgroundColor: '#F05A5B',
     alignSelf: 'center',
-    margin: 20,
+    margin: 15,
     borderRadius: 10,
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
     elevation: 8,
     shadowColor: 'black',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },
@@ -495,6 +457,73 @@ const styles = StyleSheet.create({
     margin: 6,
     marginRight: 15,
   },
+  contestContainer: {
+    width: 360,
+    height: 'auto',
+    alignItems: 'center',
+    marginLeft:17,
+    marginTop:7,
+    borderRadius:35,
+    borderColor:'white',
+    borderWidth:2,
+    backgroundColor: 'transparent', // Ensure container doesn't have an extra background color
+  },
+  contestBackground: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    resizeMode: 'stretch',
+    borderRadius:35,
+  },
+  carouselContent: {
+    alignItems: 'center',
+    paddingRight:15,
+  },
+  contestText1: {
+    fontSize: 24,
+    color: 'white',
+    marginTop: 10,
+    fontWeight: '900',
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+  },
+  contestText2: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: 'white',
+    marginTop: 12,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+  },
+  contestText3: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: 'white',
+    marginTop: 8,
+    letterSpacing: 2,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+  },
+  progressBarContainer: {
+    width: '60%',
+    marginTop: 20,
+    borderRadius: 20,
+    padding: 3,
+    backgroundColor: '#D9D9D9',
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 30
+  },
+  progressBar: {
+    height: 16,
+    borderRadius: 20,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 15,
+  },
   view2: {
     width: '90%',
     height: 'auto',
@@ -503,7 +532,7 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     elevation: 8,
     shadowColor: 'black',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: 'white',
@@ -523,9 +552,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center',
     borderRadius: 35,
-    elevation: 8,
     shadowColor: 'black',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: 'white',
@@ -555,11 +583,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#Ffffdf',
     alignSelf: 'center',
     marginTop: 20,
+    marginBottom: 20,
     borderRadius: 20,
     alignItems: 'center',
     elevation: 8,
     shadowColor: 'black',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     justifyContent: 'center',
@@ -594,7 +623,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
 
     shadowColor: 'black',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
@@ -605,37 +634,39 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'Poppins-Regular',
   },
-  radioPanel1: {
-    flex: 0.5,
+  radioContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 8,
+    justifyContent: 'space-between',
+  },
+  radioWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '22%', // Adjust to fit four items in a row and create even spacing
+    marginBottom: 15,
+  },
+  radio: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: 'black',
     justifyContent: 'center',
-    margin: 8,
+    alignItems: 'center',
+    marginRight: 5,
+  },
+  radioFill: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#F05A5B',
   },
   radioText: {
     fontSize: 16,
-    textAlignVertical: 'center',
     color: 'white',
     fontWeight: '700',
     fontFamily: 'Poppins-Regular',
-  },
-  radio: {
-    height: 16,
-    width: 16,
-    borderColor: 'black',
-    borderRadius: 20,
-    margin: 6,
-    borderWidth: 2,
-  },
-  radioFill: {
-    height: 9,
-    width: 9,
-    backgroundColor: '#F05A5B',
-    borderRadius: 20,
-    margin: 1,
-  },
-  radioFrame: {
-    flex: 1,
   },
   backgroundImage: {
     width: '100%',

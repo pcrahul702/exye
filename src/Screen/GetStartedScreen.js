@@ -1,17 +1,30 @@
-import React, { useEffect, useRef,useState } from 'react';
-import { StyleSheet, View, Text, Image, Animated, TouchableOpacity } from 'react-native';
-import {getAccessToken} from '../Utils/getAccessToken';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, Text, Image, Animated, TouchableOpacity, Alert } from 'react-native';
+import { getAccessToken } from '../Utils/getAccessToken';
+import { getData2 } from '../Utils/apiForRelease';
+import { getData } from '../Utils/api';
+
 const GetStartedScreen = ({ navigation }) => {
-  const slideAnim = useRef(new Animated.Value(100)).current; // Initial value for Y position (below the view)
+
+  // Animation values for scaling and opacity
+  const scaleAnim = useRef(new Animated.Value(0.5)).current; // Initial scale value (small)
+  const opacityAnim = useRef(new Animated.Value(0)).current; // Initial opacity (invisible)
 
   useEffect(() => {
-    // Start the slide up animation
-    Animated.timing(slideAnim, {
-      toValue: 0, // Final value for Y position (in the view)
-      duration: 2000, // Animation duration in milliseconds
+    // Start the pop-up effect
+    Animated.timing(scaleAnim, {
+      toValue: 1, // Final scale value (normal size)
+      duration: 2000, // Duration of the animation
       useNativeDriver: true,
     }).start();
-  }, [slideAnim]);
+
+    Animated.timing(opacityAnim, {
+      toValue: 1, // Final opacity value (fully visible)
+      duration: 2000, // Same duration for smooth transition
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
     // Check for access token on app load
@@ -24,21 +37,27 @@ const GetStartedScreen = ({ navigation }) => {
   }, []);
 
   const handleGetStarted = () => {
-    console.log("isAuthenticated",isAuthenticated);
- isAuthenticated?
-    navigation.navigate('Home'): navigation.navigate('Login')
+    console.log("isAuthenticated", isAuthenticated);
+    isAuthenticated ?
+      navigation.navigate('Home') : navigation.navigate('Login')
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {/* <Image source={require('../assets/logo.png')} style={styles.logo} /> */}
+
         <Animated.Image
-        source={require('../assets/logo.png')}
-        resizeMode="contain"
-        style={[styles.logo, { transform: [{ translateY: slideAnim }] }]} // Apply animated translation
-      />
-        {/* <Text style={styles.maintext}>EXYE Present's</Text> */}
+          source={require('../assets/logo.png')}
+          resizeMode="contain"
+          style={[
+            styles.logo,
+            {
+              transform: [{ scale: scaleAnim }], // Apply scale animation
+              opacity: opacityAnim, // Apply opacity animation
+            },
+          ]}
+        />
+
         <Text style={styles.slogan}>Challenge your brain with our quiz game!</Text>
 
         <TouchableOpacity onPress={handleGetStarted}>
@@ -66,7 +85,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center', // Center content horizontally
-    justifyContent:'center'
+    justifyContent: 'center'
   },
   logo: {
     width: 180,
@@ -88,16 +107,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 15, // Space below the slogan
     fontFamily: 'Poppins-Regular',
-    marginHorizontal:12
+    marginHorizontal: 12
   },
   button: {
     marginTop: '12%',
     backgroundColor: '#ef5a5a00', // Button background color
-    padding: 10, 
-    borderRadius:50,
-    borderWidth:5,
-    borderColor:'#ef5a5a',
-    alignSelf:'flex-end'
+    padding: 10,
+    borderRadius: 50,
+    borderWidth: 5,
+    borderColor: '#ef5a5a',
+    alignSelf: 'flex-end'
   },
   buttonText: {
     color: '#ef5a5a', // Text color
@@ -105,7 +124,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontWeight: '700',
     paddingHorizontal: 4,
-    alignSelf:'center'
+    alignSelf: 'center'
   },
   image: {
     width: '80%',
