@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { StatusBar, StyleSheet, View, Image, Text, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
-import DocumentPicker from 'react-native-document-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
 import { getAccessToken } from '../Utils/getAccessToken';
 
@@ -12,22 +12,77 @@ const UploadBankScreen = () => {
     const navigation = useNavigation();
     const [selectedFile, setSelectedFile] = useState(null);
 
-    // Handle file upload
-    const handleUpload = async () => {
-        try {
-            // Pick the file using DocumentPicker
-            const res = await DocumentPicker.pick({
-                type: [DocumentPicker.types.images], // Only allow image file types
-            });
-            setSelectedFile(res[0]);
+    // Function to launch the camera or gallery
+    const handleUpload = () => {
+        // Show an alert to let the user choose between camera or gallery
+        Alert.alert(
+            "Select Option",
+            "Choose an option to upload your document",
+            [
+                {
+                    text: "Camera",
+                    onPress: () => openCamera(),
+                },
+                {
+                    text: "Gallery",
+                    onPress: () => openGallery(),
+                },
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                }
+            ]
+        );
+    };
+
+    // Open Camera to take a picture
+    const openCamera = () => {
+        launchCamera(
+            {
+                mediaType: 'photo',
+                cameraType: 'back', // You can also specify front camera if needed
+                saveToPhotos: true, // Optionally save to the gallery
+            },
+            (response) => handleImageSelection(response)
+        );
+    };
+
+    // Open Gallery to select a photo
+    const openGallery = () => {
+        launchImageLibrary(
+            {
+                mediaType: 'photo', // Choose image type only
+                quality: 1, // Max quality
+            },
+            (response) => handleImageSelection(response)
+        );
+    };
+
+    // Handle the image selection from either camera or gallery
+    const handleImageSelection = (response) => {
+        if (response.didCancel) {
+            console.log('User cancelled image picker');
+        } else if (response.errorCode) {
+            console.error('ImagePicker Error: ', response.errorMessage);
+            Alert.alert("Error", "Something went wrong while picking the image");
+        } else {
+            const res = response.assets[0]; // The selected image object
+            setSelectedFile(res); // Set the selected file
 
             const formData = new FormData();
             formData.append('bankAccount', {
-                uri: res[0].uri,  // URI of the image file
-                type: res[0].type, // MIME type of the image
-                name: res[0].name, // File name
+                uri: res.uri,  // URI of the image file
+                type: res.type, // MIME type of the image
+                name: res.fileName, // File name
             });
 
+            uploadDocument(formData);
+        }
+    };
+
+    // Upload the document
+    const uploadDocument = async (formData) => {
+        try {
             const token = await getAccessToken(); // Replace with your logic to fetch the token
 
             const response = await axios.post(
@@ -43,21 +98,15 @@ const UploadBankScreen = () => {
 
             if (response.status === 200) {
                 Alert.alert("Success", "Document uploaded successfully");
-                // Optionally navigate to another screen or handle the response here
             } else {
                 Alert.alert("Error", "Failed to upload document");
             }
-
         } catch (err) {
-            if (DocumentPicker.isCancel(err)) {
-                console.log('User cancelled the document picker');
-            } else {
-                console.error(err);
-                Alert.alert("Error", "Something went wrong during file upload");
-            }
+            console.error(err);
+            Alert.alert("Error", "Something went wrong during file upload");
         } finally {
             navigation.navigate('Profile1');
-          }
+        }
     };
 
     return (
