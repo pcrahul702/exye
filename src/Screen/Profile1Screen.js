@@ -365,12 +365,11 @@ const styles = StyleSheet.create({
   },
   modalContentMessage: {
     width: '90%',
-    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 10,
+    padding: 50,
   },
   modalImage: {
     width: '100%',
@@ -378,7 +377,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   modalText: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '300',
     color: 'black',
     fontFamily: 'Poppins-Regular',

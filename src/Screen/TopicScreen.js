@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         alignItems: 'center',
         padding: 10,
+        borderRadius:18,
     },
     selectedCard: {
         backgroundColor: 'rgba(67, 163, 99, 1)',
