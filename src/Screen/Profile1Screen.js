@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   profileInfoText: {
-    fontSize: 22,
+    fontSize: width*0.05,
     fontWeight: '600',
     color: '#EF5A5A',
     marginBottom: 10,

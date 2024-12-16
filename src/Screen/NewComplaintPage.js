@@ -88,10 +88,7 @@ const NewComplaintPage = () => {
 
     return (
         <View style={styles.bg}>
-            <Image
-                source={require('../assets/Group.png')}
-                style={styles.backgroundImage}
-            />
+            
 
             <StatusBar hidden={true} />
 
@@ -199,18 +196,9 @@ const styles = StyleSheet.create({
         zIndex: 1,
         fontFamily: 'Poppins-Regular',
     },
-    dispText: {
-        fontSize: 20,
-        color: '#F05A5B',
-        fontWeight: '700',
-        zIndex: 1,
-        fontFamily: 'Poppins-Regular',
-        marginLeft: 12,
-        marginTop: 12,
-    },
     label: {
         fontSize: 20,
-        color: '#F05A5B',
+        color: 'gray',
         fontWeight: '700',
         zIndex: 1,
         fontFamily: 'Poppins-Regular',
@@ -225,7 +213,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: '#F05A5B',
+        borderColor: 'gray',
         paddingLeft: 10,
         fontSize: 16,
         fontFamily: 'Poppins-Regular',

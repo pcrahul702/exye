@@ -86,7 +86,7 @@ const UploadBankScreen = () => {
             const token = await getAccessToken(); // Replace with your logic to fetch the token
 
             const response = await axios.post(
-                'http://43.204.140.8:8080/api/v1/document/upload',
+                'https://www.raks.work.gd/api/v1/document/upload',
                 formData,
                 {
                     headers: {

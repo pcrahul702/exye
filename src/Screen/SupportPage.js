@@ -60,10 +60,7 @@ const SupportPage = () => {
 
     return (
         <View style={styles.bg}>
-            <Image
-                source={require('../assets/Group.png')}
-                style={styles.backgroundImage}
-            />
+            
 
             <StatusBar hidden={true} />
 
@@ -167,7 +164,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         marginTop: 14,
         borderRadius: 10,
-        borderColor: '#F05A5B',
+        borderColor: '#ffa952',
         borderWidth: 1,
         alignItems: 'center',
         shadowColor: 'black',
@@ -188,7 +185,7 @@ const styles = StyleSheet.create({
     },
     dispText: {
         fontSize: 20,
-        color: '#F05A5B',
+        color: 'gray',
         fontWeight: '700',
         zIndex: 1,
         fontFamily: 'Poppins-Regular',
@@ -221,7 +218,7 @@ const styles = StyleSheet.create({
     ticketTitle: {
         fontSize: 20,
         fontWeight: '900',
-        color: '#ffa952',
+        color: 'black',
         marginBottom: 5,
         fontFamily: 'Poppins-Regular',
     },
@@ -229,14 +226,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 5,
         color: 'grey',
-        fontWeight: '700',
+        fontWeight: '600',
         fontFamily: 'Poppins-Regular',
     },
     ticketStatus: {
         fontSize: 16,
-        fontWeight: '700',
+        marginBottom: 5,
+        color: 'grey',
+        fontWeight: '600',
         fontFamily: 'Poppins-Regular',
-        color: '#F05A5B',
     },
     detailsButton: {
         flexDirection: 'row',
@@ -244,10 +242,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 10,
         right: 10,
-        backgroundColor: '#ffa952',
+        backgroundColor: '#Ffffff',
         paddingVertical: 6,
         paddingHorizontal: 12,
-        borderRadius: 20,
+        borderRadius: 8,
+        borderColor: 'grey',
+        borderWidth: 1,
         shadowColor: 'black',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,

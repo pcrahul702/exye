@@ -93,7 +93,7 @@ const uploadDocument = async (formData) => {
         const token = await getAccessToken(); 
 
         const response = await axios.post(
-            'http://43.204.140.8:8080/api/v1/document/upload',
+            'https://www.raks.work.gd/api/v1/document/upload',
             formData,
             {
                 headers: {
