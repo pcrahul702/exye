@@ -56,7 +56,7 @@ const LoginScreen = () => {
     try {
       const response = await axios({
         method: 'POST',
-        url: 'https://www.raks.work.gd/api/v1/user/login',
+        url: 'https://exye-admin.auradevops.com/api/v1/user/login',
         data: payload,
         headers: {
           loginSource: 'OTP',

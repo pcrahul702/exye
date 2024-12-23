@@ -12,9 +12,12 @@ import {
   Pressable,
   Alert,
   Animated,
+  Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
+
+const { width, height } = Dimensions.get('window');
 
 const HomeScreen = () => {
   const [selectedRadio, setSelectedRadio] = useState(0);
@@ -184,27 +187,37 @@ const HomeScreen = () => {
                   style={styles.contestBackground}
                 />
 
+                <Text style={styles.contestText1}>{item.contestName}</Text>
+                <Text style={styles.contestText2}>{item.contestType}</Text>
+                <Text style={styles.contestText3}>Prize: Rs.{item.prizePerContestant}</Text>
 
-                <TouchableOpacity
-                  style={styles.cardContent}
-                  onPress={() => handleCardPress(item.name)}
-                  
-                >
-                  <Text style={styles.contestText1}>{item.contestName}</Text>
-                  <Text style={styles.contestText2}>{item.contestType}</Text>
-                  <Text style={styles.contestText3}>Prize: Rs.{item.prizePerContestant}</Text>
+                <View style={styles.joinContainer}>
+                  <View style={styles.progressBarContainer}>
+                    <LinearGradient
+                      colors={['#FF612F', '#A32FFF8F']} // Gradient colors
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      // style={[styles.progressBar, { width: `${Math.min((item.playerJoined / 20), 1) * 100}%` }]}
+                      style={[styles.progressBar, { width: `${Math.min((14 / 20), 1) * 100}%` }]}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    style={styles.cardContent}
+                    onPress={() => console.log(item.contestName)}
 
-                </TouchableOpacity>
-
-                <View style={styles.progressBarContainer}>
-                  <LinearGradient
-                    colors={['#FF612F', '#A32FFF8F']} // Gradient colors
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    // style={[styles.progressBar, { width: `${Math.min((item.playerJoined / 20), 1) * 100}%` }]}
-                    style={[styles.progressBar, { width: `${Math.min((14 / 20), 1) * 100}%` }]}
-                  />
+                  >
+                    <LinearGradient
+                      colors={['#FFFFFF', '#FE7503']}
+                      style={styles.gradientBorder}
+                      start={{ x: 0, y: 1 }}
+                      end={{ x: 1, y: 0 }}>
+                      <View style={styles.join}>
+                        <Text style={styles.joinText}>Join</Text>
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
                 </View>
+
 
               </Animated.View>
             ))}
@@ -261,72 +274,8 @@ const HomeScreen = () => {
             />
           </View>
         </TouchableOpacity>
-
-        {/* <TouchableOpacity
-          style={[styles.submitButton, { backgroundColor: isSubmitDisabled ? 'green' : 'green' }]}
-          onPress={handleSubmit}>
-          <Text style={styles.submitText}>SUBMIT</Text>
-        </TouchableOpacity> */}
       </ScrollView>
 
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(false);
-        }}>
-        <Pressable style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContents}>
-              <Text
-                style={{
-                  fontSize: 20,
-                  color: '#fa5962',
-                  fontWeight: '500',
-                  fontFamily: 'Poppins-Regular',
-                }}>
-                Hello User
-              </Text>
-              <TouchableOpacity
-                style={{ marginTop: 15 }}
-                onPress={handleProfile1Navigation}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    fontFamily: 'Poppins-Regular',
-                  }}>
-                  Profile
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ marginTop: 15 }}
-                onPress={handleWalletNavigation}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    fontFamily: 'Poppins-Regular',
-                  }}>
-                  Wallet
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ marginTop: 15 }}
-                onPress={handlePavailionNavigation}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    fontFamily: 'Poppins-Regular',
-                  }}>
-                  Pavilion
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Pressable>
-      </Modal>
 
       <TouchableOpacity
         onPress={() => { }}
@@ -458,14 +407,14 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   contestContainer: {
-    width: 360,
+    width: width * 0.9,
     height: 'auto',
     alignItems: 'center',
-    marginLeft:17,
-    marginTop:7,
-    borderRadius:35,
-    borderColor:'white',
-    borderWidth:2,
+    marginLeft: width * 0.05,
+    marginTop: 7,
+    borderRadius: 35,
+    borderColor: 'white',
+    borderWidth: 2,
     backgroundColor: 'transparent', // Ensure container doesn't have an extra background color
   },
   contestBackground: {
@@ -473,16 +422,16 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     resizeMode: 'stretch',
-    borderRadius:35,
+    borderRadius: 35,
   },
   carouselContent: {
     alignItems: 'center',
-    paddingRight:15,
+    paddingRight: 15,
   },
   contestText1: {
     fontSize: 24,
     color: 'white',
-    marginTop: 10,
+    marginTop: 14,
     fontWeight: '900',
     textAlign: 'center',
     fontFamily: 'Poppins-Regular',
@@ -504,19 +453,42 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Poppins-Regular',
   },
+  joinContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10, // Add some space above the join button
+  },
   progressBarContainer: {
-    width: '60%',
-    marginTop: 20,
+    width: width*0.55,
+    marginLeft:width*0.03,
     borderRadius: 20,
     padding: 3,
     backgroundColor: '#D9D9D9',
     overflow: 'hidden',
     position: 'relative',
-    marginBottom: 30
   },
   progressBar: {
     height: 16,
     borderRadius: 20,
+  },
+  gradientBorder: {
+    padding: 3, // Border width
+    borderRadius: 60,
+    alignSelf: 'center',
+  },
+  join: {
+    width: width*0.22,
+    alignItems: 'center',
+    backgroundColor: '#EF5A5A',
+    borderRadius: 60,
+    paddingVertical: 2,
+  },
+  joinText: {
+    fontSize: width*0.04,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    alignSelf:'center',
+    fontFamily: 'Poppins-Regular',
   },
   cardContent: {
     flex: 1,

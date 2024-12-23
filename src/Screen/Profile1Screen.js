@@ -14,24 +14,26 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
-import { getData } from '../Utils/api';
+import { getData, getResponse } from '../Utils/api';
 
 const { width, height } = Dimensions.get('window');
 
 const Profile1Screen = () => {
   const [profileData, setProfileData] = useState([]);
+  const [bankData, setBankData] = useState([]);
   const [panCardUploaded, setPanCardUploaded] = useState(false);
   const [bankDetailsUploaded, setBankDetailsUploaded] = useState(false);
-  const [panURL, setPanURL] = useState(null);
-  const [bankURL, setBankURL] = useState(null);
   const [modalText, setmodalText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [imageToShow, setImageToShow] = useState(null); // Stores the URL to display
   const navigation = useNavigation();
 
   useEffect(() => {
-    getProfiledata();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      getProfiledata();
+    });
+  
+    return unsubscribe; // Cleanup on unmount
+  }, [navigation]);
 
   const getProfiledata = async () => {
     try {
@@ -41,17 +43,8 @@ const Profile1Screen = () => {
       // Check if Pan Card is uploaded
       if (response.document?.panDetails?.url) {
         setPanCardUploaded(true);
-        setPanURL(response.document.panDetails.url);
       } else {
         setPanCardUploaded(false);
-      }
-
-      // Check if Bank Details are uploaded
-      if (response.document?.bankDetails?.url) {
-        setBankDetailsUploaded(true);
-        setBankURL(response.document.bankDetails.url);
-      } else {
-        setBankDetailsUploaded(false);
       }
 
       console.log("response.data", response)
@@ -59,32 +52,43 @@ const Profile1Screen = () => {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
     }
-  }
-  // 2 functions which display doc image on click
-  // const handlePanButtonPress = () => {
-  //   if (!panCardUploaded) {
-  //     navigation.navigate('UploadPan'); // Navigate to the Pan Card upload screen
-  //   }
-  //   else {
-  //     //view pan
-  //     console.log("pan: " + panURL);
-  //     setImageToShow(panURL);
-  //     setModalVisible(true); // Show modal to view pan card
-  //   }
-  // };
 
-  // const handleBankButtonPress = () => {
-  //   if (!bankDetailsUploaded) {
-  //     navigation.navigate('UploadBank'); // Navigate to the Bank Details upload screen
-  //   }
-  //   else {
-  //     //view bank 
-  //     console.log("bank: " + bankURL);
-  //     setImageToShow(bankURL);
-  //     setModalVisible(true); // Show modal to view pan card
-  //   }
-  // };
-  //2 funtions to show message doc uplaoded
+    try {
+      const bankResponse = await getData('/api/v1/profile/bank-details')
+      setBankData(bankResponse);
+
+
+      if (bankResponse?.ifscCode) {
+        setBankDetailsUploaded(true);
+      } else {
+        setBankDetailsUploaded(false);
+      }
+  
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+
+  const getBankdata = async () => {
+
+    try {
+      const bankResponse = await getData('/api/v1/profile/bank-details')
+      console.log(JSON.stringify(bankResponse));
+      setBankData(bankResponse);
+
+      if (bankData?.accountHolderName) {
+        setBankDetailsUploaded(true);
+      } else {
+        setBankDetailsUploaded(false);
+      }
+  
+      // console.log("response", bankResponse);
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+  
+
   const handlePanButtonPress = () => {
     if (!panCardUploaded) {
       navigation.navigate('UploadPan'); // Navigate to the Pan Card upload screen
@@ -97,7 +101,7 @@ const Profile1Screen = () => {
 
   const handleBankButtonPress = () => {
     if (!bankDetailsUploaded) {
-      navigation.navigate('UploadBank'); // Navigate to the Bank Details upload screen
+      navigation.navigate('BankDetails'); // Navigate to the Bank Details upload screen
     }
     else {
       setmodalText("Bank Details Uplaoded");
@@ -145,10 +149,15 @@ const Profile1Screen = () => {
         </View>
 
         <View style={styles.profileInfoContainer}>
-          <Text style={styles.profileInfoText}>Name: {profileData.name}</Text>
-          <Text style={styles.profileInfoText}>Email: {profileData.email}</Text>
-          <Text style={styles.profileInfoText}>Mobile No: {profileData.phoneNo}</Text>
+          <Text style={styles.label}>Name:</Text>
+          <Text style={styles.detailText}> {profileData.name}</Text>
+          <Text style={styles.label}>Email:</Text>
+          <Text style={styles.detailText}> {profileData.email}</Text>
+          <Text style={styles.label}>Mobile No:</Text>
+          <Text style={styles.detailText}> {profileData.phoneNo}</Text>
+
         </View>
+
 
         <View style={styles.myView}>
           <TouchableOpacity
@@ -177,27 +186,7 @@ const Profile1Screen = () => {
           resizeMode="contain"
           style={styles.image}
         />
-
-        {/* modal for image display */}
-        {/* <Modal
-          visible={modalVisible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={closeModal}>
-          <TouchableWithoutFeedback onPress={closeModal}>
-            <View style={styles.modalBackground}>
-              <View
-                style={styles.modalContentImage}>
-                <Image
-                  source={{ uri: imageToShow }}
-                  style={styles.modalImage}
-                />
-              </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal> */}
-
-        {/* modal for message display */}
+        
         <Modal
           visible={modalVisible}
           transparent={true}
@@ -273,21 +262,36 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffa952',
     opacity: 1,
     borderRadius: 10,
-    padding: 20,
+    padding: 12,
     marginHorizontal: 20,
     elevation: 5,
-    justifyContent:'center',
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },
   profileInfoText: {
-    fontSize: width*0.05,
-    fontWeight: '600',
-    color: '#EF5A5A',
-    marginBottom: 10,
-    alignSelf:'center',
+    fontSize: width * 0.06,
+    fontWeight: '700',
+    color: 'black',
+    margin: 8,
+    textAlign: 'left',
+    fontFamily: 'Poppins-Regular',
+  },
+  label: {
+    marginTop: 8,
+    fontSize: width * 0.04,
+    fontWeight: '700',
+    color: '#000000',
+    marginTop: 6,
+    marginLeft: 6,
+    fontFamily: 'Poppins-Regular',
+  },
+  detailText: {
+    fontSize: width * 0.05,
+    color: '#000000',
+    fontWeight: '700',
+    marginBottom: 5,
     fontFamily: 'Poppins-Regular',
   },
   gradientBorder: {
@@ -354,15 +358,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
-  modalContentImage: {
-    width: width * 0.9,
-    height: height * 0.7,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 10,
-  },
   modalContentMessage: {
     width: '90%',
     justifyContent: 'center',
@@ -370,11 +365,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 50,
-  },
-  modalImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
   },
   modalText: {
     fontSize: 20,

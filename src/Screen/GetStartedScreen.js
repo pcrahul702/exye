@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, Image, Animated, TouchableOpacity, Alert } from 'react-native';
 import { getAccessToken } from '../Utils/getAccessToken';
-import { getData2 } from '../Utils/apiForRelease';
-import { getData } from '../Utils/api';
 
 const GetStartedScreen = ({ navigation }) => {
 
@@ -40,6 +38,10 @@ const GetStartedScreen = ({ navigation }) => {
     console.log("isAuthenticated", isAuthenticated);
     isAuthenticated ?
       navigation.navigate('Home') : navigation.navigate('Login')
+  };
+
+  const handletemp = () => {
+      navigation.navigate('WithdrawalStatus')
   };
 
   return (

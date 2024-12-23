@@ -18,7 +18,7 @@ const TopicScreen = () => {
                 const token = await getAccessToken();
                 console.log(token);
 
-                const response = await axios.get('https://www.raks.work.gd/api/v1/dashboard/all-active-topics', {
+                const response = await axios.get('https://exye-admin.auradevops.com/api/v1/dashboard/all-active-topics', {
                     headers: {
                         'Authorization': `Bearer ${token}`,  // Example of an Authorization header
                         'Content-Type': 'application/json',         // Specify content type

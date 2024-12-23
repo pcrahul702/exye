@@ -1,21 +1,28 @@
-import { Image, StyleSheet, Text } from 'react-native';
+import { Image, Linking, StyleSheet, Text } from 'react-native';
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import HomeScreen from './HomeScreen';
-import Pavilion from './Pavilion';
 import Profile from './Profile1Screen';
-import Wallet from './WalletPage';
 import Support from './SupportPage';
 
 import CustomDrawer from '../components/CustomDrawer';
+import Pavilion from './Pavilion';
+import WalletPage from './WalletPage';
 
 
 
 const Drawer = createDrawerNavigator();
 
-export default function DrawerNavigator() {
-   
+export default function DrawerNavigator({navigation}) {
+
+    const openTermsAndConditions = () => {
+
+        Linking.openURL('https://www.exye.in/terms-and-conditions') // Replace with your actual URL
+            .catch(err => console.error('An error occurred', err));
+
+    };
+
     return (
         <Drawer.Navigator
             drawerContent={props => <CustomDrawer {...props} />}
@@ -58,7 +65,7 @@ export default function DrawerNavigator() {
                     ),
                 }}
             />
-            {/* <Drawer.Screen
+            <Drawer.Screen
                 name="Pavilion"
                 component={Pavilion}
                 options={{
@@ -73,7 +80,7 @@ export default function DrawerNavigator() {
             />
             <Drawer.Screen
                 name="Wallet"
-                component={Wallet}
+                component={WalletPage}
                 options={{
                     headerShown: false,
                     drawerIcon: ({ color }) => (
@@ -83,7 +90,8 @@ export default function DrawerNavigator() {
                         />
                     ),
                 }}
-            /> */}
+            />
+
             <Drawer.Screen
                 name="Support"
                 component={Support}
@@ -99,7 +107,10 @@ export default function DrawerNavigator() {
             />
             <Drawer.Screen
                 name="Terms and Conditions"
-                component={Support}
+                component={() => null}
+                listeners={{
+                    focus: openTermsAndConditions,
+                }}
                 options={{
                     headerShown: false,
                     drawerIcon: ({ color }) => (
@@ -110,8 +121,8 @@ export default function DrawerNavigator() {
                     ),
                 }}
             />
-          
-            
+
+
         </Drawer.Navigator>
 
     );

@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
         height: 70,
         borderColor: '#ddd',
         borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 16,
         paddingHorizontal: 10,
         marginVertical: 20,
         backgroundColor: 'white',

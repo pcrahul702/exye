@@ -116,7 +116,7 @@ const NewComplaintPage = () => {
                 style={[styles.input, styles.issueInput]}  // Extra style for multi-line issue input
                 value={issue}
                 onChangeText={setIssue}
-                placeholder="Describe the issue"
+                placeholder="Please describe the issue"
                 multiline
                 numberOfLines={5}
             />
@@ -216,9 +216,11 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         paddingLeft: 10,
         fontSize: 16,
+        color:'black',
         fontFamily: 'Poppins-Regular',
     },
     issueInput: {
+        color:'black',
         height: 120, // Making the issue input larger
         textAlignVertical: 'top', // Ensure text aligns at the top of the TextInput
     },

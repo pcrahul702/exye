@@ -5,7 +5,7 @@ import { getAccessToken } from './getAccessToken';
 
 // Create an instance of axios with default configurations
 const api = axios.create({
-  baseURL: "https://www.raks.work.gd", // Replace with your API's base URL
+  baseURL: API_URL, // Replace with your API's base URL
   timeout: 10000, // Optional: Set a timeout for requests (in milliseconds)
   headers: {
     'Content-Type': 'application/json',

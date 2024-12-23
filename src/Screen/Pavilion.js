@@ -1,8 +1,5 @@
 import { StyleSheet, Text, View, SafeAreaView, Image,StatusBar, TouchableOpacity, ScrollView } from 'react-native'
 import React from 'react'
-import backgroundImage from '../assets/Group.png';
-import uppershaper from '../assets/uppershape.png';
-import upperLog from '../assets/Upperlogo2.png';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation ,DrawerActions} from '@react-navigation/native';
 
