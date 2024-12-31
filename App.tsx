@@ -31,6 +31,7 @@ import NewComplaintPage from './src/Screen/NewComplaintPage';
 import TicketDetailsPage from './src/Screen/TicketDetailsPage';
 import BankDetailsScreen from './src/Screen/BankDetailsScreen';
 import ContestInfoPage from './src/Screen/ContestInfoPage';
+import QuizChoiceScreen from './src/Screen/QuizChoiceScreen';
 
 // Import the DrawerNavigator
 import DrawerNavigator from './src/Screen/Drawer';
@@ -89,6 +90,7 @@ function App() {
             <Stack.Screen name="TicketDetails" component={TicketDetailsPage} />
             <Stack.Screen name="BankDetails" component={BankDetailsScreen} />
             <Stack.Screen name="ContestInfo" component={ContestInfoPage} />
+            <Stack.Screen name="QuizChoice" component={QuizChoiceScreen} />
 
 
           </Stack.Navigator>

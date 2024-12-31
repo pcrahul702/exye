@@ -91,7 +91,7 @@ const HomeScreen = () => {
   };
 
   const handleContestClick = (contestId) => {
-    navigation.navigate('ContestInfo', { contestId: contestId }); // Navigate to the Wallet screen
+    navigation.navigate('LiveDetails', { contestId: contestId }); // Navigate to the Wallet screen
   };
 
   const handleDrawerOpen = () => {

@@ -24,6 +24,7 @@ const LiveScreen = () => {
   const navigation = useNavigation();
   const [dashboardData, setDashboardData] = useState([]);
   const [liveContestsData, setLiveContestsData] = useState([]);
+  const [topicNames, setTopicNames] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
   useFocusEffect(
@@ -36,13 +37,35 @@ const LiveScreen = () => {
     try {
       setIsLoading(true); // Start loading
       const res = await getData('/api/v1/dashboard');
-      setDashboardData(res);
-      setLiveContestsData(res.liveContests);
+
+      if (res && res.liveContests) {
+        setDashboardData(res);
+        setLiveContestsData(res.liveContests);
+
+        // Fetch topic names for each contest
+        const names = {};
+        for (const contest of res.liveContests) {
+          const topicName = await getTopicName(contest.topicId);
+          names[contest.topicId] = topicName; // Store the topic name by ID
+        }
+        setTopicNames(names); // Update state with topic names
+      }
     } catch (error) {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
     } finally {
       setIsLoading(false); // Stop loading after data is fetched
+    }
+  };
+
+  const getTopicName = async (id) => {
+    try {
+      const res = await getData(`/api/v1/profile/topic/${id}`);
+      return res.data.topicName; // Assuming the response has a topicName field
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+      return 'Unknown Topic'; // Fallback if there's an error
     }
   };
 
@@ -54,8 +77,8 @@ const LiveScreen = () => {
     navigation.navigate('Wallet'); // Navigate to the Wallet screen
   };
 
-  const handleLiveDetailsNavigation = () => {
-    navigation.navigate('LiveDetails'); // Navigate to the LiveDetails screen
+  const handleLiveDetailsNavigation = (contestId) => {
+    navigation.navigate('LiveDetails', { contestId: contestId }); // Navigate to the Wallet screen
   };
 
   return (
@@ -78,14 +101,16 @@ const LiveScreen = () => {
             liveContestsData.map(contest => (
               <TouchableOpacity
                 key={contest.contestId}
-                onPress={handleLiveDetailsNavigation}
+                onPress={() => handleLiveDetailsNavigation(contest.contestId)}
                 style={styles.touchableOpacity}>
                 <View style={styles.contestContainer}>
                   <Image
                     source={require('../assets/contestBG.png')}
                     style={styles.contestBackground}
                   />
-                  <Text style={styles.contestText1}>Topic Name</Text>
+                  <Text style={styles.contestText1}>
+                    {topicNames[contest.topicId] || 'Loading...'}
+                  </Text>
                   <Text style={styles.contestText2}>
                     Now Playing: {contest.playerJoined || 0}
                   </Text>
@@ -234,7 +259,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     resizeMode: 'stretch',
-    borderRadius: 35,
+    borderRadius: 50,
   },
   contestText1: {
     fontSize: 19,

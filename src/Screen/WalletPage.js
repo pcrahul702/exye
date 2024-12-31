@@ -31,7 +31,7 @@ function WalletPage() {
     React.useCallback(() => {
       getWalletData();
     }, [])
-  );
+  ); 
 
   const getWalletData = async () => {
     try {

@@ -69,7 +69,7 @@ const PreviousDetails = () => {
 
             <View style={styles.bottomContainer}>
                 <Image
-                    source={require('../assets/leftArrow.png')} // Replace with your actual arrow image path
+                    source={require('../assets/leftArrowWhite.png')} // Replace with your actual arrow image path
                     style={styles.arrowIcon}
                 />
                 <Text style={[styles.bottomText,{fontSize:width*0.07}]}>Swipe to go back</Text>
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     bottomText: {
         fontSize: 31,
         fontWeight: '275',
-        color: '#000000',
+        color: 'white',
         textAlign: 'center',
         fontFamily: 'Poppins-Regular'
     }

@@ -1,26 +1,88 @@
-import React, { useState } from 'react';
-import { StatusBar, StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { StatusBar, StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ScrollView, Alert } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { getData, postData } from '../Utils/api';
+import { getAccessToken } from '../Utils/getAccessToken';
 
 const { width, height } = Dimensions.get('window');
 
 const QuestionScreen = () => {
     const [selectedRadio, setSelectedRadio] = useState(0);
-    const [isAnsSubmited, setIsAnsSubmitted]=useState(0);
     const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-    const navigation = useNavigation();
-    const fontSize = width * 0.05; // Adjust font size to be a percentage of screen width
+    const [questionsData, setQuestionsData] = useState([]);
+    const [question, setQuestion] = useState('Loading...');
+    const [questionId, setQuestionId] = useState('');
+    const [options, setOptions] = useState([
+        { key: 'option_1', value: "Loading" },
+        { key: 'option_2', value: "Loading" },
+        { key: 'option_3', value: "Loading" },
+        { key: 'option_4', value: "Loading" },
+    ]);
 
-    const handleSubmit = () => {
-        navigation.navigate('LoadingPavilion');
+    const navigation = useNavigation();
+
+    const fontSize = width * 0.05;
+
+    const route = useRoute();
+    const { contestId, topicId, quizId } = route.params;
+
+
+    useEffect(() => {
+        console.log(contestId, topicId, quizId);
+        getQuestionOptions();
+    }, [contestId]);
+
+    const getQuestionOptions = async () => {
+        try {
+            const res = await getData(`/api/v1/quiz/${quizId}`);
+            console.log(res);
+            setQuestionsData(res);
+
+            const firstQuestion = res.questions && res.questions[0];
+
+            if (firstQuestion) {
+                setQuestion(firstQuestion.subtitle);
+                setQuestionId(firstQuestion.questionId);
+                const optionsArray = firstQuestion.optionsMetadata?.options || [];
+                setOptions(optionsArray);
+            } else {
+                Alert.alert('No questions found!');
+            }
+
+        } catch (error) {
+            console.log('error', error);
+            Alert.alert(error?.response?.data?.message || 'An error occured');
+        }
     };
 
-    const options = [
-        { id: 1, name: "South Africa" },
-        { id: 2, name: "China" },
-        { id: 3, name: "Hungary" },
-        { id: 4, name: "USA" }
-    ];
+    const handleSubmit = async () => {
+
+        const token = await getAccessToken();
+        console.log(token);
+
+        const payload = {
+            answers: [
+                {
+                    questionId: questionId,
+                    selectedOptions: [selectedRadio]
+                }
+            ]
+        };
+        console.log("payload data".payload);
+        try {
+            const data = await postData(`/api/v1/quiz/submit-answer/${quizId}/contest/${contestId}/topic/${topicId}`, payload, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            console.log(data);
+            navigation.navigate('LoadingPavilion');
+        } catch (error) {
+            console.error('Error during answer submission:', error.response.data);
+        }
+
+    };
 
     return (
         <View style={styles.bg}>
@@ -36,33 +98,35 @@ const QuestionScreen = () => {
             <ScrollView contentContainerStyle={styles.scrollContainer}>
 
                 <Text style={styles.question}>
-                Right to emergency medical aid is a
+                    {question}
                 </Text>
 
                 <View style={styles.optionsContainer}>
                     {options.map((item) => (
                         <TouchableOpacity
-                            key={item.id}
-                            onPress={() => {setSelectedRadio(item.id);
-                                setIsSubmitDisabled(false);}}
+                            key={item.key}
+                            onPress={() => {
+                                setSelectedRadio(item.key);
+                                setIsSubmitDisabled(false);
+                            }}
                             style={styles.optionItem}
                         >
                             <View style={styles.radio}>
-                                {selectedRadio === item.id && <View style={styles.radioBG} />}
+                                {selectedRadio === item.key && <View style={styles.radioBG} />}
                             </View>
-                            <Text style={[styles.radioText, { fontSize }]}>{item.name}</Text>
+                            <Text style={[styles.radioText, { fontSize }]}>{item.value}</Text>
                         </TouchableOpacity>
                     ))}
                     <TouchableOpacity
                         style={[
                             styles.submitButton,
                             {
-                              backgroundColor: isSubmitDisabled
-                                ? 'rgba(61, 196, 103, 0.6)'
-                                : 'green',
+                                backgroundColor: isSubmitDisabled
+                                    ? 'rgba(61, 196, 103, 0.6)'
+                                    : 'green',
                             },
-                          ]}
-                          disabled={isSubmitDisabled}
+                        ]}
+                        disabled={isSubmitDisabled}
                         onPress={handleSubmit}
                     >
                         <Text style={styles.submitText}>Submit</Text>
@@ -106,7 +170,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         fontWeight: '500',
         color: '#FFFFFF',
-        letterSpacing:1,
+        letterSpacing: 1,
         fontFamily: 'Poppins-Regular'
     },
     optionsContainer: {
@@ -127,7 +191,7 @@ const styles = StyleSheet.create({
         marginVertical: 8, // Space between options
     },
     radioText: {
-        width:'80%',
+        width: '80%',
         color: 'black',
         marginLeft: 10,
         fontFamily: 'Poppins-Regular',
@@ -159,7 +223,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: 10,
         marginTop: 20,
-        backgroundColor:'green'
+        backgroundColor: 'green'
     },
     submitText: {
         color: '#FFFFFF',

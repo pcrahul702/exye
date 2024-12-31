@@ -24,10 +24,7 @@ const Pavilion = () => {
   };
   return (
     <SafeAreaView style={styles.container}>
-
-      {/* <Image source={uppershaper} style={styles.uppershape} />
-      <Image source={backgroundImage} style={styles.backgroundImage} />
-      <Image source={upperLog} style={styles.upperLog} /> */}
+      
      
       <StatusBar hidden={true} />
 
@@ -183,10 +180,7 @@ const styles = StyleSheet.create({
   logo: {
     flex: 1,
     width: 40,
-    height: 40,
-  
-
- 
+    height: 40, 
   },
   uppershape: {
     top: 0,
@@ -257,7 +251,7 @@ const styles = StyleSheet.create({
     width: '90%',
     height: 'auto',
     backgroundColor: '#FFA952',
-    marginTop: 20,
+    marginVertical: 20,
     alignSelf: 'center',
     borderRadius: 35,
     elevation: 8,
