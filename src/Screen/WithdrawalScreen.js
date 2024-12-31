@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, SafeAreaView, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { View, SafeAreaView, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -13,7 +13,7 @@ function WithdrawalScreen() {
 
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
             <Image source={require('../assets/uppershape2.png')} style={styles.uppershape} />
             <Image source={require('../assets/Group.png')} style={styles.backgroundImage} />
             <Image source={require('../assets/referLogo.png')} style={styles.upperLog} />
@@ -59,7 +59,7 @@ function WithdrawalScreen() {
 
 
 
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 

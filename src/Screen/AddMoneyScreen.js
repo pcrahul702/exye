@@ -1,21 +1,50 @@
-import React from 'react';
-import { View, SafeAreaView, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { View, SafeAreaView, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, Dimensions, KeyboardAvoidingView, Alert } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { getData } from '../Utils/api';
 
 const { width, height } = Dimensions.get('window');
 
 
 function AddMoneyScreen() {
-    const navigation = useNavigation();
 
-    const handlePaymentNavigation = () => {
-        navigation.navigate('Payment'); // Navigate to the Wallet screen
+    const navigation = useNavigation();
+    const [walletData, setWalletData] = useState([]);
+    const [addAmount, setAddAmount] = useState('');
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getWalletData();
+        }, [])
+    );
+
+    const getWalletData = async () => {
+        try {
+            const res = await getData('/api/v1/profile/wallet');
+
+            setWalletData(res?.data);
+
+        } catch (error) {
+            console.log('error', error);
+            Alert.alert(error?.response?.data?.message);
+        }
     };
 
+    const handleProceedClick = () => {
+        if (addAmount){
+            handlePaymentNavigation(addAmount);
+        }
+        else{
+            Alert.alert("Enter amount to add!");
+        }
+    }
 
+    const handlePaymentNavigation = (addAmount) => {
+        navigation.navigate('Payment', { addAmount });
+    };
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
             <Image source={require('../assets/uppershape2.png')} style={styles.uppershape} />
             <Image source={require('../assets/Group.png')} style={styles.backgroundImage} />
             <Image source={require('../assets/addMoneyLogo.png')} style={styles.upperLog} />
@@ -25,25 +54,31 @@ function AddMoneyScreen() {
 
                     <Image source={require('../assets/addBG.png')} style={styles.backgroundImageInContent} resizeMode='contain' />
                     <Text style={styles.text1}>Current Balance :</Text>
-                    <Text style={styles.text2}>₹ 108</Text>
+                    <Text style={styles.text2}>₹ {walletData.walletAmount || 0}</Text>
                     <Text style={styles.text3}>Amount to be added :</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Enter amount"
                         keyboardType="numeric"
+                        value={addAmount}
+                        onChangeText={setAddAmount}
                     />
                     <Text style={styles.additionalText}>Or click at any button below :</Text>
                     <View style={styles.buttonsContainer}>
-                        <TouchableOpacity style={styles.button} >
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => handlePaymentNavigation('100')}>
                             <Text style={styles.buttonText}>₹ 100</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button}>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => handlePaymentNavigation('200')}>
                             <Text style={styles.buttonText}>₹ 200</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                <TouchableOpacity onPress={handlePaymentNavigation}>
+                <TouchableOpacity onPress={handleProceedClick}>
                     <Image source={require('../assets/proceedIcon.png')} style={[styles.bottomIcon, { marginBottom: height * 0.16 }]} />
                 </TouchableOpacity>
 
@@ -55,11 +90,7 @@ function AddMoneyScreen() {
                 resizeMode="contain"
                 style={styles.bottomNav} />
 
-
-
-
-
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -185,7 +216,7 @@ const styles = StyleSheet.create({
     },
     bottomNav: {
         position: 'absolute',
-        bottom: 0,
+        bottom: -40,
         width: '100%',
         height: '15%',
         resizeMode: 'stretch',

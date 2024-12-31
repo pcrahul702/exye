@@ -1,4 +1,4 @@
-import { useNavigation, DrawerActions } from '@react-navigation/native';
+import { useNavigation, DrawerActions, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
@@ -8,8 +8,6 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Modal,
-  Pressable,
   Alert,
   Animated,
   Dimensions,
@@ -20,10 +18,7 @@ import { getData } from '../Utils/api';
 const { width, height } = Dimensions.get('window');
 
 const HomeScreen = () => {
-  const [selectedRadio, setSelectedRadio] = useState(0);
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [profiledata, setProfileData] = useState([]);
+  const [dashboardData, setDashboardData] = useState([]);
   const [liveContestsData, setLiveContestsData] = useState([]);
   const [isContestVisible, setIsContestVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
@@ -31,41 +26,26 @@ const HomeScreen = () => {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    getProfileData();
-  }, []);
+  useFocusEffect(
+      React.useCallback(() => {
+        getDashboardData(); 
+      }, []) 
+    );
 
-  const getProfileData = async () => {
+  const getDashboardData = async () => {
     try {
       const res = await getData('/api/v1/dashboard');
 
-      setProfileData(res);
-      console.log(profiledata.liveContests);
-      setLiveContestsData(profiledata.liveContests);
+      setDashboardData(res);
+      console.log(dashboardData.liveContests);
+      setLiveContestsData(dashboardData.liveContests);
       setIsContestVisible(true);
 
-      fillRadioButtons(res.participationAmount); // call function to fill radio buttons
       startCountdown(res.nextQuizTime); // Start the countdown based on quiz time
     } catch (error) {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
     }
-  };
-
-
-  const handleCardPress = (name) => {
-    alert(`You selected: ${name}`);
-  };
-
-  const fillRadioButtons = (participationAmount) => {
-    const selectedAmountIndex = participationAmount.findIndex(item => item.tick); // find index of selected amount
-    if (selectedAmountIndex !== -1) {
-      setSelectedRadio(selectedAmountIndex); // set the selected radio index based on tick status
-    }
-  };
-
-  const handleRadioPress = (index) => {
-    setSelectedRadio(index); // update selected radio index
   };
 
   const startCountdown = (quizTime) => {
@@ -94,20 +74,24 @@ const HomeScreen = () => {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
-  const handleSubmit = () => {
-    navigation.navigate('Topic');
+  const handleLiveNavigation = () => {
+    navigation.navigate('Live'); 
   };
 
   const handleWalletNavigation = () => {
-    navigation.navigate('Wallet'); // Navigate to the Wallet screen
+    navigation.navigate('Wallet'); 
   };
 
   const handlePavailionNavigation = () => {
-    navigation.navigate('Pavilion'); // Navigate to the Wallet screen
+    navigation.navigate('Pavilion'); 
   };
 
   const handleProfile1Navigation = () => {
-    navigation.navigate('Profile1'); // Navigate to the Wallet screen
+    navigation.navigate('Profile1');
+  };
+
+  const handleContestClick = (contestId) => {
+    navigation.navigate('ContestInfo', { contestId: contestId }); // Navigate to the Wallet screen
   };
 
   const handleDrawerOpen = () => {
@@ -156,7 +140,8 @@ const HomeScreen = () => {
           />
         </View>
 
-        {profiledata?.liveContests?.length > 0 ? (
+
+        {dashboardData?.liveContests?.length > 0 ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -167,59 +152,25 @@ const HomeScreen = () => {
             scrollEventThrottle={16}
             contentContainerStyle={styles.carouselContent}
           >
-            {profiledata.liveContests.map((item, index) => (
-              <Animated.View
+            {dashboardData.liveContests.map((item, index) => (
+              <TouchableOpacity
                 key={index}
-                style={[styles.contestContainer, {
-                  opacity: carouselScrollX.interpolate({
-                    inputRange: [
-                      (index - 1) * 360,
-                      index * 360,
-                      (index + 1) * 360,
-                    ],
-                    outputRange: [0.5, 1, 0.5],
-                    extrapolate: 'clamp',
-                  })
-                }]}
-              >
-                <Image
-                  source={require('../assets/contestBG.png')}
-                  style={styles.contestBackground}
-                />
+                onPress={() => handleContestClick(item.contestId)}>
 
-                <Text style={styles.contestText1}>{item.contestName}</Text>
-                <Text style={styles.contestText2}>{item.contestType}</Text>
-                <Text style={styles.contestText3}>Prize: Rs.{item.prizePerContestant}</Text>
+                <LinearGradient
+                  colors={['#F05A5B', '#FFA952']}
+                  style={styles.contestContainer}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}>
 
-                <View style={styles.joinContainer}>
-                  <View style={styles.progressBarContainer}>
-                    <LinearGradient
-                      colors={['#FF612F', '#A32FFF8F']} // Gradient colors
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      // style={[styles.progressBar, { width: `${Math.min((item.playerJoined / 20), 1) * 100}%` }]}
-                      style={[styles.progressBar, { width: `${Math.min((14 / 20), 1) * 100}%` }]}
-                    />
-                  </View>
-                  <TouchableOpacity
-                    style={styles.cardContent}
-                    onPress={() => console.log(item.contestName)}
+                  <Text style={styles.contestText1}>Topic : {item.contestName}</Text>
+                  <Text style={styles.contestText1}>Prize : ₹{item.prizePerContestant}</Text>
+                  <Text style={styles.contestText1}>Entry Fee Topic: ₹{item.entryAmount}</Text>
 
-                  >
-                    <LinearGradient
-                      colors={['#FFFFFF', '#FE7503']}
-                      style={styles.gradientBorder}
-                      start={{ x: 0, y: 1 }}
-                      end={{ x: 1, y: 0 }}>
-                      <View style={styles.join}>
-                        <Text style={styles.joinText}>Join</Text>
-                      </View>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
+                </LinearGradient>
 
+              </TouchableOpacity>
 
-              </Animated.View>
             ))}
           </ScrollView>
         ) : (
@@ -227,31 +178,8 @@ const HomeScreen = () => {
         )}
 
 
-
-        {/* <View style={styles.view2}>
-          <Text style={styles.text2}>Choose amount for participation :</Text>
-
-          <View style={styles.radioContainer}>
-            {profiledata?.participationAmount?.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleRadioPress(index)}
-                style={styles.radioWrapper}>
-                <View style={styles.radio}>
-                  {selectedRadio === index ? <View style={styles.radioFill} /> : null}
-                </View>
-                <Text style={styles.radioText}>₹ {item.amount}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View> */}
-
         <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Live', {
-              LiveContestData: profiledata?.liveContests,
-            });
-          }}>
+          onPress={handleLiveNavigation}>
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
@@ -412,109 +340,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: width * 0.05,
     marginTop: 7,
+    paddingVertical: 14,
     borderRadius: 35,
     borderColor: 'white',
     borderWidth: 2,
     backgroundColor: 'transparent', // Ensure container doesn't have an extra background color
-  },
-  contestBackground: {
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    resizeMode: 'stretch',
-    borderRadius: 35,
   },
   carouselContent: {
     alignItems: 'center',
     paddingRight: 15,
   },
   contestText1: {
-    fontSize: 24,
+    fontSize: 15,
     color: 'white',
     marginTop: 14,
-    fontWeight: '900',
+    fontWeight: '600',
     textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
-  },
-  contestText2: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: 'white',
-    marginTop: 12,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
-  },
-  contestText3: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: 'white',
-    marginTop: 8,
-    letterSpacing: 2,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
-  },
-  joinContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10, // Add some space above the join button
-  },
-  progressBarContainer: {
-    width: width*0.55,
-    marginLeft:width*0.03,
-    borderRadius: 20,
-    padding: 3,
-    backgroundColor: '#D9D9D9',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  progressBar: {
-    height: 16,
-    borderRadius: 20,
-  },
-  gradientBorder: {
-    padding: 3, // Border width
-    borderRadius: 60,
-    alignSelf: 'center',
-  },
-  join: {
-    width: width*0.22,
-    alignItems: 'center',
-    backgroundColor: '#EF5A5A',
-    borderRadius: 60,
-    paddingVertical: 2,
-  },
-  joinText: {
-    fontSize: width*0.04,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    alignSelf:'center',
-    fontFamily: 'Poppins-Regular',
-  },
-  cardContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 15,
-  },
-  view2: {
-    width: '90%',
-    height: 'auto',
-    backgroundColor: '#FFA952',
-    alignSelf: 'center',
-    borderRadius: 35,
-    elevation: 8,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    borderColor: 'white',
-    borderWidth: 2,
-  },
-  text2: {
-    fontSize: 22,
-    color: 'white',
-    fontWeight: '700',
-    margin: 20,
     fontFamily: 'Poppins-Regular',
   },
   view3: {
@@ -582,64 +423,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     fontFamily: 'Poppins-Regular',
   },
-  submitButton: {
-    width: '60%',
-    height: 'auto',
-    alignSelf: 'center',
-    marginTop: 20,
-    marginBottom: 70,
-    borderRadius: 40,
-    borderColor: 'white',
-    borderWidth: 2,
-    alignItems: 'center',
-    paddingVertical: 10,
-
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  submitText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Poppins-Regular',
-  },
-  radioContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 8,
-    justifyContent: 'space-between',
-  },
-  radioWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '22%', // Adjust to fit four items in a row and create even spacing
-    marginBottom: 15,
-  },
-  radio: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 5,
-  },
-  radioFill: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#F05A5B',
-  },
-  radioText: {
-    fontSize: 16,
-    color: 'white',
-    fontWeight: '700',
-    fontFamily: 'Poppins-Regular',
-  },
   backgroundImage: {
     width: '100%',
     height: '80%',
@@ -685,21 +468,6 @@ const styles = StyleSheet.create({
     height: 70,
     width: 70,
     left: '40%',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
-    width: '60%',
-    backgroundColor: 'white',
-    padding: 20,
-    height: '100%',
-    left: 0,
-  },
-  modalContents: {
-    width: '100%',
   },
 });
 

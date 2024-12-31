@@ -6,32 +6,45 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert,
+  Dimensions,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
-import {useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
-import {getData} from '../Utils/api';
+import { getData } from '../Utils/api';
 
-// const contestData = [
-//   { id: 1, players: 10, price: 100 },
-//   { id: 2, players: 15, price: 150 },
-//   { id: 3, players: 10, price: 100 },
-//   { id: 4, players: 15, price: 150 },
-//   // Add more contests here
-// ];
+const { width, height } = Dimensions.get('window');
 
-const LiveScreen = ({route}) => {
-  // const {LiveContestData} = route.params;
-  // console.log("LiveContestData",LiveContestData)
- // [{"contestId": "contest-0e20a0f3", "contestName": "Live Contests", "contestType": "LIVE", "playerJoined": 0, "prizePerContestant": 100}]
-  const [contestData, setContestData] = useState([]);
-  // useEffect(() => {
-  //   setContestData(LiveContestData);
-  // }, [LiveContestData]);
+const LiveScreen = () => {
+
   const navigation = useNavigation();
+  const [dashboardData, setDashboardData] = useState([]);
+  const [liveContestsData, setLiveContestsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getDashboardData();
+    }, [])
+  );
+
+  const getDashboardData = async () => {
+    try {
+      setIsLoading(true); // Start loading
+      const res = await getData('/api/v1/dashboard');
+      setDashboardData(res);
+      setLiveContestsData(res.liveContests);
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    } finally {
+      setIsLoading(false); // Stop loading after data is fetched
+    }
+  };
 
   const handleHomeNavigation = () => {
     navigation.navigate('Dashboard');
@@ -55,43 +68,49 @@ const LiveScreen = ({route}) => {
         <Text style={styles.headerText}>Scroll to see your contests</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        {contestData && contestData.length > 0 ? (
-          contestData.map(contest => (
-            <TouchableOpacity
-              key={contest.contestId}
-              onPress={handleLiveDetailsNavigation}
-              style={styles.touchableOpacity}>
-              <View style={styles.contestContainer}>
-                <Image
-                  source={require('../assets/contestBG.png')}
-                  style={styles.contestBackground}
-                />
-                <Text style={styles.contestText1}>Contest {contest.contestName}</Text>
-                <Text style={styles.contestText2}>
-                  Now Playing: {contest.playerJoined}
-                </Text>
-                <Text style={styles.contestText3}>
-                  Prize Pool per Contestant: ₹ {contest.prizePerContestant}
-                </Text>
-                <View style={styles.progressBarContainer}>
-                  <LinearGradient
-                    colors={['#FF612F', '#A32FFF8F']} // Gradient colors
-                    start={{x: 0, y: 0}}
-                    end={{x: 1, y: 0}}
-                    style={[
-                      styles.progressBar,
-                      {width: `${Math.min(contest.players / 20, 1) * 100}%`},
-                    ]}
+      {isLoading ? (
+        <View style={styles.loaderContainer}>
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          {liveContestsData && liveContestsData.length > 0 ? (
+            liveContestsData.map(contest => (
+              <TouchableOpacity
+                key={contest.contestId}
+                onPress={handleLiveDetailsNavigation}
+                style={styles.touchableOpacity}>
+                <View style={styles.contestContainer}>
+                  <Image
+                    source={require('../assets/contestBG.png')}
+                    style={styles.contestBackground}
                   />
+                  <Text style={styles.contestText1}>Topic Name</Text>
+                  <Text style={styles.contestText2}>
+                    Now Playing: {contest.playerJoined || 0}
+                  </Text>
+                  <Text style={styles.contestText3}>
+                    Prize Poll per Contestant: ₹ {contest.prizePerContestant}
+                  </Text>
+                  <View style={styles.progressBarContainer}>
+                    <LinearGradient
+                      colors={['#FF612F', '#A32FFF8F']} // Gradient colors
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={[
+                        styles.progressBar,
+                        { width: `${((contest.playerJoined || 0) / 20) * 100}%` },
+                      ]}
+                    />
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={styles.noContentText}>No Content Available</Text>
-        )}
-      </ScrollView>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.noContentText}>No contests available at this moment.</Text>
+          )}
+        </ScrollView>
+      )}
 
       <TouchableOpacity onPress={handleHomeNavigation} style={styles.xyz}>
         <Image
@@ -160,7 +179,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 50,
     shadowColor: '#000',
-    shadowOffset: {width: 10, height: 10},
+    shadowOffset: { width: 10, height: 10 },
     shadowOpacity: 0.8,
     shadowRadius: 10,
     elevation: 10,
@@ -183,16 +202,31 @@ const styles = StyleSheet.create({
     paddingBottom: 130,
     marginTop: 15,
   },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: height - 150, // Adjust height as needed
+  },
+  loadingText: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#FFA952',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
+  },
   touchableOpacity: {
     width: '90%',
     marginVertical: 4,
   },
   contestContainer: {
-    width: '100%',
+    width: width * 0.9,
     height: 'auto',
-    borderRadius: 50,
-    padding: 10,
     alignItems: 'center',
+    marginTop: 7,
+    borderRadius: 50,
+    borderColor: 'white',
+    borderWidth: 2,
     backgroundColor: 'transparent', // Ensure container doesn't have an extra background color
   },
   contestBackground: {
@@ -200,6 +234,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     resizeMode: 'stretch',
+    borderRadius: 35,
   },
   contestText1: {
     fontSize: 19,
