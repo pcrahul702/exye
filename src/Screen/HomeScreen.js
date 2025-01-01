@@ -337,10 +337,10 @@ const styles = StyleSheet.create({
   contestContainer: {
     width: width * 0.9,
     height: 'auto',
-    alignItems: 'center',
     marginLeft: width * 0.05,
     marginTop: 7,
-    paddingVertical: 14,
+    paddingHorizontal:20,
+    paddingBottom:14,
     borderRadius: 35,
     borderColor: 'white',
     borderWidth: 2,
@@ -353,9 +353,9 @@ const styles = StyleSheet.create({
   contestText1: {
     fontSize: 15,
     color: 'white',
-    marginTop: 14,
+    marginTop:14,
     fontWeight: '600',
-    textAlign: 'center',
+    textAlign: 'left',
     fontFamily: 'Poppins-Regular',
   },
   view3: {

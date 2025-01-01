@@ -29,7 +29,7 @@ const QuizChoiceScreen = () => {
         try {
             setLoading(true);
             const res = await getData(`/api/v1/quiz/${topicId}/contest/${contestId}`);
-            console.log('Response data:', res.data);
+            console.log('Start Quiz Response data:', res.data);
 
             if (res.data && Array.isArray(res.data)) {
                 if (res.data[0].questions) {
@@ -48,8 +48,23 @@ const QuizChoiceScreen = () => {
         }
     };
 
-    const handleQuestionPress = (quizId) => {
-        navigation.navigate('Progress', { contestId: contestId, topicId: topicId, quizId: quizId });
+    const handleQuestionPress = async (quizId) => {
+    
+            const token = await getAccessToken();
+            console.log(token);
+            
+            
+            try {
+                const data = await postData(`/api/v1/quiz/start/${quizId}/contest/${contestId}/topic/${topicId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });    
+                console.log("hello ",data);
+                navigation.navigate('Progress', { contestId: contestId, topicId: topicId, quizId: quizId });
+            } catch (error) {
+                console.error('Error during starting quiz:', error.response.data);
+            }
     };
 
 

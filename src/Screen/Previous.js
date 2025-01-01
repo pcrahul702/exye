@@ -7,7 +7,6 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getData } from '../Utils/api';
 
 
-
 const Previous = () => {
 
   const navigation = useNavigation();
@@ -51,11 +50,11 @@ const Previous = () => {
   };
 
   const handleWalletNavigation = () => {
-    navigation.navigate('Wallet'); // Navigate to the Wallet screen
+    navigation.navigate('Wallet');
   };
 
   const seeDetails = () => {
-    navigation.navigate('PreviousDetails'); // Navigate to the Wallet screen
+    navigation.navigate('PreviousDetails'); 
   };
 
 
