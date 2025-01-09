@@ -266,15 +266,10 @@ const styles = StyleSheet.create({
         left: 95,
         bottom: 20,
         zIndex: 1,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'Poppins-Regular',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+        textShadowOffset: { width: 1, height: 1 }, 
+        textShadowRadius: 6,
     },
 });
 

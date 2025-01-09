@@ -150,21 +150,36 @@ const styles = StyleSheet.create({
         fontSize: 24,
         color: 'white',
         fontWeight: '400',
-        fontFamily: 'Poppins-Regular'
+        width:'100%',
+        textAlign:'center',
+        fontFamily: 'Poppins-Regular',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+        textShadowOffset: { width: 3, height: 3 }, 
+        textShadowRadius: 6,
     },
     text2: {
         fontSize: 30,
         color: 'white',
         fontWeight: '700',
         marginTop: 12,
-        fontFamily: 'Poppins-Regular'
+        width:'100%',
+        textAlign:'center',
+        fontFamily: 'Poppins-Regular',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+        textShadowOffset: { width: 3, height: 3 }, 
+        textShadowRadius: 8,
     },
     text3: {
         fontSize: 24,
         color: 'white',
         fontWeight: '400',
         marginTop: 12,
-        fontFamily: 'Poppins-Regular'
+        width:'100%',
+        textAlign:'center',
+        fontFamily: 'Poppins-Regular',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+        textShadowOffset: { width: 3, height: 3 }, 
+        textShadowRadius: 6,
     },
     input: {
         width: '60%',
@@ -187,7 +202,11 @@ const styles = StyleSheet.create({
         color: 'white',
         fontFamily: 'Poppins-Regular',
         alignSelf: 'center',
-        textAlign: 'center'
+        textAlign: 'center',
+        width:'100%',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+        textShadowOffset: { width: 1, height: 1 }, 
+        textShadowRadius: 6,
     },
     buttonsContainer: {
         top: 20,
@@ -212,7 +231,12 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontWeight: '600',
         fontSize: 24,
-        fontFamily: 'Poppins-Regular'
+        width:'100%',
+        textAlign:'center',
+        fontFamily: 'Poppins-Regular',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+        textShadowOffset: { width: 2, height: 2 }, 
+        textShadowRadius: 6,
     },
     bottomNav: {
         position: 'absolute',

@@ -165,7 +165,7 @@ const HomeScreen = () => {
 
                   <Text style={styles.contestText1}>Topic : {item.contestName}</Text>
                   <Text style={styles.contestText1}>Prize : ₹{item.prizePerContestant}</Text>
-                  <Text style={styles.contestText1}>Entry Fee Topic: ₹{item.entryAmount}</Text>
+                  <Text style={styles.contestText1}>Entry Fee : ₹{item.entryAmount}</Text>
 
                 </LinearGradient>
 
@@ -195,7 +195,7 @@ const HomeScreen = () => {
 
         <TouchableOpacity onPress={() => navigation.navigate('Topic')}>
           <View style={styles.view4}>
-            <Text style={styles.text4}>Demo Contest</Text>
+            <Text style={styles.text4}>Create your Own</Text>
             <Image
               source={require('../assets/semiRect2.png')}
               style={styles.cardImage}
@@ -422,6 +422,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     zIndex: 1,
     fontFamily: 'Poppins-Regular',
+    width:'100%',
+    textAlign:'center',
+    fontFamily: 'Poppins-Regular',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+    textShadowOffset: { width: 2, height: 2 }, 
+    textShadowRadius: 8,
   },
   backgroundImage: {
     width: '100%',

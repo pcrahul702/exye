@@ -105,7 +105,11 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: '#333333',
         fontFamily: 'Poppins-Regular',
-        flex: 1, // Ensures the text takes up the remaining space
+        flex: 1,
+        fontFamily: 'Poppins-Regular',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+        textShadowOffset: { width: 0, height: 2 }, 
+        textShadowRadius: 4,
     },
     arrowContainer: {
         alignSelf:'flex-start',
