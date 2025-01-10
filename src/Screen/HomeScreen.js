@@ -1,4 +1,4 @@
-import { useNavigation, DrawerActions, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
@@ -8,6 +8,8 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Modal,
+  Pressable,
   Alert,
   Animated,
   Dimensions,
@@ -22,29 +24,44 @@ const HomeScreen = () => {
   const [liveContestsData, setLiveContestsData] = useState([]);
   const [isContestVisible, setIsContestVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
+  const [imageUris, setImageUris] = useState({});  // To store image URIs
   const carouselScrollX = useRef(new Animated.Value(0)).current;
 
   const navigation = useNavigation();
 
-  useFocusEffect(
-      React.useCallback(() => {
-        getDashboardData(); 
-      }, []) 
-    );
+  useEffect(() => {
+    getDashboardData();
+  }, []);
 
   const getDashboardData = async () => {
     try {
       const res = await getData('/api/v1/dashboard');
-
       setDashboardData(res);
-      console.log(dashboardData.liveContests);
-      setLiveContestsData(dashboardData.liveContests);
+      setLiveContestsData(res.liveContests);
       setIsContestVisible(true);
 
       startCountdown(res.nextQuizTime); // Start the countdown based on quiz time
+
+      // Fetch images for live contests
+      const imageUris = {};
+      for (const contest of res.liveContests) {
+        const imageUri = await getImageUri(contest.topicId);
+        imageUris[contest.topicId] = imageUri;  // Store image URI by topicId
+      }
+      setImageUris(imageUris);  // Update state with all the image URIs
     } catch (error) {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
+    }
+  };
+
+  const getImageUri = async (id) => {
+    try {
+      const res = await getData(`/api/v1/profile/topic/${id}`);
+      return { uri: res.data.topicImageUrl }; // Return the image URI
+    } catch (error) {
+      console.log('error', error);
+      return null; // Return null if there's an error fetching the image
     }
   };
 
@@ -75,15 +92,15 @@ const HomeScreen = () => {
   };
 
   const handleLiveNavigation = () => {
-    navigation.navigate('Live'); 
+    navigation.navigate('Live');
   };
 
   const handleWalletNavigation = () => {
-    navigation.navigate('Wallet'); 
+    navigation.navigate('Wallet');
   };
 
   const handlePavailionNavigation = () => {
-    navigation.navigate('Pavilion'); 
+    navigation.navigate('Pavilion');
   };
 
   const handleProfile1Navigation = () => {
@@ -91,7 +108,7 @@ const HomeScreen = () => {
   };
 
   const handleContestClick = (contestId) => {
-    navigation.navigate('LiveDetails', { contestId: contestId }); // Navigate to the Wallet screen
+    navigation.navigate('LiveDetails', { contestId: contestId }); // Navigate to the contest details screen
   };
 
   const handleDrawerOpen = () => {
@@ -140,7 +157,6 @@ const HomeScreen = () => {
           />
         </View>
 
-
         {dashboardData?.liveContests?.length > 0 ? (
           <ScrollView
             horizontal
@@ -155,36 +171,47 @@ const HomeScreen = () => {
             {dashboardData.liveContests.map((item, index) => (
               <TouchableOpacity
                 key={index}
-                onPress={() => handleContestClick(item.contestId)}>
-
+                onPress={() => handleContestClick(item.contestId)}
+              >
                 <LinearGradient
                   colors={['#F05A5B', '#FFA952']}
                   style={styles.contestContainer}
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}>
+                  end={{ x: 1, y: 0 }}
+                >
+                  <View style={styles.leftSide}>
+                    <Text style={styles.contestText}>Topic : {item.contestName}</Text>
+                    <Text style={styles.contestText}>Prize : ₹{item.prizePerContestant}</Text>
+                    <Text style={styles.contestText}>Entry Fee : ₹{item.entryAmount}</Text>
+                  </View>
 
-                  <Text style={styles.contestText1}>Topic : {item.contestName}</Text>
-                  <Text style={styles.contestText1}>Prize : ₹{item.prizePerContestant}</Text>
-                  <Text style={styles.contestText1}>Entry Fee : ₹{item.entryAmount}</Text>
+                  <View style={styles.middleSide}>
+                    <Image source={require('../assets/middleArrow.png')} style={styles.middleImage} />
+                  </View>
 
+                  <View style={styles.rightSide}>
+                    {/* Use the fetched image URI */}
+                    {imageUris[item.topicId] ? (
+                      <Image source={imageUris[item.topicId]} style={styles.topicImage} />
+                    ) : (
+                      <Text style={[styles.loadingText, { color: 'white' }]}>Loading...</Text>
+                    )}
+                  </View>
                 </LinearGradient>
-
               </TouchableOpacity>
-
             ))}
           </ScrollView>
         ) : (
-          null
+          <Text style={styles.loadingText}>No live contests available</Text>
         )}
 
-
-        <TouchableOpacity
-          onPress={handleLiveNavigation}>
+        <TouchableOpacity onPress={handleLiveNavigation}>
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}>
+            end={{ x: 1, y: 0 }}
+          >
             <Text style={styles.text3}>Live Contest</Text>
             <Image
               source={require('../assets/live_contest_image.png')}
@@ -193,7 +220,8 @@ const HomeScreen = () => {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Topic')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Topic')}
+          style={styles.shadowBox}>
           <View style={styles.view4}>
             <Text style={styles.text4}>Create your Own</Text>
             <Image
@@ -204,26 +232,20 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </ScrollView>
 
-
-      <TouchableOpacity
-        onPress={() => { }}
-        style={styles.xyz}>
+      {/* Bottom Navigation Bar */}
+      <TouchableOpacity onPress={() => { }} style={styles.xyz}>
         <Image
           source={require('../assets/filledHome.png')}
           style={styles.bottomNavIcons}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={handleWalletNavigation}
-        style={styles.WalletIcon}>
+      <TouchableOpacity onPress={handleWalletNavigation} style={styles.WalletIcon}>
         <Image
           source={require('../assets/unfilledWallet.png')}
           style={styles.bottomNavIcons}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={handlePavailionNavigation}
-        style={styles.NotificationIcon}>
+      <TouchableOpacity onPress={handlePavailionNavigation} style={styles.NotificationIcon}>
         <Image
           source={require('../assets/notification.png')}
           style={styles.bottomNavIcons}
@@ -238,6 +260,8 @@ const HomeScreen = () => {
     </View>
   );
 };
+
+
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
@@ -335,28 +359,58 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   contestContainer: {
+    flexDirection: 'row',
     width: width * 0.9,
     height: 'auto',
     marginLeft: width * 0.05,
     marginTop: 7,
-    paddingHorizontal:20,
-    paddingBottom:14,
     borderRadius: 35,
     borderColor: 'white',
     borderWidth: 2,
-    backgroundColor: 'transparent', // Ensure container doesn't have an extra background color
+    backgroundColor: 'transparent',
+  },
+  leftSide: {
+    height: '100%',
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    padding: 14
+  },
+  contestText: {
+    fontSize: 15,
+    color: 'white',
+    fontWeight: '600',
+    textAlign: 'left',
+    fontFamily: 'Poppins-Regular',
+  },
+  middleSide: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 14,
+  },
+  middleImage: {
+    flex: 1,
+    width: 9,
+    height: 25,
+    resizeMode: 'contain',
+  },
+  rightSide: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 14,
+  },
+  topicImage: {
+    flex: 1,
+    width: 130,
+    height: 140,
+    resizeMode: 'stretch',
+    marginRight: 20,
+    borderRadius: 14,
   },
   carouselContent: {
     alignItems: 'center',
     paddingRight: 15,
-  },
-  contestText1: {
-    fontSize: 15,
-    color: 'white',
-    marginTop:14,
-    fontWeight: '600',
-    textAlign: 'left',
-    fontFamily: 'Poppins-Regular',
   },
   view3: {
     width: '90%',
@@ -391,22 +445,25 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   view4: {
+    width: '100%',
+    height: 60,
+    alignSelf: 'center',
+    borderRadius: 20,
+    justifyContent: 'center',
+  },
+  shadowBox: {
     width: '90%',
     height: 60,
-    backgroundColor: '#Ffffdf',
+    backgroundColor: '#FFFFDF',
     alignSelf: 'center',
     marginTop: 20,
     marginBottom: 20,
     borderRadius: 20,
-    alignItems: 'center',
     elevation: 8,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    justifyContent: 'center',
-    position: 'relative',
-    overflow: 'hidden',
   },
   cardImage: {
     position: 'absolute',
@@ -422,11 +479,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     zIndex: 1,
     fontFamily: 'Poppins-Regular',
-    width:'100%',
-    textAlign:'center',
+    width: '100%',
+    textAlign: 'center',
     fontFamily: 'Poppins-Regular',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)', 
-    textShadowOffset: { width: 2, height: 2 }, 
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 8,
   },
   backgroundImage: {
@@ -474,6 +531,13 @@ const styles = StyleSheet.create({
     height: 70,
     width: 70,
     left: '40%',
+  },
+  loadingText: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#FFA952',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
   },
 });
 

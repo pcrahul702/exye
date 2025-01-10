@@ -6,10 +6,12 @@ import { getAccessToken } from '../Utils/getAccessToken';
 import axios from 'axios';
 
 const TopicScreen = () => {
+
     const [selectedCard, setSelectedCard] = useState(null);
     const [isReadyButtonDisabled, setIsReadyButtonDisabled] = useState(true);
     const [data, setData] = useState([]); // State to hold the filtered topics
     const navigation = useNavigation();
+    
     useEffect(() => {
         // Make the API call when the screen loads
         const fetchData = async () => {
@@ -56,7 +58,7 @@ const TopicScreen = () => {
     }, []);
 
     const handleReady = () => {
-        navigation.navigate('Progress');
+        navigation.navigate('CustomContest');
     };
 
     const toggleCardSelection = (id) => {
@@ -95,7 +97,7 @@ const TopicScreen = () => {
                                 style={[styles.card, selectedCard === item.id && styles.selectedCard]}
                                 onPress={() => toggleCardSelection(item.id)}
                             >
-                                {/* <Image source={item.image} style={styles.cardImage} /> */}
+                                <Image source={item.image} style={styles.cardImage} />
                                 <Text style={styles.cardText}>{item.text}</Text>
                                 <Text style={styles.cardDescription}>
                                     {item.description.length > 100
@@ -165,7 +167,7 @@ const styles = StyleSheet.create({
     },
     card: {
         width: '40%',
-        height: 200,
+        height: 340,
         backgroundColor: '#ffffff',
         elevation: 5,
         shadowColor: 'black',

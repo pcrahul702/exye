@@ -67,7 +67,7 @@ function WalletPage() {
   };
 
   const handleWithdrawNavigation = () => {
-    navigation.navigate('Withdraw');
+    navigation.navigate('Withdraw', { currentBalance: walletData.walletAmount || 0});
   };
 
   const handleProfile1Navigation = () => {

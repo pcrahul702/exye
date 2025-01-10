@@ -1,14 +1,75 @@
-import React from 'react';
-import { View, SafeAreaView, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Alert } from 'react-native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { getAccessToken } from '../Utils/getAccessToken';
+import { getData, postData } from '../Utils/api';
 
 
 function WithdrawalScreen() {
 
     const navigation = useNavigation();
+    const [withdrawAmount, setWithdrawAmount] = useState('');
+    const [walletData, setWalletData] = useState([]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getWalletData();
+        }, [])
+    );
+
+    const getWalletData = async () => {
+        try {
+            const res = await getData('/api/v1/profile/wallet');
+            setWalletData(res?.data);
+
+        } catch (error) {
+            console.log('error', error);
+            Alert.alert(error?.response?.data?.message);
+        }
+    };
 
     const handleTrackPrev = () => {
         navigation.navigate('WithdrawalStatus');
+    };
+
+    const handleSubmit = () => {
+        if (withdrawAmount) {
+            handleWithdrawal(withdrawAmount);
+        }
+        else {
+            Alert.alert("Enter amount to withdraw!");
+        }
+    }
+
+    const handleWithdrawal = async () => {
+
+        const token = await getAccessToken();
+        console.log("Access Token: ", token);
+
+        try {
+            const data = await postData(`/api/v1/profile/wallet/withdraw-money?amount=${withdrawAmount}`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log(data);
+            Alert.alert("Withdrawal Request Placed Successfully.");
+            getWalletData();
+
+        } catch (error) {
+
+            if (error.response) {
+                const errorMessage = error.response.data.message || 'An error occurred';
+                Alert.alert('Error', errorMessage); // Display error message from response
+            } else {
+                Alert.alert('Error', 'An unexpected error occurred');
+            }
+            console.error('Error during withdrawal:', error);
+        }
     };
 
 
@@ -23,16 +84,19 @@ function WithdrawalScreen() {
 
                     <Image source={require('../assets/addBG.png')} style={styles.backgroundImageInContent} resizeMode='contain' />
                     <Text style={styles.text1}>Current Balance :</Text>
-                    <Text style={styles.text2}>₹ 108</Text>
+                    <Text style={styles.text2}>₹ {walletData.walletAmount || 0}</Text>
                     <Text style={styles.text3}>Amount to be Withdrawn :</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Enter amount"
                         keyboardType="numeric"
+                        value={withdrawAmount}
+                        onChangeText={setWithdrawAmount}
                     />
-                    <Text style={styles.additionalText}>your request is successfully processed</Text>
+                    <Text style={styles.additionalText}>Your request is successfully processed</Text>
 
-                    <TouchableOpacity style={styles.submitButton}>
+                    <TouchableOpacity style={styles.submitButton}
+                        onPress={handleSubmit}>
                         <Text style={styles.submitText}>Submit</Text>
                     </TouchableOpacity>
 
@@ -123,11 +187,11 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         marginTop: 30,
         fontFamily: 'Poppins-Regular',
-        width:'100%',
-        textAlign:'center',
+        width: '100%',
+        textAlign: 'center',
         fontFamily: 'Poppins-Regular',
-        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
-        textShadowOffset: { width: 3, height: 3 }, 
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: { width: 3, height: 3 },
         textShadowRadius: 6,
     },
     text2: {
@@ -136,11 +200,11 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         marginTop: 15,
         fontFamily: 'Poppins-Regular',
-        width:'100%',
-        textAlign:'center',
+        width: '100%',
+        textAlign: 'center',
         fontFamily: 'Poppins-Regular',
-        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
-        textShadowOffset: { width: 3, height: 3 }, 
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: { width: 3, height: 3 },
         textShadowRadius: 8,
     },
     text3: {
@@ -149,11 +213,11 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         marginTop: 10,
         fontFamily: 'Poppins-Regular',
-        width:'100%',
-        textAlign:'center',
+        width: '100%',
+        textAlign: 'center',
         fontFamily: 'Poppins-Regular',
-        textShadowColor: 'rgba(0, 0, 0, 0.75)', 
-        textShadowOffset: { width: 3, height: 3 }, 
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: { width: 3, height: 3 },
         textShadowRadius: 6,
     },
     input: {
@@ -218,7 +282,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-        marginBottom:100,
+        marginBottom: 100,
     },
     prevReqText: {
         color: '#FFFFFF',
@@ -227,7 +291,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular'
     },
     bottomNav: {
-        height:'10%',
+        height: '10%',
         position: 'absolute',
         bottom: 0,
         width: '100%',

@@ -49,11 +49,6 @@ const ProgressScreen = () => {
                 />
 
             </View>
-
-
-
-
-
         </View>
     )
 }
@@ -94,8 +89,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         opacity: 0.8
     }
-
-
 }
 )
 
