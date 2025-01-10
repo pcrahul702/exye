@@ -14,9 +14,7 @@ import WalletPage from './src/Screen/WalletPage';
 import Pavilion from './src/Screen/Pavilion';
 import Previous from './src/Screen/Previous';
 import LiveScreen from './src/Screen/LiveScreen';
-import Profile1Screen from './src/Screen/Profile1Screen';
-import Profile2Screen from './src/Screen/Profile2Screen';
-import Profile3Screen from './src/Screen/Profile3Screen';
+import ProfileScreen from './src/Screen/ProfileScreen';
 import UploadPanScreen from './src/Screen/UploadPanScreen';
 import UploadBankScreen from './src/Screen/UploadBankScreen';
 import PreviousDetails from './src/Screen/PreviousDetails';
@@ -30,6 +28,7 @@ import LiveDetailsScreen from './src/Screen/LiveDetailsScreen';
 import NewComplaintPage from './src/Screen/NewComplaintPage';
 import TicketDetailsPage from './src/Screen/TicketDetailsPage';
 import BankDetailsScreen from './src/Screen/BankDetailsScreen';
+import PANDetailsScreen from './src/Screen/PANDetailsScreen';
 import ContestInfoPage from './src/Screen/ContestInfoPage';
 import QuizChoiceScreen from './src/Screen/QuizChoiceScreen';
 import CustomContestScreen from './src/Screen/CustomContestScreen';
@@ -57,7 +56,6 @@ function App() {
             <Stack.Screen name="Start" component={GetStartedScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
-
             <Stack.Screen name="Home" component={DrawerNavigator} />
             <Stack.Screen name="Topic" component={TopicScreen} />
             <Stack.Screen name="Progress" component={ProgressScreen} />
@@ -70,7 +68,7 @@ function App() {
             <Stack.Screen name="Pavilion" component={Pavilion} />
             <Stack.Screen name="Previous" component={Previous} />
             <Stack.Screen name="Live" component={LiveScreen} />
-            <Stack.Screen name="Profile1" component={Profile1Screen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="UploadPan" component={UploadPanScreen} />
             <Stack.Screen name="UploadBank" component={UploadBankScreen} />
             <Stack.Screen
@@ -90,6 +88,7 @@ function App() {
             <Stack.Screen name="NewComplaint" component={NewComplaintPage} />
             <Stack.Screen name="TicketDetails" component={TicketDetailsPage} />
             <Stack.Screen name="BankDetails" component={BankDetailsScreen} />
+            <Stack.Screen name="PANDetails" component={PANDetailsScreen} />
             <Stack.Screen name="ContestInfo" component={ContestInfoPage} />
             <Stack.Screen name="QuizChoice" component={QuizChoiceScreen} />
             <Stack.Screen name="CustomContest" component={CustomContestScreen} />

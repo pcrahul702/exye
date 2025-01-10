@@ -1,60 +1,77 @@
 import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
-
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { getData } from '../Utils/api';
 
 const { width, height } = Dimensions.get('window');
 
-const winners = [
-    { id: '1', name: 'Ratan Tata', isHighlighted: true },
-    { id: '2', name: 'Virat Kohli', isHighlighted: false },
-    { id: '3', name: 'Virat Kohli', isHighlighted: false },
-    { id: '4', name: 'Virat Kohli', isHighlighted: false },
-    { id: '5', name: 'Virat Kohli', isHighlighted: false },
-    { id: '6', name: 'Virat Kohli', isHighlighted: false },
-    { id: '7', name: 'Virat Kohli', isHighlighted: false },
-    { id: '8', name: 'Virat Kohli', isHighlighted: false },
-    { id: '9', name: 'Virat Kohli', isHighlighted: false },
-    // Add more items as needed
-];
-
-
-
 const PreviousDetails = () => {
 
+    const [leaderboardData, setLeaderboardData] = useState([]);
+
+    const route = useRoute();
+    const { contestId } = route.params;
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getLeaderboardData();
+        }, [])
+    );
+
+    const getLeaderboardData = async () => {
+        try {
+            const res = await getData(`/api/v1/quiz/players/contest/${contestId}`);
+            if (Array.isArray(res.data)) {
+                setLeaderboardData(res.data);
+                console.log("kush : ",leaderboardData);
+            } else {
+                console.log('Invalid data format:', res.data);
+            }
+        } catch (error) {
+            console.log('Error fetching data:', error);
+            Alert.alert(error?.response?.data?.message || 'An error occurred');
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
 
             <Image source={backgroundImage} style={styles.backgroundImage} />
             <Image source={uppershaper} style={styles.uppershape} />
-            <Image source={upperLog} style={[styles.upperLog,{height:width*0.5}]} />
+            <Image source={upperLog} style={[styles.upperLog, { height: width * 0.5 }]} />
 
             <View style={styles.headerContainer}>
-                <Text style={[styles.headerText,{fontSize:width*0.05}]}>Total participants:</Text>
+                <Text style={[styles.headerText, { fontSize: width * 0.05 }]}>Total participants:</Text>
             </View>
 
             <View style={styles.headerContainer1}>
-                <Text style={[styles.headerText,{fontSize:width*0.05}]}>Total contest value</Text>
+                <Text style={[styles.headerText, { fontSize: width * 0.05 }]}>Total contest value</Text>
             </View>
 
             <View style={styles.headerContainer2}>
-                <Text style={[styles.headerText2,{fontSize:width*0.05}]}>₹1,52,100</Text>
+                <Text style={[styles.headerText2, { fontSize: width * 0.05 }]}>₹1,52,100</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-                {winners.map((item, index) => {
-                    const textColor = item.isHighlighted ? '#3DC467' : '#A92204'; // Green for highlighted, red for others
-
+                {leaderboardData.map((item, index) => {
+                    // Apply green color and rank icon to the first rank
+                    const isFirstPlace = index === 0;
+                    const textColor = isFirstPlace ? '#3DC467' : '#F05A5B'; // Green for first place
                     return (
                         <View key={item.id} style={styles.listItemContainer}>
-                            {item.isHighlighted && (
-                                <Image source={require('../assets/rank1.png')} style={styles.rankIcon} />
+                            {isFirstPlace && (
+                                <Image
+                                    source={require('../assets/rank1.png')} // Image for the first place
+                                    style={styles.rankIcon}
+                                />
                             )}
-                            <Text style={[styles.nameText, { color: textColor,fontSize:width*0.05  }]}>
-                                {item.name}
+                            <Text
+                                style={[styles.nameText, { color: textColor, fontSize: width * 0.05 }]}
+                            >
+                                {item.username}
                             </Text>
                         </View>
                     );
@@ -72,7 +89,7 @@ const PreviousDetails = () => {
                     source={require('../assets/leftArrowWhite.png')} // Replace with your actual arrow image path
                     style={styles.arrowIcon}
                 />
-                <Text style={[styles.bottomText,{fontSize:width*0.07}]}>Swipe to go back</Text>
+                <Text style={[styles.bottomText, { fontSize: width * 0.07 }]}>Swipe to go back</Text>
             </View>
         </SafeAreaView>
     )
@@ -92,7 +109,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         top: -100,
         width: '50%',
-        resizeMode:'stretch'
+        resizeMode: 'stretch'
     },
     backgroundImage: {
         position: 'absolute',
@@ -111,8 +128,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         width: '100%',
-        height:'12%',
-        resizeMode:'stretch'
+        height: '12%',
+        resizeMode: 'stretch'
     },
     headerContainer: {
         width: '90%',
@@ -121,7 +138,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         justifyContent: 'center',
         borderRadius: 50,
-        marginTop:-60,
+        marginTop: -60,
         // Shadow properties for iOS
         shadowColor: '#000',
         shadowOffset: { width: 10, height: 10 },
@@ -137,7 +154,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         justifyContent: 'center',
         borderRadius: 50,
-        marginTop:10,
+        marginTop: 10,
         // Shadow properties for iOS
         shadowColor: '#000',
         shadowOffset: { width: 10, height: 10 },
@@ -152,7 +169,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#ffffff',
         fontFamily: 'Poppins-Regular',
-        padding:7
+        padding: 7
 
     },
     headerContainer2: {
@@ -177,13 +194,13 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#ffffff',
         fontFamily: 'Poppins-Regular',
-        padding:7
+        padding: 7
 
     },
     scrollViewContainer: {
         width: '80%',
         marginTop: 20,
-        padding:10,
+        padding: 10,
         paddingBottom: 80,
         alignSelf: 'center',
         backgroundColor: '#FEE799',
@@ -198,6 +215,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10, // Optional: Add some horizontal padding
     },
     nameText: {
+        fontWeight:'600',
         fontSize: 25,
         marginVertical: 5,
         textAlign: 'center',

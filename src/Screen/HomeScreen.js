@@ -1,4 +1,4 @@
-import { useNavigation, DrawerActions } from '@react-navigation/native';
+import { useNavigation, DrawerActions, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
@@ -24,14 +24,16 @@ const HomeScreen = () => {
   const [liveContestsData, setLiveContestsData] = useState([]);
   const [isContestVisible, setIsContestVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
-  const [imageUris, setImageUris] = useState({});  // To store image URIs
+  const [imageUris, setImageUris] = useState({});
   const carouselScrollX = useRef(new Animated.Value(0)).current;
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    getDashboardData();
-  }, []);
+  useFocusEffect(
+      React.useCallback(() => {
+        getDashboardData();
+      }, [])
+    );
 
   const getDashboardData = async () => {
     try {
@@ -42,12 +44,15 @@ const HomeScreen = () => {
 
       startCountdown(res.nextQuizTime); // Start the countdown based on quiz time
 
-      // Fetch images for live contests
+      // Fetch images and topic names for live contests
       const imageUris = {};
       for (const contest of res.liveContests) {
-        const imageUri = await getImageUri(contest.topicId);
-        imageUris[contest.topicId] = imageUri;  // Store image URI by topicId
+        const result = await getImageUri(contest.topicId);
+        if (result) {
+          imageUris[contest.topicId] = result;  // Store both image and topic name by topicId
+        }
       }
+
       setImageUris(imageUris);  // Update state with all the image URIs
     } catch (error) {
       console.log('error', error);
@@ -58,7 +63,10 @@ const HomeScreen = () => {
   const getImageUri = async (id) => {
     try {
       const res = await getData(`/api/v1/profile/topic/${id}`);
-      return { uri: res.data.topicImageUrl }; // Return the image URI
+      return {
+        imageUri: { uri: res.data.topicImageUrl },
+        topicName: res.data.topicName // Assuming the API response has `topicName`
+      };
     } catch (error) {
       console.log('error', error);
       return null; // Return null if there's an error fetching the image
@@ -103,8 +111,8 @@ const HomeScreen = () => {
     navigation.navigate('Pavilion');
   };
 
-  const handleProfile1Navigation = () => {
-    navigation.navigate('Profile1');
+  const handleProfileNavigation = () => {
+    navigation.navigate('Profile');
   };
 
   const handleContestClick = (contestId) => {
@@ -124,7 +132,7 @@ const HomeScreen = () => {
       <StatusBar hidden={true} />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleProfile1Navigation}>
+        <TouchableOpacity onPress={handleProfileNavigation}>
           <View style={styles.icon}>
             <Image
               source={require('../assets/profile_avatar.png')}
@@ -180,7 +188,9 @@ const HomeScreen = () => {
                   end={{ x: 1, y: 0 }}
                 >
                   <View style={styles.leftSide}>
-                    <Text style={styles.contestText}>Topic : {item.contestName}</Text>
+                    <Text style={styles.contestText}>
+                      Topic : {imageUris[item.topicId]?.topicName || 'Loading...'}
+                    </Text>
                     <Text style={styles.contestText}>Prize : ₹{item.prizePerContestant}</Text>
                     <Text style={styles.contestText}>Entry Fee : ₹{item.entryAmount}</Text>
                   </View>
@@ -192,11 +202,16 @@ const HomeScreen = () => {
                   <View style={styles.rightSide}>
                     {/* Use the fetched image URI */}
                     {imageUris[item.topicId] ? (
-                      <Image source={imageUris[item.topicId]} style={styles.topicImage} />
+                      <Image
+                        source={imageUris[item.topicId]?.imageUri} // Correctly access the imageUri
+                        style={styles.topicImage}
+                      />
                     ) : (
                       <Text style={[styles.loadingText, { color: 'white' }]}>Loading...</Text>
                     )}
                   </View>
+
+
                 </LinearGradient>
               </TouchableOpacity>
             ))}

@@ -15,8 +15,8 @@ const Pavilion = () => {
     navigation.navigate('Wallet'); // Navigate to the Wallet screen
   };
 
-  const handleProfile1Navigation = () => {
-    navigation.navigate('Profile1'); // Navigate to the Wallet screen
+  const handleProfileNavigation = () => {
+    navigation.navigate('Profile'); // Navigate to the Wallet screen
   };
 
   const handleDrawerOpen= () => {
@@ -30,7 +30,7 @@ const Pavilion = () => {
 
       <View style={styles.header}>
 
-        <TouchableOpacity onPress={handleProfile1Navigation}>
+        <TouchableOpacity onPress={handleProfileNavigation}>
           <View style={styles.icon}>
             <Image
               source={require('../assets/profile_avatar.png')}

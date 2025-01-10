@@ -3,7 +3,7 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import HomeScreen from './HomeScreen';
-import Profile from './Profile1Screen';
+import Profile from './ProfileScreen';
 import Support from './SupportPage';
 
 import CustomDrawer from '../components/CustomDrawer';

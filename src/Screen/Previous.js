@@ -10,8 +10,8 @@ import { getData } from '../Utils/api';
 const Previous = () => {
 
   const navigation = useNavigation();
-  
-    const [previousContestData, setPreviousContestData] = useState([]);
+
+  const [previousContestData, setPreviousContestData] = useState([]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -43,7 +43,7 @@ const Previous = () => {
 
     // Return the formatted date string
     return `${day}-${month}-${year}`;
-};
+  };
 
   const handleHomeNavigation = () => {
     navigation.navigate('Dashboard');
@@ -53,8 +53,8 @@ const Previous = () => {
     navigation.navigate('Wallet');
   };
 
-  const seeDetails = () => {
-    navigation.navigate('PreviousDetails'); 
+  const seeDetails = (contestId) => {
+    navigation.navigate('PreviousDetails', { contestId: contestId });
   };
 
 
@@ -79,8 +79,8 @@ const Previous = () => {
 
           return (
 
-            <TouchableOpacity onPress={seeDetails}>
-              <View key={item.id} style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
+            <TouchableOpacity key={item.id} onPress={() => seeDetails(item.contestId)}>
+              <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
 
                 <Text style={styles.dateText}>{getDate(item.responseTime)}</Text>
                 <Text style={styles.contestValueText}>{contestValueText}</Text>

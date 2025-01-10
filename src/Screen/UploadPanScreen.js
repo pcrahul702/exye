@@ -112,7 +112,7 @@ const uploadDocument = async (formData) => {
         console.error(err);
         Alert.alert("Error", "Something went wrong during file upload");
     } finally {
-        navigation.navigate('Profile1');
+        navigation.navigate('Profile');
     }
 };
 

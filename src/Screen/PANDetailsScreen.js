@@ -5,51 +5,42 @@ import { useNavigation } from '@react-navigation/native';
 import { getAccessToken } from '../Utils/getAccessToken';
 import { postData } from '../Utils/api';
 
-const BankDetailsScreen = () => {
+const PANDetailsScreen = () => {
 
     const navigation = useNavigation();
 
-    // State to manage the inputs
-    const [accountHolderName, setAccountHolderName] = useState('');
-    const [bankName, setBankName] = useState('');
-    const [ifscCode, setIfscCode] = useState('');
-    const [branchName, setBranchName] = useState('');
-    const [accountNumber, setAccountNumber] = useState('');
-    const [accountType, setAccountType] = useState('SAVING');
-    const [isPrimaryAccount, setIsPrimaryAccount] = useState(true);
+
+    const [panName, setPanName] = useState('');
+    const [panNumber, setPanNumber] = useState('');
 
     const handleSubmit = async () => {
 
         const token = await getAccessToken();
         console.log(token);
 
-        // Validate inputs and handle form submission logic here
-        if (!accountHolderName || !bankName || !ifscCode || !branchName || !accountNumber) {
+
+        if (!panName || !panNumber) {
             Alert.alert('Error', 'Please fill all the fields');
             return;
         }
         else {
             const payload = {
-                accountHolderName: accountHolderName,
-                ifscCode: ifscCode,
-                accountNumber: accountNumber,
-                branchName: branchName,
-                bankName: bankName,
-                accountType: accountType,
-                isPrimaryAccount: isPrimaryAccount
+                panNumber: panNumber,
+                accountHolder: panName,
+                dob: "dd-mm-yyyy"
             };
             console.log("payload data".payload);
             try {
-                const data = await postData('api/v1/profile/bank-details', payload, {
+                const data = await postData('api/v1/profile/pan-details', payload, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     }
                 });
 
                 console.log(data);
-                navigation.navigate('UploadBank');
+                navigation.navigate('UploadPan');
             } catch (error) {
-                console.error('Error during bank details upload:', error.response.data.message);
+                console.error('Error during PAN details upload:', error);
             }
         }
 
@@ -65,52 +56,27 @@ const BankDetailsScreen = () => {
 
             <View style={styles.formContainer}>
                 {/* Heading */}
-                <Text style={styles.heading}>Bank Account Details</Text>
+                <Text style={styles.heading}>PAN Card Details</Text>
 
-                {/* Name of Account Holder */}
-                <Text style={styles.label}>Name of Account Holder</Text>
+
+                <Text style={styles.label}>Name (Same as on PAN Card)</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Enter Name"
-                    value={accountHolderName}
-                    onChangeText={setAccountHolderName}
+                    value={panName}
+                    onChangeText={setPanName}
                 />
 
-                {/* Bank Name */}
-                <Text style={styles.label}>Bank Name</Text>
+
+                <Text style={styles.label}>PAN Card Number</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="Enter Bank Name"
-                    value={bankName}
-                    onChangeText={setBankName}
+                    placeholder="Enter PAN"
+                    value={panNumber}
+                    onChangeText={setPanNumber}
                 />
 
-                {/* IFSC Code */}
-                <Text style={styles.label}>IFSC Code</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter IFSC Code"
-                    value={ifscCode}
-                    onChangeText={setIfscCode}
-                />
 
-                <Text style={styles.label}>Branch Name</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter Branch Name"
-                    value={branchName}
-                    onChangeText={setBranchName}
-                />
-
-                {/* Bank Account Number */}
-                <Text style={styles.label}>Bank Account Number</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter Account Number"
-                    keyboardType="numeric"
-                    value={accountNumber}
-                    onChangeText={setAccountNumber}
-                />
 
                 <TouchableOpacity style={styles.submitButton}
                     onPress={handleSubmit}>
@@ -168,7 +134,7 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         borderWidth: 1,
         borderColor: 'gray',
-        color:'black',
+        color: 'black',
         paddingLeft: 10,
         fontSize: 20,
         fontFamily: 'Poppins-Regular',
@@ -201,4 +167,4 @@ const styles = StyleSheet.create({
 
 
 
-export default BankDetailsScreen;
+export default PANDetailsScreen;

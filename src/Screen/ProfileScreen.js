@@ -18,7 +18,7 @@ import { getData, getResponse } from '../Utils/api';
 
 const { width, height } = Dimensions.get('window');
 
-const Profile1Screen = () => {
+const ProfileScreen = () => {
   const [profileData, setProfileData] = useState([]);
   const [bankData, setBankData] = useState([]);
   const [panCardUploaded, setPanCardUploaded] = useState(false);
@@ -46,26 +46,18 @@ const Profile1Screen = () => {
       } else {
         setPanCardUploaded(false);
       }
+      
+      // Check if Bank is uploaded
+      if (response.document?.bankDetails?.url) {
+        setBankDetailsUploaded(true);
+      } else {
+        setBankDetailsUploaded(false);
+      }
 
       console.log("response.data", response)
     } catch (error) {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
-    }
-
-    try {
-      const bankResponse = await getData('/api/v1/profile/bank-details')
-      setBankData(bankResponse);
-
-
-      if (bankResponse?.ifscCode) {
-        setBankDetailsUploaded(true);
-      } else {
-        setBankDetailsUploaded(false);
-      }
-  
-    } catch (error) {
-      console.log('error', error);
     }
   }
 
@@ -91,7 +83,7 @@ const Profile1Screen = () => {
 
   const handlePanButtonPress = () => {
     if (!panCardUploaded) {
-      navigation.navigate('UploadPan'); // Navigate to the Pan Card upload screen
+      navigation.navigate('PANDetails'); // Navigate to the Pan Card upload screen
     }
     else {
       setmodalText("PAN Card Uplaoded");
@@ -374,4 +366,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile1Screen;
+export default ProfileScreen;
