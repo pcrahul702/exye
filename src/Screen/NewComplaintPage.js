@@ -88,10 +88,7 @@ const NewComplaintPage = () => {
 
     return (
         <View style={styles.bg}>
-            <Image
-                source={require('../assets/Group.png')}
-                style={styles.backgroundImage}
-            />
+            
 
             <StatusBar hidden={true} />
 
@@ -119,7 +116,7 @@ const NewComplaintPage = () => {
                 style={[styles.input, styles.issueInput]}  // Extra style for multi-line issue input
                 value={issue}
                 onChangeText={setIssue}
-                placeholder="Describe the issue"
+                placeholder="Please describe the issue"
                 multiline
                 numberOfLines={5}
             />
@@ -199,18 +196,9 @@ const styles = StyleSheet.create({
         zIndex: 1,
         fontFamily: 'Poppins-Regular',
     },
-    dispText: {
-        fontSize: 20,
-        color: '#F05A5B',
-        fontWeight: '700',
-        zIndex: 1,
-        fontFamily: 'Poppins-Regular',
-        marginLeft: 12,
-        marginTop: 12,
-    },
     label: {
         fontSize: 20,
-        color: '#F05A5B',
+        color: 'gray',
         fontWeight: '700',
         zIndex: 1,
         fontFamily: 'Poppins-Regular',
@@ -225,12 +213,14 @@ const styles = StyleSheet.create({
         marginTop: 8,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: '#F05A5B',
+        borderColor: 'gray',
         paddingLeft: 10,
         fontSize: 16,
+        color:'black',
         fontFamily: 'Poppins-Regular',
     },
     issueInput: {
+        color:'black',
         height: 120, // Making the issue input larger
         textAlignVertical: 'top', // Ensure text aligns at the top of the TextInput
     },

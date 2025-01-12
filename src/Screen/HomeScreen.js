@@ -1,4 +1,4 @@
-import { useNavigation, DrawerActions } from '@react-navigation/native';
+import { useNavigation, DrawerActions, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
@@ -12,57 +12,65 @@ import {
   Pressable,
   Alert,
   Animated,
+  Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
 
+const { width, height } = Dimensions.get('window');
+
 const HomeScreen = () => {
-  const [selectedRadio, setSelectedRadio] = useState(0);
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [profiledata, setProfileData] = useState([]);
+  const [dashboardData, setDashboardData] = useState([]);
   const [liveContestsData, setLiveContestsData] = useState([]);
   const [isContestVisible, setIsContestVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
+  const [imageUris, setImageUris] = useState({});
   const carouselScrollX = useRef(new Animated.Value(0)).current;
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    getProfileData();
-  }, []);
+  useFocusEffect(
+      React.useCallback(() => {
+        getDashboardData();
+      }, [])
+    );
 
-  const getProfileData = async () => {
+  const getDashboardData = async () => {
     try {
       const res = await getData('/api/v1/dashboard');
-
-      setProfileData(res);
-      console.log(profiledata.liveContests);
-      setLiveContestsData(profiledata.liveContests);
+      setDashboardData(res);
+      setLiveContestsData(res.liveContests);
       setIsContestVisible(true);
 
-      fillRadioButtons(res.participationAmount); // call function to fill radio buttons
       startCountdown(res.nextQuizTime); // Start the countdown based on quiz time
+
+      // Fetch images and topic names for live contests
+      const imageUris = {};
+      for (const contest of res.liveContests) {
+        const result = await getImageUri(contest.topicId);
+        if (result) {
+          imageUris[contest.topicId] = result;  // Store both image and topic name by topicId
+        }
+      }
+
+      setImageUris(imageUris);  // Update state with all the image URIs
     } catch (error) {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
     }
   };
 
-
-  const handleCardPress = (name) => {
-    alert(`You selected: ${name}`);
-  };
-
-  const fillRadioButtons = (participationAmount) => {
-    const selectedAmountIndex = participationAmount.findIndex(item => item.tick); // find index of selected amount
-    if (selectedAmountIndex !== -1) {
-      setSelectedRadio(selectedAmountIndex); // set the selected radio index based on tick status
+  const getImageUri = async (id) => {
+    try {
+      const res = await getData(`/api/v1/profile/topic/${id}`);
+      return {
+        imageUri: { uri: res.data.topicImageUrl },
+        topicName: res.data.topicName // Assuming the API response has `topicName`
+      };
+    } catch (error) {
+      console.log('error', error);
+      return null; // Return null if there's an error fetching the image
     }
-  };
-
-  const handleRadioPress = (index) => {
-    setSelectedRadio(index); // update selected radio index
   };
 
   const startCountdown = (quizTime) => {
@@ -91,20 +99,24 @@ const HomeScreen = () => {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
-  const handleSubmit = () => {
-    navigation.navigate('Topic');
+  const handleLiveNavigation = () => {
+    navigation.navigate('Live');
   };
 
   const handleWalletNavigation = () => {
-    navigation.navigate('Wallet'); // Navigate to the Wallet screen
+    navigation.navigate('Wallet');
   };
 
   const handlePavailionNavigation = () => {
-    navigation.navigate('Pavilion'); // Navigate to the Wallet screen
+    navigation.navigate('Pavilion');
   };
 
-  const handleProfile1Navigation = () => {
-    navigation.navigate('Profile1'); // Navigate to the Wallet screen
+  const handleProfileNavigation = () => {
+    navigation.navigate('Profile');
+  };
+
+  const handleContestClick = (contestId) => {
+    navigation.navigate('LiveDetails', { contestId: contestId }); // Navigate to the contest details screen
   };
 
   const handleDrawerOpen = () => {
@@ -120,7 +132,7 @@ const HomeScreen = () => {
       <StatusBar hidden={true} />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleProfile1Navigation}>
+        <TouchableOpacity onPress={handleProfileNavigation}>
           <View style={styles.icon}>
             <Image
               source={require('../assets/profile_avatar.png')}
@@ -153,7 +165,7 @@ const HomeScreen = () => {
           />
         </View>
 
-        {profiledata?.liveContests?.length > 0 ? (
+        {dashboardData?.liveContests?.length > 0 ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -164,86 +176,57 @@ const HomeScreen = () => {
             scrollEventThrottle={16}
             contentContainerStyle={styles.carouselContent}
           >
-            {profiledata.liveContests.map((item, index) => (
-              <Animated.View
+            {dashboardData.liveContests.map((item, index) => (
+              <TouchableOpacity
                 key={index}
-                style={[styles.contestContainer, {
-                  opacity: carouselScrollX.interpolate({
-                    inputRange: [
-                      (index - 1) * 360,
-                      index * 360,
-                      (index + 1) * 360,
-                    ],
-                    outputRange: [0.5, 1, 0.5],
-                    extrapolate: 'clamp',
-                  })
-                }]}
+                onPress={() => handleContestClick(item.contestId)}
               >
-                <Image
-                  source={require('../assets/contestBG.png')}
-                  style={styles.contestBackground}
-                />
-
-
-                <TouchableOpacity
-                  style={styles.cardContent}
-                  onPress={() => handleCardPress(item.name)}
-                  
+                <LinearGradient
+                  colors={['#F05A5B', '#FFA952']}
+                  style={styles.contestContainer}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
                 >
-                  <Text style={styles.contestText1}>{item.contestName}</Text>
-                  <Text style={styles.contestText2}>{item.contestType}</Text>
-                  <Text style={styles.contestText3}>Prize: Rs.{item.prizePerContestant}</Text>
+                  <View style={styles.leftSide}>
+                    <Text style={styles.contestText}>
+                      Topic : {imageUris[item.topicId]?.topicName || 'Loading...'}
+                    </Text>
+                    <Text style={styles.contestText}>Prize : ₹{item.prizePerContestant}</Text>
+                    <Text style={styles.contestText}>Entry Fee : ₹{item.entryAmount}</Text>
+                  </View>
 
-                </TouchableOpacity>
+                  <View style={styles.middleSide}>
+                    <Image source={require('../assets/middleArrow.png')} style={styles.middleImage} />
+                  </View>
 
-                <View style={styles.progressBarContainer}>
-                  <LinearGradient
-                    colors={['#FF612F', '#A32FFF8F']} // Gradient colors
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    // style={[styles.progressBar, { width: `${Math.min((item.playerJoined / 20), 1) * 100}%` }]}
-                    style={[styles.progressBar, { width: `${Math.min((14 / 20), 1) * 100}%` }]}
-                  />
-                </View>
+                  <View style={styles.rightSide}>
+                    {/* Use the fetched image URI */}
+                    {imageUris[item.topicId] ? (
+                      <Image
+                        source={imageUris[item.topicId]?.imageUri} // Correctly access the imageUri
+                        style={styles.topicImage}
+                      />
+                    ) : (
+                      <Text style={[styles.loadingText, { color: 'white' }]}>Loading...</Text>
+                    )}
+                  </View>
 
-              </Animated.View>
+
+                </LinearGradient>
+              </TouchableOpacity>
             ))}
           </ScrollView>
         ) : (
-          null
+          <Text style={styles.loadingText}>No live contests available</Text>
         )}
 
-
-
-        {/* <View style={styles.view2}>
-          <Text style={styles.text2}>Choose amount for participation :</Text>
-
-          <View style={styles.radioContainer}>
-            {profiledata?.participationAmount?.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleRadioPress(index)}
-                style={styles.radioWrapper}>
-                <View style={styles.radio}>
-                  {selectedRadio === index ? <View style={styles.radioFill} /> : null}
-                </View>
-                <Text style={styles.radioText}>₹ {item.amount}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View> */}
-
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Live', {
-              LiveContestData: profiledata?.liveContests,
-            });
-          }}>
+        <TouchableOpacity onPress={handleLiveNavigation}>
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}>
+            end={{ x: 1, y: 0 }}
+          >
             <Text style={styles.text3}>Live Contest</Text>
             <Image
               source={require('../assets/live_contest_image.png')}
@@ -252,101 +235,32 @@ const HomeScreen = () => {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Topic')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Topic')}
+          style={styles.shadowBox}>
           <View style={styles.view4}>
-            <Text style={styles.text4}>Demo Contest</Text>
+            <Text style={styles.text4}>Create your Own</Text>
             <Image
               source={require('../assets/semiRect2.png')}
               style={styles.cardImage}
             />
           </View>
         </TouchableOpacity>
-
-        {/* <TouchableOpacity
-          style={[styles.submitButton, { backgroundColor: isSubmitDisabled ? 'green' : 'green' }]}
-          onPress={handleSubmit}>
-          <Text style={styles.submitText}>SUBMIT</Text>
-        </TouchableOpacity> */}
       </ScrollView>
 
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(false);
-        }}>
-        <Pressable style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContents}>
-              <Text
-                style={{
-                  fontSize: 20,
-                  color: '#fa5962',
-                  fontWeight: '500',
-                  fontFamily: 'Poppins-Regular',
-                }}>
-                Hello User
-              </Text>
-              <TouchableOpacity
-                style={{ marginTop: 15 }}
-                onPress={handleProfile1Navigation}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    fontFamily: 'Poppins-Regular',
-                  }}>
-                  Profile
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ marginTop: 15 }}
-                onPress={handleWalletNavigation}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    fontFamily: 'Poppins-Regular',
-                  }}>
-                  Wallet
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ marginTop: 15 }}
-                onPress={handlePavailionNavigation}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    fontFamily: 'Poppins-Regular',
-                  }}>
-                  Pavilion
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Pressable>
-      </Modal>
-
-      <TouchableOpacity
-        onPress={() => { }}
-        style={styles.xyz}>
+      {/* Bottom Navigation Bar */}
+      <TouchableOpacity onPress={() => { }} style={styles.xyz}>
         <Image
           source={require('../assets/filledHome.png')}
           style={styles.bottomNavIcons}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={handleWalletNavigation}
-        style={styles.WalletIcon}>
+      <TouchableOpacity onPress={handleWalletNavigation} style={styles.WalletIcon}>
         <Image
           source={require('../assets/unfilledWallet.png')}
           style={styles.bottomNavIcons}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={handlePavailionNavigation}
-        style={styles.NotificationIcon}>
+      <TouchableOpacity onPress={handlePavailionNavigation} style={styles.NotificationIcon}>
         <Image
           source={require('../assets/notification.png')}
           style={styles.bottomNavIcons}
@@ -361,6 +275,8 @@ const HomeScreen = () => {
     </View>
   );
 };
+
+
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
@@ -458,92 +374,58 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   contestContainer: {
-    width: 360,
+    flexDirection: 'row',
+    width: width * 0.9,
     height: 'auto',
-    alignItems: 'center',
-    marginLeft:17,
-    marginTop:7,
-    borderRadius:35,
-    borderColor:'white',
-    borderWidth:2,
-    backgroundColor: 'transparent', // Ensure container doesn't have an extra background color
+    marginLeft: width * 0.05,
+    marginTop: 7,
+    borderRadius: 35,
+    borderColor: 'white',
+    borderWidth: 2,
+    backgroundColor: 'transparent',
   },
-  contestBackground: {
-    position: 'absolute',
+  leftSide: {
     height: '100%',
-    width: '100%',
-    resizeMode: 'stretch',
-    borderRadius:35,
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    padding: 14
   },
-  carouselContent: {
+  contestText: {
+    fontSize: 15,
+    color: 'white',
+    fontWeight: '600',
+    textAlign: 'left',
+    fontFamily: 'Poppins-Regular',
+  },
+  middleSide: {
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingRight:15,
+    padding: 14,
   },
-  contestText1: {
-    fontSize: 24,
-    color: 'white',
-    marginTop: 10,
-    fontWeight: '900',
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
+  middleImage: {
+    flex: 1,
+    width: 9,
+    height: 25,
+    resizeMode: 'contain',
   },
-  contestText2: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: 'white',
-    marginTop: 12,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
-  },
-  contestText3: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: 'white',
-    marginTop: 8,
-    letterSpacing: 2,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
-  },
-  progressBarContainer: {
-    width: '60%',
-    marginTop: 20,
-    borderRadius: 20,
-    padding: 3,
-    backgroundColor: '#D9D9D9',
-    overflow: 'hidden',
-    position: 'relative',
-    marginBottom: 30
-  },
-  progressBar: {
-    height: 16,
-    borderRadius: 20,
-  },
-  cardContent: {
+  rightSide: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 15,
+    padding: 14,
   },
-  view2: {
-    width: '90%',
-    height: 'auto',
-    backgroundColor: '#FFA952',
-    alignSelf: 'center',
-    borderRadius: 35,
-    elevation: 8,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    borderColor: 'white',
-    borderWidth: 2,
+  topicImage: {
+    flex: 1,
+    width: 130,
+    height: 140,
+    resizeMode: 'stretch',
+    marginRight: 20,
+    borderRadius: 14,
   },
-  text2: {
-    fontSize: 22,
-    color: 'white',
-    fontWeight: '700',
-    margin: 20,
-    fontFamily: 'Poppins-Regular',
+  carouselContent: {
+    alignItems: 'center',
+    paddingRight: 15,
   },
   view3: {
     width: '90%',
@@ -578,22 +460,25 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   view4: {
+    width: '100%',
+    height: 60,
+    alignSelf: 'center',
+    borderRadius: 20,
+    justifyContent: 'center',
+  },
+  shadowBox: {
     width: '90%',
     height: 60,
-    backgroundColor: '#Ffffdf',
+    backgroundColor: '#FFFFDF',
     alignSelf: 'center',
     marginTop: 20,
     marginBottom: 20,
     borderRadius: 20,
-    alignItems: 'center',
     elevation: 8,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    justifyContent: 'center',
-    position: 'relative',
-    overflow: 'hidden',
   },
   cardImage: {
     position: 'absolute',
@@ -609,64 +494,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     zIndex: 1,
     fontFamily: 'Poppins-Regular',
-  },
-  submitButton: {
-    width: '60%',
-    height: 'auto',
-    alignSelf: 'center',
-    marginTop: 20,
-    marginBottom: 70,
-    borderRadius: 40,
-    borderColor: 'white',
-    borderWidth: 2,
-    alignItems: 'center',
-    paddingVertical: 10,
-
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  submitText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    width: '100%',
+    textAlign: 'center',
     fontFamily: 'Poppins-Regular',
-  },
-  radioContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 8,
-    justifyContent: 'space-between',
-  },
-  radioWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '22%', // Adjust to fit four items in a row and create even spacing
-    marginBottom: 15,
-  },
-  radio: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 5,
-  },
-  radioFill: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#F05A5B',
-  },
-  radioText: {
-    fontSize: 16,
-    color: 'white',
-    fontWeight: '700',
-    fontFamily: 'Poppins-Regular',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 8,
   },
   backgroundImage: {
     width: '100%',
@@ -714,20 +547,12 @@ const styles = StyleSheet.create({
     width: 70,
     left: '40%',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
-    width: '60%',
-    backgroundColor: 'white',
-    padding: 20,
-    height: '100%',
-    left: 0,
-  },
-  modalContents: {
-    width: '100%',
+  loadingText: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#FFA952',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
   },
 });
 

@@ -56,7 +56,7 @@ const LoginScreen = () => {
     try {
       const response = await axios({
         method: 'POST',
-        url: 'http://43.204.140.8:8080/api/v1/user/login',
+        url: 'https://exye-admin.auradevops.com/api/v1/user/login',
         data: payload,
         headers: {
           loginSource: 'OTP',

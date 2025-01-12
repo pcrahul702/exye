@@ -1,8 +1,5 @@
 import { StyleSheet, Text, View, SafeAreaView, Image,StatusBar, TouchableOpacity, ScrollView } from 'react-native'
 import React from 'react'
-import backgroundImage from '../assets/Group.png';
-import uppershaper from '../assets/uppershape.png';
-import upperLog from '../assets/Upperlogo2.png';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation ,DrawerActions} from '@react-navigation/native';
 
@@ -18,8 +15,8 @@ const Pavilion = () => {
     navigation.navigate('Wallet'); // Navigate to the Wallet screen
   };
 
-  const handleProfile1Navigation = () => {
-    navigation.navigate('Profile1'); // Navigate to the Wallet screen
+  const handleProfileNavigation = () => {
+    navigation.navigate('Profile'); // Navigate to the Wallet screen
   };
 
   const handleDrawerOpen= () => {
@@ -27,16 +24,13 @@ const Pavilion = () => {
   };
   return (
     <SafeAreaView style={styles.container}>
-
-      {/* <Image source={uppershaper} style={styles.uppershape} />
-      <Image source={backgroundImage} style={styles.backgroundImage} />
-      <Image source={upperLog} style={styles.upperLog} /> */}
+      
      
       <StatusBar hidden={true} />
 
       <View style={styles.header}>
 
-        <TouchableOpacity onPress={handleProfile1Navigation}>
+        <TouchableOpacity onPress={handleProfileNavigation}>
           <View style={styles.icon}>
             <Image
               source={require('../assets/profile_avatar.png')}
@@ -186,10 +180,7 @@ const styles = StyleSheet.create({
   logo: {
     flex: 1,
     width: 40,
-    height: 40,
-  
-
- 
+    height: 40, 
   },
   uppershape: {
     top: 0,
@@ -260,7 +251,7 @@ const styles = StyleSheet.create({
     width: '90%',
     height: 'auto',
     backgroundColor: '#FFA952',
-    marginTop: 20,
+    marginVertical: 20,
     alignSelf: 'center',
     borderRadius: 35,
     elevation: 8,

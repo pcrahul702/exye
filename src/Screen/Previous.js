@@ -1,37 +1,60 @@
 import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
-import { useNavigation } from '@react-navigation/native';
-
-const data = [
-  { id: '1', date: 'XX/XX/XXXX', contestValue: '1000', pnl: 150 },
-  { id: '2', date: 'XX/XX/XXXX', contestValue: '10000', pnl: 50 },
-  { id: '3', date: 'XX/XX/XXXX', contestValue: '21000', pnl: 1500 },
-  { id: '4', date: 'XX/XX/XXXX', contestValue: '10000', pnl: -500 },
-  { id: '5', date: 'XX/XX/XXXX', contestValue: '5000', pnl: 1500 },
-  { id: '6', date: 'XX/XX/XXXX', contestValue: '10000', pnl: -350 },
-  // Add more items as needed
-];
-
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { getData } from '../Utils/api';
 
 
 const Previous = () => {
 
   const navigation = useNavigation();
 
+  const [previousContestData, setPreviousContestData] = useState([]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getWalletData();
+    }, [])
+  );
+
+  const getWalletData = async () => {
+    try {
+      const res = await getData('/api/v1/quiz/user/contests');
+
+      setPreviousContestData(res.data);
+      console.log(previousContestData);
+
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    }
+  };
+
+  const getDate = (time) => {
+    // Create a new Date object from the input time
+    const date = new Date(time);
+
+    // Extract the day, month, and year
+    const day = String(date.getDate()).padStart(2, '0'); // Get day and pad with zero if needed
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Get month (0-indexed) and pad with zero
+    const year = date.getFullYear(); // Get full year
+
+    // Return the formatted date string
+    return `${day}-${month}-${year}`;
+  };
 
   const handleHomeNavigation = () => {
     navigation.navigate('Dashboard');
   };
 
   const handleWalletNavigation = () => {
-    navigation.navigate('Wallet'); // Navigate to the Wallet screen
+    navigation.navigate('Wallet');
   };
 
-  const seeDetails = () => {
-    navigation.navigate('PreviousDetails'); // Navigate to the Wallet screen
+  const seeDetails = (contestId) => {
+    navigation.navigate('PreviousDetails', { contestId: contestId });
   };
 
 
@@ -47,19 +70,19 @@ const Previous = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        {data.map(item => {
-          const isProfit = item.pnl > 0;
+        {previousContestData.map(item => {
+          const isProfit = item.correctAnswers > 0;
           const cardBackgroundColor = isProfit ? '#3DC467' : '#A92204'; // Light green for profit, light red for loss
           const pnlTextColor = isProfit ? '#28a745' : '#dc3545'; // Green for profit, red for loss 
-          const contestValueText = `contest value - ${item.contestValue}`;
-          const pnlText = isProfit ? `Profit - ${item.pnl}` : `Loss - ${Math.abs(item.pnl)}`;
+          const contestValueText = `Correct Answer - ${item.correctAnswers}`;
+          const pnlText = isProfit ? 'You Won' : 'You Lost';
 
           return (
 
-            <TouchableOpacity onPress={seeDetails}>
-              <View key={item.id} style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
+            <TouchableOpacity key={item.id} onPress={() => seeDetails(item.contestId)}>
+              <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
 
-                <Text style={styles.dateText}>{item.date}</Text>
+                <Text style={styles.dateText}>{getDate(item.responseTime)}</Text>
                 <Text style={styles.contestValueText}>{contestValueText}</Text>
                 <Text style={[styles.pnlText, { color: pnlTextColor }]}>{pnlText}</Text>
                 <Text style={styles.bottomRightText}>Click for details</Text>
@@ -133,12 +156,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     borderRadius: 50,
-    // Shadow properties for iOS
     shadowColor: '#000',
     shadowOffset: { width: 10, height: 10 },
     shadowOpacity: 0.8,
     shadowRadius: 10,
-    // Shadow properties for Android
     elevation: 10,
   },
   headerText: {
@@ -147,8 +168,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#ffffff',
     fontFamily: 'Poppins-Regular',
-    padding:8
-
+    padding: 8,
   },
   xyz: {
     position: 'absolute',
@@ -187,7 +207,7 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingBottom: 100,
     alignSelf: 'center',
-    width:'100%'
+    width: '100%'
   },
   card: {
     alignSelf: 'center',
@@ -207,8 +227,8 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
     height: '100%',
-    width:'75%',
-    resizeMode:'stretch',
+    width: '75%',
+    resizeMode: 'stretch',
     zIndex: 0
   },
   dateText: {
@@ -217,14 +237,14 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     marginTop: 5,
     fontWeight: '500',
-    color: '#ffffff',
+    color: 'black',
     zIndex: 1,
     fontFamily: 'Poppins-Regular'
   },
   contestValueText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#ffffff',
+    color: 'black',
     marginLeft: 10,
     marginBottom: 7,
     zIndex: 1,

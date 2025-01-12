@@ -62,15 +62,20 @@ const TicketDetailsPage = () => {
             console.error('Error withdrawing complaint:', error);
             // Handle any unexpected errors (e.g., network issues)
         }
+    };    
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0'); // Adds leading zero if day is less than 10
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Get month (0-indexed)
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
     };
 
 
     return (
         <View style={styles.bg}>
-            <Image
-                source={require('../assets/Group.png')}
-                style={styles.backgroundImage}
-            />
+            
 
             <StatusBar hidden={true} />
 
@@ -105,7 +110,7 @@ const TicketDetailsPage = () => {
                             <Text style={styles.detailText}>{ticketDetails.userEmail}</Text>
 
                             <Text style={styles.label}>Created On:</Text>
-                            <Text style={styles.detailText}>{ticketDetails.createdAt}</Text>
+                            <Text style={styles.detailText}>{formatDate(ticketDetails.createdAt)}</Text>
                         </View>
                     </>
                 ) : (
@@ -168,13 +173,13 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#F05A5B',
+        color: '#000000',
         marginBottom: 6,
         fontFamily: 'Poppins-Regular',
     },
     detailText: {
         fontSize: 20,
-        color: '#666',
+        color: 'grey',
         marginBottom: 12,
         fontWeight: '700',
         fontFamily: 'Poppins-Regular',
@@ -194,7 +199,7 @@ const styles = StyleSheet.create({
         bottom: 20,
         borderRadius: 10,
         borderColor: '#F05A5B',
-        borderWidth: 2,
+        borderWidth: 1,
         alignItems: 'center',
         shadowColor: 'black',
         shadowOffset: { width: 0, height: 2 },
@@ -206,8 +211,8 @@ const styles = StyleSheet.create({
     },
     withdrawButtonText: {
         position: 'absolute',
-        fontSize: 24,
-        color: '#F05A5B',
+        fontSize: 28,
+        color: '#ffa952',
         fontWeight: '700',
         zIndex: 1,
         fontFamily: 'Poppins-Regular',

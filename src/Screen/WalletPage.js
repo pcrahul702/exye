@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   SafeAreaView,
@@ -8,19 +8,43 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  Dimensions,
+  Alert,
 } from 'react-native';
-import {useNavigation, DrawerActions} from '@react-navigation/native';
+import { useNavigation, DrawerActions, useFocusEffect } from '@react-navigation/native';
 
-import backgroundImage from '../assets/Group.png';
-import uppershape from '../assets/uppershape.png';
-import upperLog from '../assets/Upperlogo.png';
 import addmoney from '../assets/addmoney.png';
 import refericon from '../assets/refericon.png';
 import withdrawicon from '../assets/withdrawicon.png';
 import transitionhistory from '../assets/transitionhistory.png';
+import { getData, putData } from '../Utils/api';
+
+const { width, height } = Dimensions.get('window');
 
 function WalletPage() {
+
   const navigation = useNavigation();
+  const [walletData, setWalletData] = useState([]);
+  const [isBankLinked, setIsBankLinked] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getWalletData();
+    }, [])
+  ); 
+
+  const getWalletData = async () => {
+    try {
+      const res = await getData('/api/v1/profile/wallet');
+
+      setWalletData(res?.data);
+      setIsBankLinked(res?.data?.isBankAccountLinked);
+
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    }
+  };
 
   const handleHomeNavigation = () => {
     navigation.navigate('Dashboard');
@@ -34,10 +58,6 @@ function WalletPage() {
     navigation.navigate('AddMoney');
   };
 
-  const handlePaymentNavigation = () => {
-    navigation.navigate('Payment');
-  };
-
   const handleTransactionHistoryNavigation = () => {
     navigation.navigate('TransactionHistory');
   };
@@ -47,21 +67,59 @@ function WalletPage() {
   };
 
   const handleWithdrawNavigation = () => {
-    navigation.navigate('Withdraw');
+    navigation.navigate('Withdraw', { currentBalance: walletData.walletAmount || 0});
   };
-  const handleProfile1Navigation = () => {
-    navigation.navigate('Profile1'); // Navigate to the Wallet screen
+
+  const handleProfileNavigation = () => {
+    navigation.navigate('Profile'); // Navigate to the Wallet screen
   };
 
   const handleDrawerOpen = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
+
+  const handleLinkUnlink = () => {
+    if(isBankLinked){
+      unLinkBank();
+      getWalletData();
+    }
+    else {
+      linkBank();
+      getWalletData();
+    }
+  };
+
+  const unLinkBank = async () => {
+    try {
+      const res = await putData('/api/v1/profile/wallet/remove-linked-bank');
+
+      Alert.alert("Bank account unlinked successfully.");
+
+
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    }
+  };
+
+  const linkBank = async () => {
+    try {
+      const res = await putData('/api/v1/profile/wallet/link-bank');
+
+      Alert.alert("Bank account linked successfully.");
+
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar hidden={true} />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleProfile1Navigation}>
+        <TouchableOpacity onPress={handleProfileNavigation}>
           <View style={styles.icon}>
             <Image
               source={require('../assets/profile_avatar.png')}
@@ -69,8 +127,6 @@ function WalletPage() {
             />
           </View>
         </TouchableOpacity>
-
-        {/* <Text style={styles.headerText}>EXYE</Text> */}
 
         <Image
           source={require('../assets/Exye_Logo_B1.png')}
@@ -86,14 +142,11 @@ function WalletPage() {
           </View>
         </TouchableOpacity>
       </View>
-      {/* <Image source={backgroundImage} style={styles.backgroundImage} />
-            <Image source={uppershape} style={styles.uppershape} />
-            <Image source={upperLog} style={styles.upperLog} /> */}
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.miniContainer}>
           <Text style={styles.miniText}>Current Balance:</Text>
-          <Text style={styles.miniTextRupp}>₹ 108</Text>
+          <Text style={styles.miniTextRupp}>₹ {walletData.walletAmount || 0}</Text>
         </View>
 
         <View style={styles.customContainer}>
@@ -125,6 +178,15 @@ function WalletPage() {
             <Text style={styles.iconText}>Refer and Earn</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity
+          style={styles.cardContent}
+          onPress={handleLinkUnlink}
+        >
+          <View style={styles.link}>
+            <Text style={styles.linkText}>{isBankLinked?'Unlink your Bank':'Link your Bank'}</Text>
+          </View>
+        </TouchableOpacity>
       </ScrollView>
 
       <TouchableOpacity onPress={handleHomeNavigation} style={styles.xyz}>
@@ -159,7 +221,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   header: {
     flexDirection: 'row',
     height: 'auto',
@@ -173,9 +234,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 40,
     height: 40,
-  
-
- 
   },
   headerText: {
     flex: 1,
@@ -183,7 +241,7 @@ const styles = StyleSheet.create({
     color: '#EF5A5A',
     fontWeight: '700',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
+    textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
     elevation: 5,
     textAlign: 'center',
@@ -199,7 +257,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     margin: 8,
     shadowColor: 'black',
-    shadowOffset: {width: 2, height: 2},
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: '#EF5A5A',
@@ -224,7 +282,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     margin: 10,
     shadowColor: 'black',
-    shadowOffset: {width: 2, height: 2},
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderColor: '#EF5A5A',
@@ -269,12 +327,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 20,
     fontFamily: 'Poppins-Regular',
+    width:'100%',
+    textAlign:'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+    textShadowOffset: { width: 3, height: 3 }, 
+    textShadowRadius: 6,
   },
   miniTextRupp: {
     color: 'white',
+    width:'100%',
     fontWeight: '700',
     fontSize: 20,
+    textAlign:'center',
     fontFamily: 'Poppins-Regular',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+    textShadowOffset: { width: 3, height: 3 }, 
+    textShadowRadius: 6,
   },
   customContainer: {
     width: '90%',
@@ -311,12 +379,33 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: 'Poppins-Regular',
   },
-
   bottomNav: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
     height: 90,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 15,
+  },
+  link: {
+    width: width * 0.9,
+    alignItems: 'center',
+    backgroundColor: '#EF5A5A',
+    borderRadius: 60,
+    borderColor:'#FE7503',
+    borderWidth:5,
+    paddingVertical: 2,
+  },
+  linkText: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    alignSelf: 'center',
+    fontFamily: 'Poppins-Regular',
   },
   xyz: {
     position: 'absolute',

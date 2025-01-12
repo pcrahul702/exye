@@ -1,8 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, View, Image } from 'react-native'
 import FastImage from 'react-native-fast-image';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 
 
@@ -10,11 +10,23 @@ const ProgressScreen = () => {
 
     const navigation = useNavigation();
 
+    const route = useRoute();
+    const { contestId, topicId, quizId } = route.params;
+
+    // State to force re-render of the GIF
+    const [gifKey, setGifKey] = useState(Date.now());
+
     useEffect(() => {
-        setTimeout(() => {
-            navigation.navigate('Question');
+        // Reset the GIF key to force it to restart
+        setGifKey(Date.now());
+
+        const timer = setTimeout(() => {
+            navigation.navigate('Question', { contestId, topicId, quizId });
         }, 3600);
-    });
+
+        // Cleanup the timer on unmount
+        return () => clearTimeout(timer);
+    }, [navigation, contestId, topicId, quizId]);
 
 
     return (
@@ -30,15 +42,13 @@ const ProgressScreen = () => {
             <StatusBar hidden={true} />
 
             <View style={styles.gifContainer}>
-                <FastImage source={require('../assets/countdown.gif')}
-                    style={styles.gifImage} />
+                <FastImage
+                    key={gifKey}
+                    source={require('../assets/countdown.gif')}
+                    style={styles.gifImage}
+                />
 
             </View>
-
-
-            
-
-
         </View>
     )
 }
@@ -57,30 +67,28 @@ const styles = StyleSheet.create({
         left: 0,
     },
     gifContainer: {
-        alignSelf:'center',
-        justifyContent:'center',
+        alignSelf: 'center',
+        justifyContent: 'center',
 
-        width: '100%', 
-        height:'100%',
-        justifyContent:'center'
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center'
     },
     gifImage: {
-        alignSelf:'center',
-        width: '50%', 
-        height:'30%',
-        resizeMode:'contain',
-        alignSelf:'center',
+        alignSelf: 'center',
+        width: '50%',
+        height: '30%',
+        resizeMode: 'contain',
+        alignSelf: 'center',
     },
     bottomImage: {
-        width:'80%',
+        width: '80%',
         position: 'absolute',
         bottom: 0,
-        resizeMode:'contain',
+        resizeMode: 'contain',
         alignSelf: 'center',
-        opacity:0.8
+        opacity: 0.8
     }
-
-
 }
 )
 

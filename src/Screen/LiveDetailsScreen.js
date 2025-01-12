@@ -1,15 +1,42 @@
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
-import React from 'react';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { getData, postData } from '../Utils/api';
+import { getAccessToken } from '../Utils/getAccessToken';
 
 const { width, height } = Dimensions.get('window');
 
 const LiveDetailsScreen = () => {
+
     const navigation = useNavigation();
+
+    const [contestData, setContestData] = useState([]);
+
+    const route = useRoute();
+    const { contestId } = route.params;
+
+    useEffect(() => {
+        if (contestId) {
+            getContestData(contestId);
+        }
+    }, [contestId]);
+
+    const getContestData = async (id) => {
+        try {
+            const res = await getData(`/api/v1/dashboard/${id}`);
+
+            setContestData(res);
+            console.log(res);
+
+        } catch (error) {
+            console.log('error', error);
+            Alert.alert(error?.response?.data?.message);
+        }
+    };
 
     const handleTopicNavigation = () => {
         navigation.navigate('Topic');
@@ -17,6 +44,36 @@ const LiveDetailsScreen = () => {
 
     const handleLiveNavigation = () => {
         navigation.navigate('Live');
+    };    
+
+    const handleJoinContest = async () => {
+
+        const token = await getAccessToken();
+        console.log(token);
+
+        try {
+            const data = await postData(`/api/v1/quiz/${contestData.topicId}/contest/${contestData.contestId}/join`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            console.log(data);
+            Alert.alert("You have joined the contest successfully!");
+
+            navigation.navigate('QuizChoice',{contestId: contestData.contestId, topicId: contestData.topicId});
+            
+        } catch (error) {      
+            if (error.response) {
+                const errorMessage = error.response.data.message || 'An error occurred';
+                Alert.alert(errorMessage); // Display error message from response
+            } else {
+                // If there's no response, show a generic error
+                Alert.alert('An unexpected error occurred');
+            }
+            console.error('Error during joining contest:', error);
+            navigation.navigate('QuizChoice',{contestId: contestData.contestId, topicId: contestData.topicId});
+        }
     };
 
     return (
@@ -40,12 +97,12 @@ const LiveDetailsScreen = () => {
                     <View style={styles.textBox2}>
                         <Text style={styles.keyText}>For Rupees</Text>
                         <View style={styles.valueBox}>
-                            <Text style={styles.valueText}>₹20</Text>
+                            <Text style={styles.valueText}>₹ {contestData.entryAmount}</Text>
                         </View>
                     </View>
 
                     <View style={styles.buttonsContainer}>
-                        <TouchableOpacity onPress={handleTopicNavigation} style={styles.yesButton}>
+                        <TouchableOpacity onPress={handleJoinContest} style={styles.yesButton}>
                             <Text style={styles.buttonText}>Yes</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={handleLiveNavigation} style={styles.noButton}>
@@ -74,7 +131,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         top: -100,
         width: '50%',
-        resizeMode:'stretch',
+        resizeMode: 'stretch',
     },
     backgroundImage: {
         position: 'absolute',
@@ -86,17 +143,17 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
     },
     scrollContainer: {
-        bottom:0
+        bottom: 0
     },
     topImage: {
         alignSelf: 'center',
         width: '50%',
-        resizeMode:'contain',
+        resizeMode: 'contain',
     },
     ViewContainer: {
-        alignSelf:'center',
-        width:'92%',
-        height:'auto',
+        alignSelf: 'center',
+        width: '92%',
+        height: 'auto',
         backgroundColor: '#FFA952',
         borderTopEndRadius: 20,
         borderTopStartRadius: 20,
@@ -114,7 +171,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         margin: 30,
         fontFamily: 'Poppins-Regular',
-        textAlign:'center'
+        textAlign: 'center'
     },
     textBox: {
         width: 250,

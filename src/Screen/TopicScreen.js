@@ -6,10 +6,12 @@ import { getAccessToken } from '../Utils/getAccessToken';
 import axios from 'axios';
 
 const TopicScreen = () => {
+
     const [selectedCard, setSelectedCard] = useState(null);
     const [isReadyButtonDisabled, setIsReadyButtonDisabled] = useState(true);
     const [data, setData] = useState([]); // State to hold the filtered topics
     const navigation = useNavigation();
+    
     useEffect(() => {
         // Make the API call when the screen loads
         const fetchData = async () => {
@@ -18,7 +20,7 @@ const TopicScreen = () => {
                 const token = await getAccessToken();
                 console.log(token);
 
-                const response = await axios.get('http://43.204.140.8:8080/api/v1/dashboard/all-active-topics', {
+                const response = await axios.get('https://exye-admin.auradevops.com/api/v1/dashboard/all-active-topics', {
                     headers: {
                         'Authorization': `Bearer ${token}`,  // Example of an Authorization header
                         'Content-Type': 'application/json',         // Specify content type
@@ -56,7 +58,7 @@ const TopicScreen = () => {
     }, []);
 
     const handleReady = () => {
-        navigation.navigate('Progress');
+        navigation.navigate('CustomContest');
     };
 
     const toggleCardSelection = (id) => {
@@ -95,11 +97,11 @@ const TopicScreen = () => {
                                 style={[styles.card, selectedCard === item.id && styles.selectedCard]}
                                 onPress={() => toggleCardSelection(item.id)}
                             >
-                                {/* <Image source={item.image} style={styles.cardImage} /> */}
+                                <Image source={item.image} style={styles.cardImage} />
                                 <Text style={styles.cardText}>{item.text}</Text>
                                 <Text style={styles.cardDescription}>
-                                    {item.description.length > 64
-                                        ? item.description.slice(0, item.description.lastIndexOf(' ', 64)) + ' ...'
+                                    {item.description.length > 100
+                                        ? item.description.slice(0, item.description.lastIndexOf(' ', 100)) + ' ...'
                                         : item.description}
                                 </Text>
                             </TouchableOpacity>
@@ -165,6 +167,7 @@ const styles = StyleSheet.create({
     },
     card: {
         width: '40%',
+        height: 340,
         backgroundColor: '#ffffff',
         elevation: 5,
         shadowColor: 'black',
@@ -173,6 +176,7 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         alignItems: 'center',
         padding: 10,
+        borderRadius:18,
     },
     selectedCard: {
         backgroundColor: 'rgba(67, 163, 99, 1)',
@@ -183,12 +187,12 @@ const styles = StyleSheet.create({
     },
     cardText: {
         marginTop: 10,
-        fontSize: 17,
+        fontSize: 16,
         marginBottom: 5,
         fontWeight: 'bold',
         color: '#EF5A5A',
         textAlign: 'center',
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'Poppins-Regular',
     },
     cardDescription: {
         marginTop: 5,
@@ -196,7 +200,7 @@ const styles = StyleSheet.create({
         color: 'black',
         textAlign: 'left',
         lineHeight: 20,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'Poppins-Regular',
     },
     readyButton: {
         width: 250,
