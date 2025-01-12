@@ -6,26 +6,28 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import {
   DrawerContentScrollView,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getData } from '../Utils/api';
 
 const CustomDrawer = (props) => {
   const [name, setName] = useState('');  // State to store the name
-  const [loading, setLoading] = useState(true);  // State to track loading status
+  const [loading, setLoading] = useState(true);
+  const [walletData, setWalletData] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
     const getNameFromStorage = async () => {
       try {
         let storedName = await AsyncStorage.getItem('name');
-        
-        while (storedName===null)
-        {
+
+        while (storedName === null) {
           storedName = await AsyncStorage.getItem('name');
         }
 
@@ -39,6 +41,24 @@ const CustomDrawer = (props) => {
 
     getNameFromStorage();
   }, []);  // Empty dependency array to run once when the component mounts
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getWalletData();
+    }, [])
+  );
+
+  const getWalletData = async () => {
+    try {
+      const res = await getData('/api/v1/profile/wallet');
+
+      setWalletData(res?.data);
+
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    }
+  };
 
   const handleWalletNavigation = () => {
     navigation.navigate('Wallet');  // Navigate to the Wallet screen
@@ -97,7 +117,7 @@ const CustomDrawer = (props) => {
                   fontFamily: 'Poppins-Regular',
                   marginRight: 5,
                 }}>
-                Balance: ₹ 108 {/* Keep existing balance */}
+                Balance: ₹ {walletData.walletAmount || 0}
               </Text>
             </View>
           </View>
@@ -116,7 +136,7 @@ const CustomDrawer = (props) => {
                 }}
               />
               <Text style={styles.balanceButtonText}>My Balance</Text>
-              <Text style={styles.balanceButtonText2}>₹ 108</Text>
+              <Text style={styles.balanceButtonText2}>₹ {walletData.walletAmount || 0}</Text>
             </View>
           </TouchableOpacity>
 

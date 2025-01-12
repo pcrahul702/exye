@@ -12,9 +12,10 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
-import { getData, getResponse } from '../Utils/api';
+import { getData, postData, putData } from '../Utils/api';
+import { TextInput } from 'react-native-gesture-handler';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,15 +26,17 @@ const ProfileScreen = () => {
   const [bankDetailsUploaded, setBankDetailsUploaded] = useState(false);
   const [modalText, setmodalText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableName, setEditableName] = useState(profileData.name); // Assuming profileData is available
+
+
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      getProfiledata();
-    });
-  
-    return unsubscribe; // Cleanup on unmount
-  }, [navigation]);
+  useFocusEffect(
+      React.useCallback(() => {
+        getProfiledata();
+      }, [])
+    );
 
   const getProfiledata = async () => {
     try {
@@ -46,7 +49,7 @@ const ProfileScreen = () => {
       } else {
         setPanCardUploaded(false);
       }
-      
+
       // Check if Bank is uploaded
       if (response.document?.bankDetails?.url) {
         setBankDetailsUploaded(true);
@@ -73,13 +76,53 @@ const ProfileScreen = () => {
       } else {
         setBankDetailsUploaded(false);
       }
-  
+
       // console.log("response", bankResponse);
     } catch (error) {
       console.log('error', error);
     }
   }
-  
+
+  // Function to handle the edit button press
+  const handleEditName = () => {
+    setIsEditing(true); // Enable editing
+  };
+
+  const handleNameChange = (text) => {
+    setEditableName(text); // Update name as user types
+  };
+
+  const handleSaveName = async () => {
+    setIsEditing(false);
+    console.log(editableName);
+
+    if (!editableName) {
+      Alert.alert('Error', 'Please enter name');
+      return;
+    }
+    else {
+      const payload = {
+        userInfo: {
+          name: editableName,
+          phoneNo: profileData.phoneNo,
+          email: profileData.email
+        }
+      };
+      console.log("payload data".payload);
+      try {
+        const data = await putData('/api/v1/profile', payload);
+
+        console.log(data);
+
+        getProfiledata();
+
+      } catch (error) {
+        console.error('Error during name update:', error);
+      }
+    }
+
+  };
+
 
   const handlePanButtonPress = () => {
     if (!panCardUploaded) {
@@ -142,7 +185,29 @@ const ProfileScreen = () => {
 
         <View style={styles.profileInfoContainer}>
           <Text style={styles.label}>Name:</Text>
-          <Text style={styles.detailText}> {profileData.name}</Text>
+          {isEditing ? (
+            <View style={styles.editableNameContainer}>
+              <TextInput
+                style={styles.editableNameInput}
+                value={editableName}
+                onChangeText={handleNameChange}
+                autoFocus
+              />
+              <TouchableOpacity onPress={handleSaveName}>
+                <Text style={styles.saveButton}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.nameDisplayContainer}>
+              <Text style={styles.detailText}>{profileData.name}</Text>
+              <TouchableOpacity onPress={handleEditName}>
+                <Image
+                  source={require('../assets/editIcon.png')} // Replace with your edit icon path
+                  style={styles.editIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
           <Text style={styles.label}>Email:</Text>
           <Text style={styles.detailText}> {profileData.email}</Text>
           <Text style={styles.label}>Mobile No:</Text>
@@ -178,7 +243,7 @@ const ProfileScreen = () => {
           resizeMode="contain"
           style={styles.image}
         />
-        
+
         <Modal
           visible={modalVisible}
           transparent={true}
@@ -285,6 +350,34 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 5,
     fontFamily: 'Poppins-Regular',
+  },
+  editableNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  editableNameInput: {
+    marginRight: 10,
+    marginLeft: 6,
+    fontSize: width * 0.05,
+    color: 'red',
+    fontWeight: '700',
+    width: '80%',
+  },
+  nameDisplayContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 6,
+  },
+  editIcon: {
+    width: 20,
+    height: 20,
+    marginLeft: 10,
+  },
+  saveButton: {
+    fontSize: 16,
+    color: 'red',
+    fontWeight: '600',
   },
   gradientBorder: {
     padding: 3, // Border width
