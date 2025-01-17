@@ -29,7 +29,6 @@ import NewComplaintPage from './src/Screen/NewComplaintPage';
 import TicketDetailsPage from './src/Screen/TicketDetailsPage';
 import BankDetailsScreen from './src/Screen/BankDetailsScreen';
 import PANDetailsScreen from './src/Screen/PANDetailsScreen';
-import ContestInfoPage from './src/Screen/ContestInfoPage';
 import QuizChoiceScreen from './src/Screen/QuizChoiceScreen';
 import CustomContestScreen from './src/Screen/CustomContestScreen';
 
@@ -89,7 +88,6 @@ function App() {
             <Stack.Screen name="TicketDetails" component={TicketDetailsPage} />
             <Stack.Screen name="BankDetails" component={BankDetailsScreen} />
             <Stack.Screen name="PANDetails" component={PANDetailsScreen} />
-            <Stack.Screen name="ContestInfo" component={ContestInfoPage} />
             <Stack.Screen name="QuizChoice" component={QuizChoiceScreen} />
             <Stack.Screen name="CustomContest" component={CustomContestScreen} />
 

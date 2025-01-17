@@ -30,10 +30,10 @@ const HomeScreen = () => {
   const navigation = useNavigation();
 
   useFocusEffect(
-      React.useCallback(() => {
-        getDashboardData();
-      }, [])
-    );
+    React.useCallback(() => {
+      getDashboardData();
+    }, [])
+  );
 
   const getDashboardData = async () => {
     try {
@@ -56,7 +56,7 @@ const HomeScreen = () => {
       setImageUris(imageUris);  // Update state with all the image URIs
     } catch (error) {
       console.log('error', error);
-      Alert.alert(error?.response?.data?.message);
+      Alert.alert(error?.response?.data?.message||'Please check internet.');
     }
   };
 
@@ -187,16 +187,18 @@ const HomeScreen = () => {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
+
+
+                  <View style={styles.leftArrowIcon}>
+                    <Image source={require('../assets/leftArrowIcon.png')} style={styles.cardArrowImage} />
+                  </View>
+
                   <View style={styles.leftSide}>
                     <Text style={styles.contestText}>
                       Topic : {imageUris[item.topicId]?.topicName || 'Loading...'}
                     </Text>
                     <Text style={styles.contestText}>Prize : ₹{item.prizePerContestant}</Text>
                     <Text style={styles.contestText}>Entry Fee : ₹{item.entryAmount}</Text>
-                  </View>
-
-                  <View style={styles.middleSide}>
-                    <Image source={require('../assets/middleArrow.png')} style={styles.middleImage} />
                   </View>
 
                   <View style={styles.rightSide}>
@@ -209,6 +211,10 @@ const HomeScreen = () => {
                     ) : (
                       <Text style={[styles.loadingText, { color: 'white' }]}>Loading...</Text>
                     )}
+                  </View>
+
+                  <View style={styles.rightArrowIcon}>
+                    <Image source={require('../assets/rightArrowIcon.png')} style={styles.cardArrowImage} />
                   </View>
 
 
@@ -398,12 +404,17 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontFamily: 'Poppins-Regular',
   },
-  middleSide: {
+  leftArrowIcon: {
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 14,
+    marginLeft:14,
   },
-  middleImage: {
+  rightArrowIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  cardArrowImage: {
     flex: 1,
     width: 9,
     height: 25,
@@ -420,7 +431,6 @@ const styles = StyleSheet.create({
     width: 130,
     height: 140,
     resizeMode: 'stretch',
-    marginRight: 20,
     borderRadius: 14,
   },
   carouselContent: {

@@ -44,7 +44,7 @@ const LiveDetailsScreen = () => {
 
     const handleLiveNavigation = () => {
         navigation.navigate('Live');
-    };    
+    };
 
     const handleJoinContest = async () => {
 
@@ -61,9 +61,9 @@ const LiveDetailsScreen = () => {
             console.log(data);
             Alert.alert("You have joined the contest successfully!");
 
-            navigation.navigate('QuizChoice',{contestId: contestData.contestId, topicId: contestData.topicId});
-            
-        } catch (error) {      
+            navigation.navigate('QuizChoice', { contestId: contestData.contestId, topicId: contestData.topicId });
+
+        } catch (error) {
             if (error.response) {
                 const errorMessage = error.response.data.message || 'An error occurred';
                 Alert.alert(errorMessage); // Display error message from response
@@ -72,7 +72,7 @@ const LiveDetailsScreen = () => {
                 Alert.alert('An unexpected error occurred');
             }
             console.error('Error during joining contest:', error);
-            navigation.navigate('QuizChoice',{contestId: contestData.contestId, topicId: contestData.topicId});
+            navigation.navigate('QuizChoice', { contestId: contestData.contestId, topicId: contestData.topicId });
         }
     };
 
@@ -95,7 +95,7 @@ const LiveDetailsScreen = () => {
                     </View>
 
                     <View style={styles.textBox2}>
-                        <Text style={styles.keyText}>For Rupees</Text>
+                        <Text style={styles.keyText}>For Rupees : </Text>
                         <View style={styles.valueBox}>
                             <Text style={styles.valueText}>₹ {contestData.entryAmount}</Text>
                         </View>
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     textBox: {
-        width: 250,
+        width: '80%',
         height: 40,
         borderRadius: 40,
         backgroundColor: '#F05A5B',
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     },
     textBox2: {
         marginTop: 15,
-        width: 250,
+        width: '80%',
         height: 40,
         borderRadius: 40,
         backgroundColor: '#F05A5B',
@@ -202,16 +202,17 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular'
     },
     valueBox: {
-        width: 40,
+        width: 'auto',
         height: 40,
         backgroundColor: '#D9D9D9',
         justifyContent: 'center', // Center vertically
         alignItems: 'center', // Center horizontally
-        marginRight: 30
+        marginRight: 25
     },
     valueText: {
         color: '#F05A5B',
         fontSize: 18,
+        padding: 4,
         fontWeight: '500',
         fontFamily: 'Poppins-Regular'
     },
