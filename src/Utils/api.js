@@ -66,6 +66,19 @@ export const postData = async (endpoint, data) => {
   }
 };
 
+// Example POST request with custom headers
+export const postDataWithCustomHeader = async (endpoint, data, headers) => {
+  try {
+    console.log('indie api post with custom headers', endpoint, data, headers);
+    const response = await api.post(endpoint, data, { headers });
+    return response.data;
+  } catch (error) {
+    console.error('Error posting data with custom headers:', error);
+    throw error;
+  }
+};
+
+
 // Example PUT request
 export const putData = async (endpoint, data) => {
   try {

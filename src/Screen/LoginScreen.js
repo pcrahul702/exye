@@ -11,13 +11,12 @@ import {
   Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { postData } from '../Utils/api';
+import { postData, postDataWithCustomHeader } from '../Utils/api';
 import { useNavigation } from '@react-navigation/native';
 import CustomPhoneInput from '../components/CustomPhoneInput';
 import CustomEmailInput from '../components/CustomEmailInput';
 import LinearGradient from 'react-native-linear-gradient';
 import { API_URL } from '@env';
-import axios from 'axios';
 
 const LoginScreen = () => {
   const refs = useRef();
@@ -53,17 +52,18 @@ const LoginScreen = () => {
         email: email,
         otpType: 'LOGIN',
       };
+
     try {
-      const response = await axios({
-        method: 'POST',
-        url: 'https://aura-devops.onrender.com/api/v1/user/login',
-        data: payload,
-        headers: {
-          loginSource: 'OTP',
-        },
-      });
+
+      const headers = {
+        loginSource: 'OTP',
+      };
+
+      const response = await postDataWithCustomHeader('/api/v1/user/login', payload, headers);
+
       console.log(response.status);
-      if (response.status == 200) {
+
+      if (response.status == "OK") {
         setOtpModalVisible(true);
       }
     } catch (error) {
@@ -114,7 +114,7 @@ const LoginScreen = () => {
       const response = await postData('/api/v1/user/validate-otp', payload);
 
       if (response.status == 'OK') {
-        
+
         navigation.navigate('Home');
 
         await AsyncStorage.setItem(
@@ -125,17 +125,17 @@ const LoginScreen = () => {
         await AsyncStorage.setItem(
           'name',
           (response.data.fullName),
-        ); 
+        );
 
         await AsyncStorage.setItem(
           'email',
           (response.data.email),
-        ); 
+        );
 
         await AsyncStorage.setItem(
           'phoneNo',
           (response.data.phoneNo),
-        );        
+        );
 
       }
     } catch (error) {

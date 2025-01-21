@@ -4,6 +4,7 @@ import { StyleSheet, View, StatusBar, Image, Text, TouchableOpacity } from 'reac
 import { ScrollView } from 'react-native-gesture-handler';
 import { getAccessToken } from '../Utils/getAccessToken';
 import axios from 'axios';
+import { getData } from '../Utils/api';
 
 const TopicScreen = () => {
 
@@ -11,7 +12,7 @@ const TopicScreen = () => {
     const [isReadyButtonDisabled, setIsReadyButtonDisabled] = useState(true);
     const [data, setData] = useState([]); // State to hold the filtered topics
     const navigation = useNavigation();
-    
+
     useEffect(() => {
         // Make the API call when the screen loads
         const fetchData = async () => {
@@ -20,7 +21,7 @@ const TopicScreen = () => {
                 const token = await getAccessToken();
                 console.log(token);
 
-                const response = await axios.get('https://aura-devops.onrender.com/api/v1/dashboard/all-active-topics', {
+                const response = await getData('/api/v1/dashboard/all-active-topics', {
                     headers: {
                         'Authorization': `Bearer ${token}`,  // Example of an Authorization header
                         'Content-Type': 'application/json',         // Specify content type
@@ -29,7 +30,7 @@ const TopicScreen = () => {
                 console.log('API Data:', response.data);
                 //add data from api to data const
 
-                const filteredData = response.data.data.map(topic => ({
+                const filteredData = response.data.map(topic => ({
                     id: topic.id,
                     text: topic.topicName,
                     description: topic.topicDescription,
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         alignItems: 'center',
         padding: 10,
-        borderRadius:18,
+        borderRadius: 18,
     },
     selectedCard: {
         backgroundColor: 'rgba(67, 163, 99, 1)',
