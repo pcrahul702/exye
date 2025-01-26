@@ -9,6 +9,8 @@ function WithdrawalScreen() {
 
     const navigation = useNavigation();
     const [withdrawAmount, setWithdrawAmount] = useState('');
+    const [guideText, setguideText] = useState('Place a withdrawal request');
+    const [guideColor, setGuideColor] = useState(1);//1-green, 0-red
     const [walletData, setWalletData] = useState([]);
 
     useFocusEffect(
@@ -29,7 +31,7 @@ function WithdrawalScreen() {
     };
 
     const handleTrackPrev = () => {
-        navigation.navigate('WithdrawalStatus');
+        navigation.navigate('WithdrawList');
     };
 
     const handleSubmit = () => {
@@ -57,6 +59,8 @@ function WithdrawalScreen() {
             );
 
             console.log(data);
+            setguideText('Your request is successfully processed');
+            setGuideColor(1);
             Alert.alert("Withdrawal Request Placed Successfully.");
             getWalletData();
 
@@ -64,11 +68,16 @@ function WithdrawalScreen() {
 
             if (error.response) {
                 const errorMessage = error.response.data.message || 'An error occurred';
+                if (errorMessage == 'Insufficient wallet balance, cannot withdraw more than the existing wallet amount.') {
+                    setGuideColor(0);
+                    setguideText('Not enough balance in wallet');
+                }
                 Alert.alert('Error', errorMessage); // Display error message from response
             } else {
                 Alert.alert('Error', 'An unexpected error occurred');
             }
-            console.error('Error during withdrawal:', error);
+            console.error('Error during withdrawal:', error.response.data.message);
+
         }
     };
 
@@ -93,7 +102,13 @@ function WithdrawalScreen() {
                         value={withdrawAmount}
                         onChangeText={setWithdrawAmount}
                     />
-                    <Text style={styles.additionalText}>Your request is successfully processed</Text>
+
+                    {guideColor ? (
+                        <Text style={styles.additionalText}>{guideText}</Text>
+                    ) : (
+                        <Text style={[styles.additionalText, { color: 'red' }]}>{guideText}</Text>
+                    )}
+
 
                     <TouchableOpacity style={styles.submitButton}
                         onPress={handleSubmit}>
@@ -123,7 +138,7 @@ function WithdrawalScreen() {
 
 
 
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingView >
     );
 }
 

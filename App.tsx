@@ -24,6 +24,7 @@ import TransactionHistoryScreen from './src/Screen/TransactionHistoryScreen';
 import ReferScreen from './src/Screen/ReferScreen';
 import WithdrawalScreen from './src/Screen/WithdrawalScreen';
 import WithdrawalStatusScreen from './src/Screen/WithdrawalStatusScreen';
+import WithdrawListScreen from './src/Screen/WithdrawListScreen';
 import LiveDetailsScreen from './src/Screen/LiveDetailsScreen';
 import NewComplaintPage from './src/Screen/NewComplaintPage';
 import TicketDetailsPage from './src/Screen/TicketDetailsPage';
@@ -83,6 +84,7 @@ function App() {
             <Stack.Screen name="Refer" component={ReferScreen} />
             <Stack.Screen name="Withdraw" component={WithdrawalScreen} />
             <Stack.Screen name="WithdrawalStatus" component={WithdrawalStatusScreen} />
+            <Stack.Screen name="WithdrawList" component={WithdrawListScreen} />
             <Stack.Screen name="LiveDetails" component={LiveDetailsScreen} />
             <Stack.Screen name="NewComplaint" component={NewComplaintPage} />
             <Stack.Screen name="TicketDetails" component={TicketDetailsPage} />

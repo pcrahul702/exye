@@ -34,7 +34,7 @@ const TopicScreen = () => {
                     id: topic.id,
                     text: topic.topicName,
                     description: topic.topicDescription,
-                    image: { uri: `${topic.topicImageUrl}` },
+                    image: { uri: `${topic.preSignedTopicUrl}` },
                 }));
 
                 // Update state with the filtered data
