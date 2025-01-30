@@ -150,7 +150,7 @@ const ProfileScreen = () => {
 
 
   return (
-    <ScrollView style={styles.scrollContainer}>
+    <View style={styles.scrollContainer}>
       <View style={styles.bg}>
         <Image
           source={require('../assets/Group.png')}
@@ -262,7 +262,7 @@ const ProfileScreen = () => {
         </Modal>
 
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

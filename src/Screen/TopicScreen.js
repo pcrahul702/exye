@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, StatusBar, Image, Text, TouchableOpacity } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { getAccessToken } from '../Utils/getAccessToken';
-import axios from 'axios';
 import { getData } from '../Utils/api';
 
 const TopicScreen = () => {
 
     const [selectedCard, setSelectedCard] = useState(null);
+    const [selectedTopicId, setSelectedTopicId] = useState(null);
     const [isReadyButtonDisabled, setIsReadyButtonDisabled] = useState(true);
     const [data, setData] = useState([]); // State to hold the filtered topics
     const navigation = useNavigation();
@@ -23,21 +23,20 @@ const TopicScreen = () => {
 
                 const response = await getData('/api/v1/dashboard/all-active-topics', {
                     headers: {
-                        'Authorization': `Bearer ${token}`,  // Example of an Authorization header
-                        'Content-Type': 'application/json',         // Specify content type
+                        'Authorization': `Bearer ${token}`,  
+                        'Content-Type': 'application/json',         
                     },
                 });
                 console.log('API Data:', response.data);
-                //add data from api to data const
 
                 const filteredData = response.data.map(topic => ({
                     id: topic.id,
+                    topicId: topic.topicId, 
                     text: topic.topicName,
                     description: topic.topicDescription,
                     image: { uri: `${topic.preSignedTopicUrl}` },
                 }));
-
-                // Update state with the filtered data
+                
                 setData(filteredData);
 
             } catch (error) {
@@ -51,24 +50,20 @@ const TopicScreen = () => {
             }
         };
 
-        fetchData(); // Call the API when the component mounts
-
-
-
+        fetchData(); 
 
     }, []);
 
     const handleReady = () => {
-        navigation.navigate('CustomContest');
+        console.log('kus',selectedTopicId);
+        navigation.navigate('CreateCustomContest',{ topicId: selectedTopicId });
     };
 
-    const toggleCardSelection = (id) => {
+    const toggleCardSelection = (id, topicId) => {
         setSelectedCard(selectedCard === id ? null : id);
+        setSelectedTopicId(selectedTopicId === topicId ? null : topicId);
         setIsReadyButtonDisabled(selectedCard === id ? true : false);
-        console.log("ss" + selectedCard);
-
     };
-
 
     const chunkArray = (arr, size) => {
         const result = [];
@@ -96,7 +91,7 @@ const TopicScreen = () => {
                             <TouchableOpacity
                                 key={item.id}
                                 style={[styles.card, selectedCard === item.id && styles.selectedCard]}
-                                onPress={() => toggleCardSelection(item.id)}
+                                onPress={() => toggleCardSelection(item.id,item.topicId)}
                             >
                                 <Image source={item.image} style={styles.cardImage} />
                                 <Text style={styles.cardText}>{item.text}</Text>
@@ -110,7 +105,6 @@ const TopicScreen = () => {
                     </View>
                 ))}
 
-                {/* <Text style={styles.bottomText}>Swipe to go Back</Text> */}
             </ScrollView>
 
             <TouchableOpacity style={[

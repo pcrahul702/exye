@@ -7,15 +7,16 @@ import {
     TouchableOpacity,
     StatusBar,
     ScrollView,
+    ActivityIndicator,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getData } from '../Utils/api';
 import { getAccessToken } from '../Utils/getAccessToken';
 
 const SupportPage = () => {
-
     const navigation = useNavigation();
     const [previousTickets, setPreviousTickets] = useState(null);
+    const [loading, setLoading] = useState(true); // Loading state
 
     useFocusEffect(
         React.useCallback(() => {
@@ -24,17 +25,16 @@ const SupportPage = () => {
     );
 
     const getComplaintsData = async () => {
-
         const token = await getAccessToken();
 
         try {
             const res = await getData('/ticket/all');
             setPreviousTickets(res.data);
-            // console.log("hellopt", previousTickets);
-        }
-        catch (error) {
+        } catch (error) {
             console.log('error', error);
             Alert.alert("Error in fetching previous complaints.");
+        } finally {
+            setLoading(false); // Hide the loading indicator after fetching data
         }
     };
 
@@ -60,8 +60,6 @@ const SupportPage = () => {
 
     return (
         <View style={styles.bg}>
-            
-
             <StatusBar hidden={true} />
 
             <View style={styles.header}>
@@ -86,40 +84,38 @@ const SupportPage = () => {
 
                 <Text style={[styles.dispText, { marginBottom: 18 }]}>Previous Complaints</Text>
 
-                {previousTickets === null || previousTickets.length === 0 ? (
-                    <Text style={styles.noComplaintsText}>No previous complaints</Text>
+                {/* Show loading indicator while data is being fetched */}
+                {loading ? (
+                    <ActivityIndicator size="large" color="#ffa952" style={styles.loader} />
                 ) : (
+                    previousTickets === null || previousTickets.length === 0 ? (
+                        <Text style={styles.noComplaintsText}>No previous complaints</Text>
+                    ) : (
+                        <View style={styles.previousComplaintsContainer}>
+                            {previousTickets.map((ticket) => (
+                                <View key={ticket.ticketId} style={styles.ticketCard}>
+                                    <Text style={styles.ticketTitle}>Title: {ticket.title}</Text>
+                                    <Text style={styles.ticketDate}>Created On: {formatDate(ticket.createdAt)}</Text>
+                                    <Text style={styles.ticketStatus}>Status: {ticket.status}</Text>
 
-                    <View style={styles.previousComplaintsContainer}>
-
-                        {previousTickets.map((ticket) => (
-                            <View key={ticket.ticketId} style={styles.ticketCard}>
-                                <Text style={styles.ticketTitle}>Title: {ticket.title}</Text>
-                                <Text style={styles.ticketDate}>Created On: {formatDate(ticket.createdAt)}</Text>
-                                <Text style={styles.ticketStatus}>Status: {ticket.status}</Text>
-
-                                <TouchableOpacity
-                                    style={styles.detailsButton}
-                                    onPress={() => handleDetailsClick(ticket.ticketId)}
-                                >
-                                    <Text style={styles.detailsText}>Get Details</Text>
-                                    <Image
-                                        source={require('../assets/rightArrow.png')} // Replace with your actual arrow image path
-                                        style={styles.arrowIcon}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                        ))}
-
-                    </View>
+                                    <TouchableOpacity
+                                        style={styles.detailsButton}
+                                        onPress={() => handleDetailsClick(ticket.ticketId)}
+                                    >
+                                        <Text style={styles.detailsText}>Get Details</Text>
+                                        <Image
+                                            source={require('../assets/rightArrow.png')} // Replace with your actual arrow image path
+                                            style={styles.arrowIcon}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
+                    )
                 )}
 
             </ScrollView>
-
-
-
         </View>
-
     );
 }
 
@@ -201,6 +197,9 @@ const styles = StyleSheet.create({
         color: 'grey',
         fontFamily: 'Poppins-Regular',
     },
+    previousComplaintsContainer: {
+        marginTop: 14,
+    },
     ticketCard: {
         backgroundColor: '#fff',
         padding: 18,
@@ -260,6 +259,9 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontFamily: 'Poppins-Regular',
     },
+    loader: {
+        marginTop: 20,
+    }
 });
 
 export default SupportPage;

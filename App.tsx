@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import React from 'react';
 import 'react-native-gesture-handler';
 
 import LoginScreen from './src/Screen/LoginScreen';
@@ -32,6 +32,7 @@ import BankDetailsScreen from './src/Screen/BankDetailsScreen';
 import PANDetailsScreen from './src/Screen/PANDetailsScreen';
 import QuizChoiceScreen from './src/Screen/QuizChoiceScreen';
 import CustomContestScreen from './src/Screen/CustomContestScreen';
+import CreateCustomContestScreen from './src/Screen/CreateCustomContestScreen';
 
 // Import the DrawerNavigator
 import DrawerNavigator from './src/Screen/Drawer';
@@ -41,6 +42,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { Provider } from 'react-redux';
 import store from './src/Redux/store';
+import Toast from 'react-native-toast-message';
 
 function App() {
   const Stack = createStackNavigator();
@@ -92,9 +94,12 @@ function App() {
             <Stack.Screen name="PANDetails" component={PANDetailsScreen} />
             <Stack.Screen name="QuizChoice" component={QuizChoiceScreen} />
             <Stack.Screen name="CustomContest" component={CustomContestScreen} />
+            <Stack.Screen name="CreateCustomContest" component={CreateCustomContestScreen} />
 
 
           </Stack.Navigator>
+          <Toast></Toast>
+
         </NavigationContainer>
       </View>
 

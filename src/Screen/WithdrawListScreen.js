@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Image, Text, ScrollView, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import failedIcon from '../assets/failedIcon.png';
 import addSuccessIcon from '../assets/addSuccessIcon.png';
 import withdrawSuccessIcon from '../assets/withdrawSuccessIcon.png';
 import { getData } from '../Utils/api';
+import Shimmer from '../components/Shimmer';
 
 function WithdrawListScreen() {
     const navigation = useNavigation();
     const [transactionsData, setTransactionsData] = useState([]);
+    const [loading, setLoading] = useState(true); // Added loading state
 
     useFocusEffect(
         React.useCallback(() => {
@@ -20,7 +22,6 @@ function WithdrawListScreen() {
         try {
             const res = await getData('/api/v1/profile/wallet/transactions');
             if (Array.isArray(res.data)) {
-                // Filter only the transactions with transactionType as "WITHDRAWAL"
                 const withdrawalTransactions = res.data.filter(item => item.transactionType === 'WITHDRAWAL');
                 setTransactionsData(withdrawalTransactions);
             } else {
@@ -29,6 +30,8 @@ function WithdrawListScreen() {
         } catch (error) {
             console.log('Error fetching transactions:', error);
             Alert.alert(error?.response?.data?.message || 'An error occurred');
+        } finally {
+            setLoading(false); // Hide the loading indicator after data is fetched
         }
     };
 
@@ -54,7 +57,34 @@ function WithdrawListScreen() {
             <Image source={require('../assets/cardsLogo.png')} style={styles.upperLog} />
 
             <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-                {Array.isArray(transactionsData) && transactionsData.length > 0 ? (
+                {loading ? (
+
+                    Array.from({ length: 10 }).map((_, index) => (
+
+
+                        <View style={styles.listItemContainer}>
+
+                            <Shimmer autoRun={true} style={styles.shimmerImage} >
+                                <Image source={addSuccessIcon} style={styles.statusIcon} />
+                            </Shimmer>
+
+                            <View style={styles.transactionDetails}>
+                                <Shimmer autoRun={true} style={styles.shimmerText}>
+                                    <Text>rsgfvnjl</Text>
+                                </Shimmer>
+                                <Shimmer autoRun={true} style={styles.shimmerText}>
+                                    <Text>rsgfvnjl555</Text>
+                                </Shimmer>
+                                <Shimmer autoRun={true} style={styles.shimmerText}>
+                                    <Text>rsgfvnjl99889</Text>
+                                </Shimmer>
+                            </View>
+
+                        </View>
+
+
+                    ))
+                ) : Array.isArray(transactionsData) && transactionsData.length > 0 ? (
                     transactionsData.map((item) => {
                         const { icon, text, color } = renderTransactionStatus(item.transactionStatus, item.transactionType);
                         return (
@@ -192,6 +222,17 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: '#FF0000',
         textAlign: 'center',
+    },
+    shimmerImage: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 15,
+    },
+    shimmerText: {
+        width: '100%',
+        marginVertical: 4,
+        marginRight: 14,
     },
 });
 

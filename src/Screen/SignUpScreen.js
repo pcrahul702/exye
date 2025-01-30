@@ -8,14 +8,16 @@ import {
   ScrollView,
   Image,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import CustomPhoneInput from '../components/CustomPhoneInput';
 import CustomInput from '../components/CustomInput';
-import {postData} from '../Utils/api';
-const {width, height} = Dimensions.get('window');
+import { postData } from '../Utils/api';
+
+const { width, height } = Dimensions.get('window');
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
@@ -31,6 +33,8 @@ const SignUpScreen = () => {
   const [mobileNoError, setMobileNoError] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  const [loading, setLoading] = useState(false); // state for showing loader
 
   const validateName = name => {
     if (name.trim().length > 0) {
@@ -73,7 +77,6 @@ const SignUpScreen = () => {
     }
   };
 
-
   const handleContinue = async () => {
     if (
       validateName(name) &&
@@ -81,22 +84,28 @@ const SignUpScreen = () => {
       validateMobileNo(mobileNo) &&
       validateUsername(username)
     ) {
+      setLoading(true); // Show loader when submitting form
+
       let role = 'USER';
       const payload = {
         fullName: name,
         username: username,
-        email:email ,
+        email: email,
         phoneNo: mobileNo,
-        userRole:role
+        userRole: role,
       };
-      console.log("payload data".payload)
+
+      console.log("payload data", payload);
+
       try {
-        const data = await postData('/api/v1/user/register',payload);
+        const data = await postData('/api/v1/user/register', payload);
         alert(data.message);
         navigation.navigate('Login');
       } catch (error) {
         console.error('Error during registration:', error);
         alert('An error occurred while registering. Please try again.');
+      } finally {
+        setLoading(false); // Hide loader once the API call completes
       }
     }
   };
@@ -112,10 +121,10 @@ const SignUpScreen = () => {
       <LinearGradient
         colors={['#FFA952', '#F05A5B']}
         style={styles.view3}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 0}}>
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}>
         <Text style={styles.signUpText}>SIGN UP</Text>
-        <Text style={styles.introText}>Start your exciting journer now!</Text>
+        <Text style={styles.introText}>Start your exciting journey now!</Text>
 
         <View style={styles.inputContainer}>
           <CustomInput
@@ -143,22 +152,21 @@ const SignUpScreen = () => {
             onChangeText={setUsername}
             error={usernameError}
           />
-          {/* <CustomInput
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    error={passwordError}
-                    secureTextEntry
-                /> */}
+
           <TouchableOpacity
             style={styles.continueButton}
-            onPress={handleContinue}>
-            <Text style={styles.continueText}>CONTINUE</Text>
+            onPress={handleContinue}
+            disabled={loading}>
+            {loading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.continueText}>CONTINUE</Text>
+            )}
           </TouchableOpacity>
 
           <Text style={styles.tncText}>
             By continuing, I agree to EXYE's{' '}
-            <Text style={[styles.tncText, {fontWeight: '900'}]}>T&Cs</Text>.
+            <Text style={[styles.tncText, { fontWeight: '900' }]}>T&Cs</Text>.
           </Text>
 
           <View style={styles.optionsView}>
@@ -177,7 +185,6 @@ export default SignUpScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#8C1018',
     position: 'relative',
   },
   signUpText: {
@@ -200,63 +207,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    // borderTopWidth: 3,
-    // borderColor: '#e6444a',
-    color:'black',
+    color: 'black',
     backgroundColor: 'white',
     paddingTop: 20,
-  },
-  formContainer: {
-    alignSelf: 'center',
-    height: 'auto',
-    width: '100%',
-    borderRadius: 20,
-    marginTop: 0,
-  },
-  inputContainer2: {
-    alignSelf: 'center',
-    width: '90%',
-    marginBottom: 2,
-  },
-  label: {
-    fontFamily: 'Poppins', // Use the font family name here
-    fontSize: 18, // Font size in pixels
-    fontWeight: '300', // React Native accepts 'normal', 'bold', or numeric values like '100', '200', etc.
-    lineHeight: 30,
-    color: 'green', // Line height in pixel         // Center align the text
-    textDecorationLine: 'none',
-    fontFamily: 'Poppins-Regular',
-  },
-  input: {
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginBottom: 8,
-    width: '100%',
-    color: '#000000',
-    fontFamily: 'Poppins-Regular',
-    backgroundColor: '#FFC26DCC',
-  },
-  submitButton: {
-    width: '90%',
-    alignSelf: 'center',
-    borderRadius: 40,
-    borderColor: 'white',
-    borderWidth: 2,
-    alignItems: 'center',
-    paddingVertical: 10,
-    marginVertical: 10,
-    shadowColor: 'black',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    backgroundColor: 'green',
-  },
-  submitText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Poppins-Regular',
   },
   continueButton: {
     width: '92%',

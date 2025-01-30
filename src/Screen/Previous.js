@@ -1,17 +1,19 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getData } from '../Utils/api';
-
+import { Alert } from 'react-native';
+import Shimmer from '../components/Shimmer';
 
 const Previous = () => {
 
   const navigation = useNavigation();
 
   const [previousContestData, setPreviousContestData] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useFocusEffect(
     React.useCallback(() => {
@@ -22,26 +24,20 @@ const Previous = () => {
   const getWalletData = async () => {
     try {
       const res = await getData('/api/v1/quiz/user/contests');
-
       setPreviousContestData(res.data);
-      console.log(previousContestData);
-
     } catch (error) {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
+    } finally {
+      setLoading(false); // Set loading to false once data is fetched
     }
   };
 
   const getDate = (time) => {
-    // Create a new Date object from the input time
     const date = new Date(time);
-
-    // Extract the day, month, and year
-    const day = String(date.getDate()).padStart(2, '0'); // Get day and pad with zero if needed
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Get month (0-indexed) and pad with zero
-    const year = date.getFullYear(); // Get full year
-
-    // Return the formatted date string
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
 
@@ -57,7 +53,6 @@ const Previous = () => {
     navigation.navigate('PreviousDetails', { contestId: contestId });
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
 
@@ -70,33 +65,40 @@ const Previous = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        {previousContestData.map(item => {
-          const isProfit = item.correctAnswers > 0;
-          const cardBackgroundColor = isProfit ? '#3DC467' : '#A92204'; // Light green for profit, light red for loss
-          const pnlTextColor = isProfit ? '#28a745' : '#dc3545'; // Green for profit, red for loss 
-          const contestValueText = `Correct Answer - ${item.correctAnswers}`;
-          const pnlText = isProfit ? 'You Won' : 'You Lost';
+        {loading ? (
 
-          return (
+          Array.from({ length: 5 }).map((_, index) => (
+            <Shimmer autoRun={true} style={styles.shimmerImage} >
+              <Image source={upperLog} style={styles.shimmerView} />
+            </Shimmer>
+          ))
+        ) : previousContestData.length === 0 ? (
+          <Text style={styles.noHistoryText}>No history found</Text> // Show message if no contests are found
+        ) : (
+          previousContestData.map(item => {
+            const isProfit = item.correctAnswers > 0;
+            const cardBackgroundColor = isProfit ? '#3DC467' : '#A92204';
+            const pnlTextColor = isProfit ? '#28a745' : '#dc3545';
+            const contestValueText = `Correct Answer - ${item.correctAnswers}`;
+            const pnlText = isProfit ? 'You Won' : 'You Lost';
 
-            <TouchableOpacity key={item.id} onPress={() => seeDetails(item.contestId)}>
-              <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
-
-                <Text style={styles.dateText}>{getDate(item.responseTime)}</Text>
-                <Text style={styles.contestValueText}>{contestValueText}</Text>
-                <Text style={[styles.pnlText, { color: pnlTextColor }]}>{pnlText}</Text>
-                <Text style={styles.bottomRightText}>Click for details</Text>
-                <Image
-                  source={require('../assets/semiRect.png')}
-                  style={styles.cardImage}
-                />
-              </View>
-            </TouchableOpacity>
-
-          );
-        })}
+            return (
+              <TouchableOpacity key={item.id} onPress={() => seeDetails(item.contestId)}>
+                <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
+                  <Text style={styles.dateText}>{getDate(item.responseTime)}</Text>
+                  <Text style={styles.contestValueText}>{contestValueText}</Text>
+                  <Text style={[styles.pnlText, { color: pnlTextColor }]}>{pnlText}</Text>
+                  <Text style={styles.bottomRightText}>Click for details</Text>
+                  <Image
+                    source={require('../assets/semiRect.png')}
+                    style={styles.cardImage}
+                  />
+                </View>
+              </TouchableOpacity>
+            );
+          })
+        )}
       </ScrollView>
-
 
       <TouchableOpacity onPress={handleHomeNavigation} style={styles.xyz}>
         <Image source={require("../assets/unfilledHome.png")} style={styles.bottomNavIcons} />
@@ -114,11 +116,9 @@ const Previous = () => {
   )
 }
 
-export default Previous
+export default Previous;
 
 const styles = StyleSheet.create({
-
-
   uppershape: {
     top: 0,
     width: '100%',
@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   bottomNav: {
     position: 'absolute',
     bottom: 0,
@@ -207,7 +206,7 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingBottom: 100,
     alignSelf: 'center',
-    width: '100%'
+    width: '100%',
   },
   card: {
     alignSelf: 'center',
@@ -229,7 +228,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '75%',
     resizeMode: 'stretch',
-    zIndex: 0
+    zIndex: 0,
   },
   dateText: {
     fontSize: 20,
@@ -239,7 +238,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: 'black',
     zIndex: 1,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   contestValueText: {
     fontSize: 15,
@@ -248,7 +247,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginBottom: 7,
     zIndex: 1,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   pnlText: {
     fontSize: 15,
@@ -256,7 +255,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginBottom: 7,
     zIndex: 1,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   bottomRightText: {
     fontSize: 13,
@@ -266,7 +265,26 @@ const styles = StyleSheet.create({
     right: 7,
     color: '#ffffff',
     zIndex: 1,
-    fontFamily: 'Poppins-Regular'
-  }
-
-})
+    fontFamily: 'Poppins-Regular',
+  },
+  noHistoryText: {
+    fontSize: 18,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: 'gray',
+    marginTop: 20,
+    fontFamily: 'Poppins-Regular',
+  },
+  shimmerImage: {
+    alignSelf: 'center',
+    width: '90%',
+    height: 100,
+    borderRadius: 13,
+    marginBottom:12,
+  },
+  shimmerView: {
+    width: '90%',
+    height: 40,
+    resizeMode: 'stretch',
+  },
+});

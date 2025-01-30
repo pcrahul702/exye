@@ -64,7 +64,7 @@ const HomeScreen = () => {
     try {
       const res = await getData(`/api/v1/profile/topic/${id}`);
       return {
-        imageUri: { uri: res.data.topicImageUrl },
+        imageUri: { uri: res.data.preSignedTopicUrl },
         topicName: res.data.topicName // Assuming the API response has `topicName`
       };
     } catch (error) {

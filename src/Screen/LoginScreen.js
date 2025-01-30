@@ -9,6 +9,7 @@ import {
   Image,
   TextInput,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { postData, postDataWithCustomHeader } from '../Utils/api';
@@ -26,6 +27,8 @@ const LoginScreen = () => {
   const [loginViaPhone, setloginViaPhone] = useState(true);
   const [otp, setOtp] = useState('');
   const [otpModalVisible, setOtpModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const navigation = useNavigation();
 
   const handlePhoneNumberChange = text => {
@@ -40,7 +43,7 @@ const LoginScreen = () => {
   };
 
   const handleContinue = async () => {
-    console.log('called', API_URL);
+    setLoading(true);
     const payload = loginViaPhone
       ? {
         contactType: 'PHONE',
@@ -54,7 +57,6 @@ const LoginScreen = () => {
       };
 
     try {
-
       const headers = {
         loginSource: 'OTP',
       };
@@ -68,7 +70,9 @@ const LoginScreen = () => {
       }
     } catch (error) {
       console.log('error', error);
-      alert(error?.response?.data?.message);
+      alert(error?.response?.data?.message||'An error occured');
+    } finally {
+      setLoading(false); // Hide the loader after the API call finishes
     }
   };
 
@@ -89,11 +93,14 @@ const LoginScreen = () => {
     setloginViaPhone(true);
     setIsContinueDisabled(true);
   };
+  
   const handleOtpSubmit = async () => {
     if (otp.length < 4) {
       alert('Enter Complete OTP!');
       return;
     }
+
+    setLoading(true);
 
     const payload = loginViaPhone
       ? {
@@ -136,7 +143,6 @@ const LoginScreen = () => {
           'phoneNo',
           (response.data.phoneNo),
         );
-
       }
     } catch (error) {
       console.error('Error during OTP verification:', error);
@@ -144,6 +150,7 @@ const LoginScreen = () => {
     } finally {
       setOtpModalVisible(false);
       setOtp('');
+      setLoading(false);
     }
   };
 
@@ -151,16 +158,12 @@ const LoginScreen = () => {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}>
+
       <LinearGradient
         colors={['#FFA952', '#F05A5B']}
         style={styles.view3}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}>
-        {/* <Text style={styles.text3}>Live Contest</Text>
-            <Image
-              source={require('../assets/live_contest_image.png')}
-              style={styles.image3}
-            /> */}
         <Text style={styles.loginText}>LOGIN</Text>
         <Text style={styles.wbText}>Welcome Back!</Text>
 
@@ -184,7 +187,11 @@ const LoginScreen = () => {
                 ]}
                 onPress={handleContinue}
                 disabled={isContinueDisabled}>
-                <Text style={styles.continueText}>CONTINUE</Text>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.continueText}>CONTINUE</Text>
+                )}
               </TouchableOpacity>
 
               <Text style={styles.tncText}>
@@ -227,7 +234,11 @@ const LoginScreen = () => {
                 ]}
                 onPress={handleContinue}
                 disabled={isContinueDisabled}>
-                <Text style={styles.continueText}>CONTINUE</Text>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.continueText}>CONTINUE</Text>
+                )}
               </TouchableOpacity>
 
               <Text style={styles.tncText}>
@@ -288,6 +299,7 @@ const LoginScreen = () => {
               </View>
             </View>
           )}
+
           {/* OTP Modal */}
           <Modal
             animationType="slide"
@@ -323,8 +335,13 @@ const LoginScreen = () => {
                 </View>
                 <TouchableOpacity
                   style={styles.verifyButton}
-                  onPress={handleOtpSubmit}>
-                  <Text style={styles.verifyButtonText}>Verify OTP</Text>
+                  onPress={handleOtpSubmit}
+                  disabled={loading}>
+                  {loading ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Text style={styles.verifyButtonText}>Verify OTP</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -338,7 +355,6 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#8C1018',
     position: 'relative',
   },
   loginText: {
@@ -363,9 +379,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    // borderTopWidth: 3,
-    // borderColor: '#e6444a',
-    backgroundColor: 'white',
     paddingTop: 20,
   },
   continueButton: {
@@ -390,10 +403,10 @@ const styles = StyleSheet.create({
   },
   socialOptionsView: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly', // This ensures equal spacing between the buttons
+    justifyContent: 'space-evenly',
     alignSelf: 'center',
     marginTop: 15,
-    width: '92%', // Make sure it takes the full width of the parent
+    width: '92%',
   },
   socialContainer: {
     flexDirection: 'row',
@@ -473,6 +486,7 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   verifyButton: {
+    width:'80%',
     backgroundColor: '#4CAF50',
     padding: 10,
     borderRadius: 5,
@@ -481,13 +495,17 @@ const styles = StyleSheet.create({
   verifyButtonText: {
     color: 'white',
     fontSize: 16,
+    alignSelf:'center',
   },
-  closeButton: {
-    marginTop: 10,
-  },
-  closeButtonText: {
-    color: '#FF0000',
-    fontSize: 16,
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
 

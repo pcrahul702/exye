@@ -20,6 +20,7 @@ import filterIcon from '../assets/filterTopicIcon.png';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
+import Shimmer from '../components/Shimmer';
 
 const { width, height } = Dimensions.get('window');
 
@@ -172,9 +173,12 @@ const LiveScreen = () => {
       </View>
 
       {isLoading ? (
-        <View style={styles.loaderContainer}>
-          <Text style={styles.loadingText}>Loading...</Text>
-        </View>
+
+        Array.from({ length: 5 }).map((_, index) => (
+          <Shimmer autoRun={true} style={styles.shimmerImage} >
+            <Image source={upperLog} style={styles.statusIcon} />
+          </Shimmer>
+        ))
       ) : (
         <ScrollView contentContainerStyle={styles.scrollView}>
           {selectedTopicId ? (
@@ -537,5 +541,17 @@ const styles = StyleSheet.create({
     height: 70,
     width: 70,
     left: '40%',
+  },  
+  shimmerImage: {
+    alignSelf: 'center',
+    width: '90%',
+    height: 100,
+    borderRadius: 13,
+    marginVertical:8,
+  },
+  shimmerView: {
+    width: '90%',
+    height: 40,
+    resizeMode: 'stretch',
   },
 });

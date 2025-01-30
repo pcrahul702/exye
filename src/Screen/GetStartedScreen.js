@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, Image, Animated, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, Image, Animated, TouchableOpacity } from 'react-native';
 import { getAccessToken } from '../Utils/getAccessToken';
+import Toast from 'react-native-toast-message';
+import { getData } from '../Utils/api';
 
 const GetStartedScreen = ({ navigation }) => {
 
@@ -34,14 +36,34 @@ const GetStartedScreen = ({ navigation }) => {
     checkAuth();
   }, []);
 
-  const handleGetStarted = () => {
-    console.log("isAuthenticated", isAuthenticated);
-    isAuthenticated ?
-      navigation.navigate('Home') : navigation.navigate('Login')
+  const handleGetStarted = async () => {
+
+    try {
+      const res = await getData('/public/health');
+
+      console.log("isAuthenticated", isAuthenticated);
+      isAuthenticated ?
+        navigation.navigate('Home') : navigation.navigate('Login');
+
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        showToast('Cannot reach Server!');
+      } else {
+        showToast('Something went wrong', error.message);
+      }
+    }
+
   };
 
-  const handletemp = () => {
-      navigation.navigate('WithdrawalStatus')
+  const showToast = (message1, message2 = '') => {
+    Toast.show({
+      type: 'error',
+      position: 'bottom',
+      text1: message1,
+      text2: message2,
+      visibilityTime: 3000, // How long the toast is visible
+      autoHide: true, // Hide after time
+    });
   };
 
   return (
@@ -70,11 +92,7 @@ const GetStartedScreen = ({ navigation }) => {
 
 
       </View>
-      {/* <Animated.Image
-        source={require('../assets/Group29.png')}
-        resizeMode="contain"
-        style={[styles.image, { transform: [{ translateY: slideAnim }] }]} // Apply animated translation
-      /> */}
+
     </View>
   );
 };
