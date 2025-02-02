@@ -93,7 +93,7 @@ const uploadDocument = async (formData) => {
         const token = await getAccessToken(); 
 
         const response = await axios.post(
-            'https://aura-devops.onrender.com/api/v1/document/upload',
+            'https://exye-admin.auradevops.com/api/v1/document/upload',
             formData,
             {
                 headers: {
