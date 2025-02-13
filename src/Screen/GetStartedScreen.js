@@ -6,12 +6,13 @@ import { getData } from '../Utils/api';
 
 const GetStartedScreen = ({ navigation }) => {
 
-  // Animation values for scaling and opacity
+  // Animation values for scaling, opacity, and footer text sliding up
   const scaleAnim = useRef(new Animated.Value(0.5)).current; // Initial scale value (small)
   const opacityAnim = useRef(new Animated.Value(0)).current; // Initial opacity (invisible)
+  const footerAnim = useRef(new Animated.Value(100)).current; // Initial position for footer text (offscreen)
 
   useEffect(() => {
-    // Start the pop-up effect
+    // Start the pop-up effect for the logo
     Animated.timing(scaleAnim, {
       toValue: 1, // Final scale value (normal size)
       duration: 2000, // Duration of the animation
@@ -23,6 +24,13 @@ const GetStartedScreen = ({ navigation }) => {
       duration: 2000, // Same duration for smooth transition
       useNativeDriver: true,
     }).start();
+
+    // Footer text animation (slide from bottom)
+    Animated.timing(footerAnim, {
+      toValue: 0, // Final position (visible)
+      duration: 1000, // Duration of the slide-up animation
+      useNativeDriver: true,
+    }).start();
   }, []);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,7 +38,6 @@ const GetStartedScreen = ({ navigation }) => {
     // Check for access token on app load
     async function checkAuth() {
       const token = await getAccessToken();
-      // console.log("token",token);
       setIsAuthenticated(!!token);
     }
     checkAuth();
@@ -90,9 +97,13 @@ const GetStartedScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
 
+        {/* Footer text with bottom-up animation */}
+        <Animated.View style={[styles.footerContainer, { transform: [{ scale: scaleAnim }] }]}>
+          <Text style={styles.footerText1}>Powered by</Text>
+          <Text style={styles.footerText2}>Aura DevOps International</Text>
+        </Animated.View>
 
       </View>
-
     </View>
   );
 };
@@ -105,20 +116,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center', // Center content horizontally
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   logo: {
     width: 180,
     height: 180,
     resizeMode: 'contain',
-  },
-  maintext: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: 'Poppins-Regular',
-    color: '#ef5a5a',
-    marginTop: 10, // Space between main text and slogan
-    textAlign: 'center',
   },
   slogan: {
     fontSize: 18,
@@ -127,7 +130,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 15, // Space below the slogan
     fontFamily: 'Poppins-Regular',
-    marginHorizontal: 12
+    marginHorizontal: 12,
   },
   button: {
     marginTop: '12%',
@@ -136,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 5,
     borderColor: '#ef5a5a',
-    alignSelf: 'flex-end'
+    alignSelf: 'flex-end',
   },
   buttonText: {
     color: '#ef5a5a', // Text color
@@ -144,13 +147,24 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontWeight: '700',
     paddingHorizontal: 4,
-    alignSelf: 'center'
-  },
-  image: {
-    width: '80%',
     alignSelf: 'center',
+  },
+  footerContainer: {
     position: 'absolute',
-    bottom: -40,
+    bottom: 20, // Push to the bottom of the screen
+    alignItems: 'center',
+  },
+  footerText1: {
+    fontSize: 14,
+    color: '#ef5a5a', // Dark text color
+    fontWeight: '600',
+    fontFamily: 'Poppins-Regular',
+  },
+  footerText2: {
+    fontSize: 16,
+    color: '#ef5a5a', // Dark text color
+    fontWeight: '800',
+    fontFamily: 'Poppins-Regular',
   },
 });
 

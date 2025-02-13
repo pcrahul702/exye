@@ -42,8 +42,8 @@ const LiveDetailsScreen = () => {
         navigation.navigate('Topic');
     };
 
-    const handleLiveNavigation = () => {
-        navigation.navigate('Live');
+    const handleBackPress = () => {
+        navigation.goBack(); // This will take the user to the previous screen
     };
 
     const handleJoinContest = async () => {
@@ -105,7 +105,7 @@ const LiveDetailsScreen = () => {
                         <TouchableOpacity onPress={handleJoinContest} style={styles.yesButton}>
                             <Text style={styles.buttonText}>Yes</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={handleLiveNavigation} style={styles.noButton}>
+                        <TouchableOpacity onPress={handleBackPress} style={styles.noButton}>
                             <Text style={styles.buttonText}>No</Text>
                         </TouchableOpacity>
                     </View>

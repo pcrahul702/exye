@@ -94,6 +94,7 @@ function WalletPage() {
       const res = await putData('/api/v1/profile/wallet/remove-linked-bank');
 
       Alert.alert("Bank account unlinked successfully.");
+      getWalletData();
 
 
     } catch (error) {
@@ -107,6 +108,7 @@ function WalletPage() {
       const res = await putData('/api/v1/profile/wallet/link-bank');
 
       Alert.alert("Bank account linked successfully.");
+      getWalletData();
 
     } catch (error) {
       console.log('error', error);
