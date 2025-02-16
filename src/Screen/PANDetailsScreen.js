@@ -4,6 +4,7 @@ import { StyleSheet, View, Image, Text, TouchableOpacity, Alert, TextInput } fro
 import { useNavigation } from '@react-navigation/native';
 import { getAccessToken } from '../Utils/getAccessToken';
 import { postData } from '../Utils/api';
+import Toast from 'react-native-toast-message';
 
 const PANDetailsScreen = () => {
 
@@ -13,17 +14,44 @@ const PANDetailsScreen = () => {
     const [panName, setPanName] = useState('');
     const [panNumber, setPanNumber] = useState('');
 
+    const validatePanNumber = panNo => {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (panRegex.test(panNo)) {
+            return true;
+        } else {
+            showToast('error', 'Please enter valid PAN.');
+            return false;
+        }
+    };
+
+    const validatePanName = panNa => {
+        if (panNa.trim()) {
+            return true;
+        }
+        else {
+            showToast('error', 'Please enter Name.');
+            return false;
+        }
+    };
+
+    const showToast = (type, message1, message2 = '') => {
+        Toast.show({
+            type: type,
+            position: 'bottom',
+            text1: message1,
+            text2: message2,
+            visibilityTime: 3000,
+            autoHide: true,
+        });
+    };
+
     const handleSubmit = async () => {
 
         const token = await getAccessToken();
         console.log(token);
 
 
-        if (!panName || !panNumber) {
-            Alert.alert('Error', 'Please fill all the fields');
-            return;
-        }
-        else {
+        if (validatePanName(panName) && validatePanNumber(panNumber)) {
             const payload = {
                 panNumber: panNumber,
                 accountHolder: panName,
@@ -74,6 +102,7 @@ const PANDetailsScreen = () => {
                     placeholder="Enter PAN"
                     value={panNumber}
                     onChangeText={setPanNumber}
+                    autoCapitalize='characters'
                 />
 
 
