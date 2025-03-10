@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native'
-import React, { useState } from 'react'
+import { StyleSheet, Text, View, SafeAreaView, Image, ScrollView, Dimensions, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
@@ -9,8 +9,9 @@ import { getData } from '../Utils/api';
 const { width, height } = Dimensions.get('window');
 
 const PreviousDetails = () => {
-
     const [leaderboardData, setLeaderboardData] = useState([]);
+    const [APIData, setAPIData] = useState(null);
+    const [loading, setLoading] = useState(true);  // Loading state
 
     const route = useRoute();
     const { contestId } = route.params;
@@ -26,25 +27,31 @@ const PreviousDetails = () => {
             const res = await getData(`/api/v1/quiz/players/contest/${contestId}`);
             if (Array.isArray(res.data)) {
                 setLeaderboardData(res.data);
-                console.log("kush : ",leaderboardData);
+                setAPIData(res);  // Set the API response data
+                setLoading(false); // Data is loaded, set loading to false
+                console.log('API Data Loaded', res);
             } else {
                 console.log('Invalid data format:', res.data);
+                setLoading(false);  // Handle loading state even on error
             }
         } catch (error) {
             console.log('Error fetching data:', error);
             Alert.alert(error?.response?.data?.message || 'An error occurred');
+            setLoading(false);  // Handle loading state even on error
         }
     };
 
     return (
         <SafeAreaView style={styles.container}>
-
             <Image source={backgroundImage} style={styles.backgroundImage} />
             <Image source={uppershaper} style={styles.uppershape} />
             <Image source={upperLog} style={[styles.upperLog, { height: width * 0.5 }]} />
 
             <View style={styles.headerContainer}>
-                <Text style={[styles.headerText, { fontSize: width * 0.05 }]}>Total participants:</Text>
+                {/* Conditionally render based on loading state */}
+                <Text style={[styles.headerText, { fontSize: width * 0.05 }]}>
+                    {loading ? 'Loading...' : `Total participants: ${APIData.totalParticipants}`}
+                </Text>
             </View>
 
             <View style={styles.headerContainer1}>
@@ -52,37 +59,40 @@ const PreviousDetails = () => {
             </View>
 
             <View style={styles.headerContainer2}>
-                <Text style={[styles.headerText2, { fontSize: width * 0.05 }]}>₹1,52,100</Text>
+                {/* Conditionally render based on loading state */}
+                <Text style={[styles.headerText2, { fontSize: width * 0.05 }]}>
+                    {loading ? 'Loading...' : `₹ ${APIData.rewardAmount}`}
+                </Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-                {leaderboardData.map((item, index) => {
-                    // Apply green color and rank icon to the first rank
-                    const isFirstPlace = index === 0;
-                    const textColor = isFirstPlace ? '#3DC467' : '#F05A5B'; // Green for first place
-                    return (
-                        <View key={item.id} style={styles.listItemContainer}>
-                            {isFirstPlace && (
-                                <Image
-                                    source={require('../assets/rank1.png')} // Image for the first place
-                                    style={styles.rankIcon}
-                                />
-                            )}
-                            <Text
-                                style={[styles.nameText, { color: textColor, fontSize: width * 0.05 }]}
-                            >
-                                {item.username}
-                            </Text>
-                        </View>
-                    );
-                })}
+                {loading ? (
+                    <Text style={styles.loadingText}>Loading...</Text>  // Add a loading text
+                ) : (
+                    leaderboardData.map((item, index) => {
+                        // Apply green color and rank icon to the first rank
+                        const isFirstPlace = index === 0;
+                        const textColor = isFirstPlace ? '#3DC467' : '#F05A5B'; // Green for first place
+                        return (
+                            <View key={item.id} style={styles.listItemContainer}>
+                                {isFirstPlace && (
+                                    <Image
+                                        source={require('../assets/rank1.png')} // Image for the first place
+                                        style={styles.rankIcon}
+                                    />
+                                )}
+                                <Text
+                                    style={[styles.nameText, { color: textColor, fontSize: width * 0.05 }]}
+                                >
+                                    {item.username}
+                                </Text>
+                            </View>
+                        );
+                    })
+                )}
             </ScrollView>
 
-
-
-            <Image
-                source={require('../assets/BottomNav3.png')}
-                style={styles.bottomNav} />
+            <Image source={require('../assets/BottomNav3.png')} style={styles.bottomNav} />
 
             <View style={styles.bottomContainer}>
                 <Image
@@ -92,14 +102,19 @@ const PreviousDetails = () => {
                 <Text style={[styles.bottomText, { fontSize: width * 0.07 }]}>Swipe to go back</Text>
             </View>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default PreviousDetails
+export default PreviousDetails;
 
 const styles = StyleSheet.create({
-
-
+    // styles go here
+    loadingText: {
+        fontSize: 20,
+        color: '#F05A5B',  // Loading text color
+        textAlign: 'center',
+        marginTop: 20,
+    },
     uppershape: {
         top: 0,
         width: '100%',
@@ -170,7 +185,6 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontFamily: 'Poppins-Regular',
         padding: 7
-
     },
     headerContainer2: {
         width: '80%',
@@ -190,12 +204,11 @@ const styles = StyleSheet.create({
     },
     headerText2: {
         alignSelf: 'center',
-        fontSize: 30,
-        fontWeight: '600',
+        fontSize: 32,
+        fontWeight: '800',
         color: '#ffffff',
         fontFamily: 'Poppins-Regular',
         padding: 7
-
     },
     scrollViewContainer: {
         width: '80%',
@@ -215,7 +228,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10, // Optional: Add some horizontal padding
     },
     nameText: {
-        fontWeight:'600',
+        fontWeight: '600',
         fontSize: 25,
         marginVertical: 5,
         textAlign: 'center',
@@ -246,5 +259,4 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontFamily: 'Poppins-Regular'
     }
-
-})
+});

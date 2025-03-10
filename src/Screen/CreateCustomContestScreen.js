@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, StatusBar, Image, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { StyleSheet, View, Text, StatusBar, Image, TouchableOpacity, TextInput, Platform, KeyboardAvoidingView } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
@@ -53,7 +53,7 @@ const CreateCustomContestScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
             <Image source={require('../assets/Group.png')} style={styles.backgroundImage} />
             <StatusBar hidden={true} />
 
@@ -74,6 +74,7 @@ const CreateCustomContestScreen = () => {
             <TextInput
                 style={styles.inputField}
                 placeholder="Enter Contest Name"
+                placeholderTextColor="#777777"
                 value={contestName}
                 onChangeText={setContestName}
             />
@@ -82,6 +83,7 @@ const CreateCustomContestScreen = () => {
             <TextInput
                 style={styles.inputField}
                 placeholder="Enter Prize Amount"
+                placeholderTextColor="#777777"
                 keyboardType="numeric"
                 value={prizeAmount}
                 onChangeText={setPrizeAmount}
@@ -129,7 +131,7 @@ const CreateCustomContestScreen = () => {
             </TouchableOpacity>
 
             <Image source={require('../assets/k.png')} style={styles.bottomImage} />
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
     inputField: {
         width: '80%',
         height: 50,
-        color:'#f05a5b',
+        color: '#f05a5b',
         borderColor: '#F05A5B',
         borderWidth: 1,
         borderRadius: 25,

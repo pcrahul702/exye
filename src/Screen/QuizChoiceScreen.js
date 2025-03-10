@@ -52,6 +52,8 @@ const QuizChoiceScreen = () => {
     
             const token = await getAccessToken();
             console.log(token);
+
+            console.log(quizId,contestId,topicId);
             
             
             try {

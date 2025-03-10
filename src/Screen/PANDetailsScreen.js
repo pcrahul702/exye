@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Image, Text, TouchableOpacity, Alert, TextInput } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { getAccessToken } from '../Utils/getAccessToken';
-import { postData } from '../Utils/api';
+import { getData, postData } from '../Utils/api';
 import Toast from 'react-native-toast-message';
 
 const PANDetailsScreen = () => {
@@ -51,28 +51,26 @@ const PANDetailsScreen = () => {
         console.log(token);
 
 
-        if (validatePanName(panName) && validatePanNumber(panNumber)) {
-            const payload = {
-                panNumber: panNumber,
-                accountHolder: panName,
-                dob: "dd-mm-yyyy"
-            };
-            console.log("payload data".payload);
+        if (validatePanNumber(panNumber)) {
+            
             try {
-                const data = await postData('api/v1/profile/pan-details', payload, {
+                const data = await getData(`api/v1/document/validate-pan?pan=${panNumber}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     }
                 });
 
                 console.log(data);
-                navigation.navigate('UploadPan');
+                showToast('success', 'PAN Upload Successful.');
+                navigation.navigate('Home');
             } catch (error) {
+                showToast('error', 'Please enter valid PAN.');
                 console.error('Error during PAN details upload:', error);
             }
         }
 
     };
+    
 
 
     return (
@@ -85,15 +83,6 @@ const PANDetailsScreen = () => {
             <View style={styles.formContainer}>
                 {/* Heading */}
                 <Text style={styles.heading}>PAN Card Details</Text>
-
-
-                <Text style={styles.label}>Name (Same as on PAN Card)</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter Name"
-                    value={panName}
-                    onChangeText={setPanName}
-                />
 
 
                 <Text style={styles.label}>PAN Card Number</Text>

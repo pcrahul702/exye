@@ -11,19 +11,21 @@ import {
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getData, putData } from '../Utils/api';
 import { getAccessToken } from '../Utils/getAccessToken';
+import Toast from 'react-native-toast-message';
 
 const TicketDetailsPage = () => {
 
     const navigation = useNavigation();
 
-    const route = useRoute(); 
+    const route = useRoute();
     const { ticketId } = route.params;
     const [ticketDetails, setTicketDetails] = useState(null);
+    const [isTicketWithdrawn, setIsTicketWithdrawn] = useState(true);
 
     useFocusEffect(
         React.useCallback(() => {
             fetchTicketDetails(ticketId);
-        }, [ticketId])  
+        }, [ticketId])
     );
 
     const fetchTicketDetails = async (id) => {
@@ -35,6 +37,12 @@ const TicketDetailsPage = () => {
 
             if (response && response.data) {
                 setTicketDetails(response.data);
+                if (response.data.status === "WITHDRAW") {
+                    setIsTicketWithdrawn(true);
+                }
+                else {
+                    setIsTicketWithdrawn(false);
+                }
             } else {
                 console.log('No data found in the response');
             }
@@ -45,24 +53,37 @@ const TicketDetailsPage = () => {
     };
 
     const handleBackPress = () => {
-        navigation.goBack(); // This will take the user to the previous screen
+        navigation.goBack();
+    };
+
+    const showToast = (type, message1, message2 = '') => {
+        Toast.show({
+            type: type,
+            position: 'bottom',
+            text1: message1,
+            text2: message2,
+            visibilityTime: 3000,
+            autoHide: true,
+        });
     };
 
     const handleWithdrawComplaint = async () => {
         console.log("tickmeup", ticketId);
 
         try {
-            
+
             const response = await putData(`/ticket/${ticketId}`, {});  // Send PUT request to withdraw the complaint
 
             console.log("API Response:", response);  // Log the complete response object for better debugging
 
-            alert('Complaint withdrawn successfully.');
+            showToast('success', 'Complaint Withdrawn Successfully');
+
+            fetchTicketDetails(ticketId);
         } catch (error) {
             console.error('Error withdrawing complaint:', error);
             // Handle any unexpected errors (e.g., network issues)
         }
-    };    
+    };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -75,7 +96,7 @@ const TicketDetailsPage = () => {
 
     return (
         <View style={styles.bg}>
-            
+
 
             <StatusBar hidden={true} />
 
@@ -118,13 +139,17 @@ const TicketDetailsPage = () => {
                 )}
             </ScrollView>
 
-            <TouchableOpacity style={styles.withdrawButton} onPress={handleWithdrawComplaint}>
-                <Text style={styles.withdrawButtonText}>Withdraw Complaint</Text>
-            </TouchableOpacity>
+            {
+                isTicketWithdrawn ? null : (
+                    <TouchableOpacity style={styles.withdrawButton} onPress={handleWithdrawComplaint}>
+                        <Text style={styles.withdrawButtonText}>Withdraw Complaint</Text>
+                    </TouchableOpacity>
+                )
+            }
 
 
 
-        </View>
+        </View >
 
     );
 }

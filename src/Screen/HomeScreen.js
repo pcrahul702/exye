@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
+import Toast from 'react-native-toast-message';
 
 const { width, height } = Dimensions.get('window');
 
@@ -56,7 +57,7 @@ const HomeScreen = () => {
       setImageUris(imageUris);  // Update state with all the image URIs
     } catch (error) {
       console.log('error', error);
-      Alert.alert(error?.response?.data?.message||'Please check internet.');
+      Alert.alert(error?.response?.data?.message || 'Please check internet.');
     }
   };
 
@@ -94,10 +95,13 @@ const HomeScreen = () => {
   };
 
   const formatTime = (remainingSeconds) => {
-    const minutes = Math.floor(remainingSeconds / 60);
-    const seconds = remainingSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const hours = Math.floor(remainingSeconds / 3600); // Calculate hours
+    const minutes = Math.floor((remainingSeconds % 3600) / 60); // Calculate remaining minutes
+    const seconds = remainingSeconds % 60; // Calculate remaining seconds
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
+
 
   const handleLiveNavigation = () => {
     navigation.navigate('Live');
@@ -115,8 +119,30 @@ const HomeScreen = () => {
     navigation.navigate('Profile');
   };
 
-  const handleContestClick = (contestId) => {
-    navigation.navigate('LiveDetails', { contestId: contestId }); // Navigate to the contest details screen
+  const showToast = (type, message1, message2 = '') => {
+    Toast.show({
+      type: type,
+      position: 'bottom',
+      text1: message1,
+      text2: message2,
+      visibilityTime: 3000, // How long the toast is visible
+      autoHide: true, // Hide after time
+    });
+  };
+
+  const handleContestClick = (contest) => {
+    console.log(contest);
+    if (contest.userContestStatus === 'NEW')
+      navigation.navigate('LiveDetails', { contestId: contest.contestId });
+    else if (contest.userContestStatus === 'JOINED') {
+      showToast('info', 'You have already joined this contest.')
+      navigation.navigate('QuizChoice', { contestId: contest.contestId, topicId: contest.topicId });
+    }
+    else if (contest.userContestStatus === 'ENDED') {
+      showToast('info', 'You have already played this contest.')
+      navigation.navigate('PreviousDetails', { contestId: contest.contestId });
+
+    }
   };
 
   const handleDrawerOpen = () => {
@@ -157,13 +183,32 @@ const HomeScreen = () => {
       </View>
 
       <ScrollView style={styles.scrollContainer}>
-        <View style={styles.view1}>
-          <Text style={styles.text1}>Next quiz in {timeLeft}</Text>
-          <Image
-            source={require('../assets/stopwatch_icon.png')}
-            style={styles.icon1}
-          />
-        </View>
+        {dashboardData?.liveContests?.length > 0 ? (
+          <TouchableOpacity
+            style={styles.view1}
+            onPress={() => handleContestClick(dashboardData.liveContests[0])}
+          >
+
+            <Text style={styles.text1}>Next quiz in {timeLeft}</Text>
+
+
+            <Image
+              source={require('../assets/stopwatch_icon.png')}
+              style={styles.icon1}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.view1}
+            onPress={() =>showToast('info','No upcoming quiz at present ')}
+          >
+            <Text style={styles.text1}>No upcoming quiz... </Text>
+            <Image
+              source={require('../assets/stopwatch_icon.png')}
+              style={styles.icon1}
+            />
+          </TouchableOpacity>
+        )}
 
         {dashboardData?.liveContests?.length > 0 ? (
           <ScrollView
@@ -179,7 +224,7 @@ const HomeScreen = () => {
             {dashboardData.liveContests.map((item, index) => (
               <TouchableOpacity
                 key={index}
-                onPress={() => handleContestClick(item.contestId)}
+                onPress={() => handleContestClick(item)}
               >
                 <LinearGradient
                   colors={['#F05A5B', '#FFA952']}
@@ -187,7 +232,6 @@ const HomeScreen = () => {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-
 
                   <View style={styles.leftArrowIcon}>
                     <Image source={require('../assets/leftArrowIcon.png')} style={styles.cardArrowImage} />
@@ -226,7 +270,7 @@ const HomeScreen = () => {
           <Text style={styles.loadingText}>No live contests available</Text>
         )}
 
-        <TouchableOpacity onPress={handleLiveNavigation}>
+        <TouchableOpacity onPress={handleLiveNavigation}  activeOpacity={0.7} >
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
@@ -242,6 +286,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Topic')}
+         activeOpacity={0.7}
           style={styles.shadowBox}>
           <View style={styles.view4}>
             <Text style={styles.text4}>Create your Own</Text>
@@ -407,7 +452,7 @@ const styles = StyleSheet.create({
   leftArrowIcon: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft:14,
+    marginLeft: 14,
   },
   rightArrowIcon: {
     justifyContent: 'center',
@@ -454,6 +499,11 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     verticalAlign: 'middle',
+    elevation: 5, // For Android shadow
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 4 }, // Offset shadow by 4 units
+    shadowOpacity: 0.3, // Shadow transparency
+    shadowRadius: 5, // Radius of the shadow blur
   },
   text3: {
     fontSize: 28,

@@ -105,13 +105,13 @@ const uploadDocument = async (formData) => {
 
         if (response.status === 200) {
             Alert.alert("Success", "Document uploaded successfully");
+            navigation.navigate('Dashboard');
         } else {
             Alert.alert("Error", "Failed to upload document");
         }
     } catch (err) {
         console.error(err);
         Alert.alert("Error", "Something went wrong during file upload");
-    } finally {
         navigation.navigate('Profile');
     }
 };

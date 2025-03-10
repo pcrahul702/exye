@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ScrollView, Alert } from 'react-native';
+import { StatusBar, StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ScrollView, Alert, BackHandler } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getData, postData } from '../Utils/api';
 import { getAccessToken } from '../Utils/getAccessToken';
@@ -32,6 +32,20 @@ const QuestionScreen = () => {
         getQuestionOptions();
     }, [contestId]);
 
+    useEffect(() => {
+        const backAction = () => {
+            navigation.navigate('Home'); // Navigate to the 'Home' screen when back is pressed
+            return true; // This prevents the default behavior of going back to the previous screen
+        };
+
+        BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        // Clean up the event listener when the component is unmounted
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', backAction);
+        };
+    }, [navigation]);
+
     const getQuestionOptions = async () => {
         try {
             const res = await getData(`/api/v1/quiz/${quizId}`);
@@ -41,7 +55,7 @@ const QuestionScreen = () => {
             const firstQuestion = res.questions && res.questions[0];
 
             if (firstQuestion) {
-                setQuestion(firstQuestion.subtitle);
+                setQuestion(firstQuestion.title);
                 setQuestionId(firstQuestion.questionId);
                 const optionsArray = firstQuestion.optionsMetadata?.options || [];
                 setOptions(optionsArray);

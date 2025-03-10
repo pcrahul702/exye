@@ -83,7 +83,7 @@ const Previous = () => {
             const pnlText = isProfit ? 'You Won' : 'You Lost';
 
             return (
-              <TouchableOpacity key={item.id} onPress={() => seeDetails(item.contestId)}>
+              <TouchableOpacity key={item.id} onPress={() => seeDetails(item.contestId)} activeOpacity={0.8}>
                 <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
                   <Text style={styles.dateText}>{getDate(item.responseTime)}</Text>
                   <Text style={styles.contestValueText}>{contestValueText}</Text>

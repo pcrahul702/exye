@@ -21,6 +21,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
 import Shimmer from '../components/Shimmer';
+import Toast from 'react-native-toast-message';
 
 const { width, height } = Dimensions.get('window');
 
@@ -99,8 +100,30 @@ const LiveScreen = () => {
     navigation.navigate('Wallet'); // Navigate to the Wallet screen
   };
 
-  const handleLiveDetailsNavigation = (contestId) => {
-    navigation.navigate('LiveDetails', { contestId: contestId }); // Navigate to the Wallet screen
+  const showToast = (type, message1, message2 = '') => {
+      Toast.show({
+        type: type,
+        position: 'bottom',
+        text1: message1,
+        text2: message2,
+        visibilityTime: 3000, // How long the toast is visible
+        autoHide: true, // Hide after time
+      });
+    };
+
+  const handleLiveDetailsNavigation = (contest) => {
+    console.log(contest);
+    if (contest.userContestStatus === 'NEW')
+      navigation.navigate('LiveDetails', { contestId: contest.contestId });
+    else if (contest.userContestStatus === 'JOINED') {
+      showToast('info', 'You have already joined this contest.')
+      navigation.navigate('QuizChoice', { contestId: contest.contestId, topicId: contest.topicId });
+    }
+    else if (contest.userContestStatus === 'ENDED') {
+      showToast('info', 'You have already played this contest.')
+      navigation.navigate('PreviousDetails', { contestId: contest.contestId });
+
+    }
   };
 
   const closeModal = () => {
@@ -187,7 +210,7 @@ const LiveScreen = () => {
               filteredContestsData.map(contest => (
                 <TouchableOpacity
                   key={contest.contestId}
-                  onPress={() => handleLiveDetailsNavigation(contest.contestId)}
+                  onPress={() => handleLiveDetailsNavigation(contest)}
                   style={styles.touchableOpacity}>
                   <View style={styles.contestContainer}>
                     <Image
@@ -226,7 +249,7 @@ const LiveScreen = () => {
               liveContestsData.map(contest => (
                 <TouchableOpacity
                   key={contest.contestId}
-                  onPress={() => handleLiveDetailsNavigation(contest.contestId)}
+                  onPress={() => handleLiveDetailsNavigation(contest)}
                   style={styles.touchableOpacity}>
                   <View style={styles.contestContainer}>
                     <Image

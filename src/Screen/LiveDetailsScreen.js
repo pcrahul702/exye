@@ -30,7 +30,6 @@ const LiveDetailsScreen = () => {
             const res = await getData(`/api/v1/dashboard/${id}`);
 
             setContestData(res);
-            console.log(res);
 
         } catch (error) {
             console.log('error', error);
@@ -72,7 +71,6 @@ const LiveDetailsScreen = () => {
                 Alert.alert('An unexpected error occurred');
             }
             console.error('Error during joining contest:', error);
-            navigation.navigate('QuizChoice', { contestId: contestData.contestId, topicId: contestData.topicId });
         }
     };
 

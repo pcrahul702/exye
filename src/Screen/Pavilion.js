@@ -59,8 +59,7 @@ const Pavilion = () => {
       <ScrollView style={styles.scrollContainer}>
 
 
-        <TouchableOpacity onPress={() => navigation.navigate('Previous')}>
-
+      <TouchableOpacity onPress={() => navigation.navigate('Previous')} activeOpacity={0.7}>
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
@@ -71,13 +70,10 @@ const Pavilion = () => {
               source={require('../assets/prevContest.png')}
               style={styles.image3}
             />
-
           </LinearGradient>
         </TouchableOpacity>
 
-
-        <TouchableOpacity onPress={() => navigation.navigate('Live')}>
-
+        <TouchableOpacity onPress={() => navigation.navigate('Live')} activeOpacity={0.7}>
           <LinearGradient
             colors={['#F05A5B', '#FFA952']}
             style={styles.view4}
@@ -88,7 +84,6 @@ const Pavilion = () => {
               source={require('../assets/eventPic.png')}
               style={styles.image3}
             />
-
           </LinearGradient>
         </TouchableOpacity>
 
@@ -254,7 +249,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     alignSelf: 'center',
     borderRadius: 35,
-    elevation: 8,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -265,7 +259,12 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     verticalAlign: 'middle',
-    padding:5
+    padding:5,
+    elevation: 5, // For Android shadow
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 4 }, // Offset shadow by 4 units
+    shadowOpacity: 0.3, // Shadow transparency
+    shadowRadius: 5, // Radius of the shadow blur
   },
   view3: {
     width: '90%',
@@ -274,7 +273,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center',
     borderRadius: 35,
-    elevation: 8,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -285,7 +283,12 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     verticalAlign: 'middle',
-    padding:5
+    padding:5,
+    elevation: 5, // For Android shadow
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 4 }, // Offset shadow by 4 units
+    shadowOpacity: 0.3, // Shadow transparency
+    shadowRadius: 5, // Radius of the shadow blur
   },
   text3: {
     fontSize: 28,

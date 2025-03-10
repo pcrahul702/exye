@@ -44,7 +44,7 @@ const ProfileScreen = () => {
       setProfileData(response)
 
       // Check if Pan Card is uploaded
-      if (response.document?.panDetails?.url) {
+      if (response.document?.panDetails?.panNumber) {
         setPanCardUploaded(true);
       } else {
         setPanCardUploaded(false);

@@ -69,6 +69,7 @@ const NewComplaintPage = () => {
                 });
 
                 alert(data.message);
+                handleBackPress();
                 console.log(data);
             } catch (error) {
                 console.error('Error during ticket creation:', error);
