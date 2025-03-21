@@ -55,7 +55,7 @@ function WalletPage() {
   };
 
   const handleAddMoneyNavigation = () => {
-    navigation.navigate('AddMoney');
+    navigation.navigate('AddMoneyLaunch');
   };
 
   const handleTransactionHistoryNavigation = () => {

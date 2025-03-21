@@ -19,7 +19,12 @@ import UploadPanScreen from './src/Screen/UploadPanScreen';
 import UploadBankScreen from './src/Screen/UploadBankScreen';
 import PreviousDetails from './src/Screen/PreviousDetails';
 import AddMoneyScreen from './src/Screen/AddMoneyScreen';
+import AddMoneyLaunchScreen from './src/Screen/AddMoneyLaunchScreen';
 import PaymentScreen from './src/Screen/PaymentScreen';
+import PaymentLaunchScreen from './src/Screen/PaymentLaunchScreen';
+import PaymentSummaryScreen from './src/Screen/PaymentSummaryScreen';
+import UPIScreen from './src/Screen/UPIScreen';
+import TransactionIDScreen from './src/Screen/TransactionIDScreen';
 import TransactionHistoryScreen from './src/Screen/TransactionHistoryScreen';
 import ReferScreen from './src/Screen/ReferScreen';
 import WithdrawalScreen from './src/Screen/WithdrawalScreen';
@@ -78,7 +83,12 @@ function App() {
               component={PreviousDetails}
             />
             <Stack.Screen name="AddMoney" component={AddMoneyScreen} />
+            <Stack.Screen name="AddMoneyLaunch" component={AddMoneyLaunchScreen} />
             <Stack.Screen name="Payment" component={PaymentScreen} />
+            <Stack.Screen name="PaymentLaunch" component={PaymentLaunchScreen} />
+            <Stack.Screen name="PaymentSummary" component={PaymentSummaryScreen} />
+            <Stack.Screen name="UPI" component={UPIScreen} />
+            <Stack.Screen name="TransactionID" component={TransactionIDScreen} />
             <Stack.Screen
               name="TransactionHistory"
               component={TransactionHistoryScreen}

@@ -6,7 +6,7 @@ import { getData } from '../Utils/api';
 const { width, height } = Dimensions.get('window');
 
 
-function AddMoneyScreen() {
+function AddMoneyLaunchScreen() {
 
     const navigation = useNavigation();
     const [walletData, setWalletData] = useState([]);
@@ -40,7 +40,7 @@ function AddMoneyScreen() {
     }
 
     const handlePaymentNavigation = (addAmount) => {
-        navigation.navigate('Payment', { addAmount });
+        navigation.navigate('PaymentLaunch', { addAmount });
     };
 
     return (
@@ -56,31 +56,31 @@ function AddMoneyScreen() {
                     <Text style={styles.text1}>Current Balance :</Text>
                     <Text style={styles.text2}>₹ {walletData.walletAmount || 0}</Text>
                     <Text style={styles.text3}>Amount to be added :</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter amount"
-                        keyboardType="numeric"
-                        value={addAmount}
-                        onChangeText={setAddAmount}
-                    />
-                    <Text style={styles.additionalText}>Or click at any button below :</Text>
                     <View style={styles.buttonsContainer}>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => handlePaymentNavigation('100')}>
-                            <Text style={styles.buttonText}>₹ 100</Text>
+                            onPress={() => handlePaymentNavigation(50)}>
+                            <Text style={styles.buttonText}>₹ 50</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => handlePaymentNavigation('200')}>
-                            <Text style={styles.buttonText}>₹ 200</Text>
+                            onPress={() => handlePaymentNavigation(100)}>
+                            <Text style={styles.buttonText}>₹ 100</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.buttonsContainer}>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => handlePaymentNavigation(250)}>
+                            <Text style={styles.buttonText}>₹ 250</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => handlePaymentNavigation(500)}>
+                            <Text style={styles.buttonText}>₹ 500</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-
-                <TouchableOpacity onPress={handleProceedClick}>
-                    <Image source={require('../assets/proceedIcon.png')} style={[styles.bottomIcon, { marginBottom: height * 0.16 }]} />
-                </TouchableOpacity>
 
             </ScrollView>
 
@@ -260,4 +260,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default AddMoneyScreen;
+export default AddMoneyLaunchScreen;

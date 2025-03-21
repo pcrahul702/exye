@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
         width: '90%',
         alignSelf: 'center',
         textAlign: 'center',
-        fontSize: 30,
+        fontSize: 22,
         marginTop: '20%',
         alignSelf: 'center',
         fontWeight: '500',

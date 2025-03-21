@@ -19,7 +19,7 @@ function TransactionHistoryScreen() {
 
     const getWalletTransactionsData = async () => {
         try {
-            const res = await getData('/api/v1/profile/wallet/transactions');
+            const res = await getData('/api/v1/profile/wallet/transactions?pageNo=0&pageSize=100');
             if (Array.isArray(res.data)) {
                 setTransactionsData(res.data);
             } else {
@@ -33,14 +33,50 @@ function TransactionHistoryScreen() {
         }
     };
 
+    
+
     const renderTransactionStatus = (status, type) => {
-        if (status === 'SUCCESS' && type === 'DEPOSIT') {
-            return { icon: addSuccessIcon, text: 'Transaction Successful', color: 'green' };
-        } else if (status === 'SUCCESS' && type === 'WITHDRAWAL') {
-            return { icon: withdrawSuccessIcon, text: 'Transaction Successful', color: 'green' };
-        } else if (status === 'FAILURE') {
-            return { icon: failedIcon, text: 'Transaction Failed', color: '#FF0000' };
+        if (type === 'DEPOSIT') {
+            if (status === 'SUCCESS')
+                return { icon: addSuccessIcon, text: 'Deposit Successful', color: 'green' };
+            else if (status === 'PENDING')
+                return { icon: failedIcon, text: 'Deposit Pending', color: '#FF8800' };
+            else if (status === 'FAILED')
+                return { icon: failedIcon, text: 'Deposit Failed', color: '#FF0000' };
         }
+        else if (type === 'WITHDRAWAL') {
+            if (status === 'SUCCESS')
+                return { icon: withdrawSuccessIcon, text: 'Withdrawal Successful', color: 'green' };
+            else if (status === 'PENDING')
+                return { icon: failedIcon, text: 'Withdrawal Pending', color: '#FF8800' };
+            else if (status === 'FAILED')
+                return { icon: failedIcon, text: 'Withdrawal Failed', color: '#FF0000' };
+        }
+        else if (type === 'REWARD') {
+            if (status === 'SUCCESS')
+                return { icon: addSuccessIcon, text: 'Reward Credit Successful', color: 'green' };
+            else if (status === 'PENDING')
+                return { icon: failedIcon, text: 'Reward Credit Pending', color: '#FF8800' };
+            else if (status === 'FAILED')
+                return { icon: failedIcon, text: 'Reward Credit Failed', color: '#FF0000' };
+        }
+        else if (type === 'REFUND') {
+            if (status === 'SUCCESS')
+                return { icon: addSuccessIcon, text: 'Refund Successful', color: 'green' };
+            else if (status === 'PENDING')
+                return { icon: failedIcon, text: 'Refund Pending', color: '#FF8800' };
+            else if (status === 'FAILED')
+                return { icon: failedIcon, text: 'Refund Failed', color: '#FF0000' };
+        }
+        else if (type === 'PARTICIPATION_CHARGE') {
+            if (status === 'SUCCESS')
+                return { icon: withdrawSuccessIcon, text: 'Contest Charge', color: 'green' };
+            else if (status === 'PENDING')
+                return { icon: failedIcon, text: 'Contest Charge', color: '#FF8800' };
+            else if (status === 'FAILED')
+                return { icon: failedIcon, text: 'Contest Charge', color: '#FF0000' };
+        }
+
         return { icon: failedIcon, text: 'Transaction Pending', color: '#FF8800' }; // Default if status is null or unknown
     };
 

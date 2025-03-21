@@ -30,11 +30,17 @@ const HomeScreen = () => {
 
   const navigation = useNavigation();
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getDashboardData();
-    }, [])
-  );
+  useEffect(() => {
+
+    getDashboardData();
+    
+    const interval = setInterval(() => {
+      getDashboardData(); // Fetch updated contests every 30 seconds
+    }, 30000); // 30 seconds polling interval
+
+    // Clean up interval when the component unmounts
+    return () => clearInterval(interval);
+  }, []);
 
   const getDashboardData = async () => {
     try {
@@ -134,7 +140,7 @@ const HomeScreen = () => {
     console.log(contest);
     if (contest.userContestStatus === 'NEW')
       navigation.navigate('LiveDetails', { contestId: contest.contestId });
-    else if (contest.userContestStatus === 'JOINED') {
+    else if (contest.userContestStatus === 'JOINED' || contest.userContestStatus === 'STARTED') {
       showToast('info', 'You have already joined this contest.')
       navigation.navigate('QuizChoice', { contestId: contest.contestId, topicId: contest.topicId });
     }
