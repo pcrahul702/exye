@@ -11,6 +11,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   StatusBar,
+  BackHandler,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import backgroundImage from '../assets/Group.png';
@@ -112,17 +113,26 @@ const LiveScreen = () => {
     };
 
   const handleLiveDetailsNavigation = (contest) => {
-    console.log(contest);
-    if (contest.userContestStatus === 'NEW')
+    console.log(contest.userContestStatus);
+    if (contest.userContestStatus === 'NEW'){
+      console.log('5555');
       navigation.navigate('LiveDetails', { contestId: contest.contestId });
+    }
     else if (contest.userContestStatus === 'JOINED') {
+      console.log('6666');
+      showToast('info', 'You have already joined this contest.')
+      navigation.navigate('QuizChoice', { contestId: contest.contestId, topicId: contest.topicId });
+    }
+    else if (contest.userContestStatus === 'STARTED') {
+      console.log('7777');
+      console.log('heyy');
       showToast('info', 'You have already joined this contest.')
       navigation.navigate('QuizChoice', { contestId: contest.contestId, topicId: contest.topicId });
     }
     else if (contest.userContestStatus === 'ENDED') {
+      console.log('8888');
       showToast('info', 'You have already played this contest.')
       navigation.navigate('PreviousDetails', { contestId: contest.contestId });
-
     }
   };
 
@@ -131,6 +141,22 @@ const LiveScreen = () => {
     console.log(topicNames);
     console.log(typeof topicNames);
   };
+
+  useEffect(() => {
+    // Function to handle back press behavior
+    const handleBackPress = () => {
+      navigation.goBack();  // This takes you to the previous screen
+      return true;  // Prevent default back behavior (app exit)
+    };
+  
+    // Add event listener for back press
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+  
+    // Clean up the event listener when the component unmounts
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    };
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.container}>

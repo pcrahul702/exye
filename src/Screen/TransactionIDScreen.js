@@ -2,26 +2,56 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, TextInput, Modal, ToastAndroid } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { postData } from '../Utils/api';
+import Toast from 'react-native-toast-message';
 
 function TransactionIDScreen() {
 
     const route = useRoute();
-    const { upiVendor, netPayable } = route.params;
+    const { paymentId } = route.params;
 
     const navigation = useNavigation();
 
     const [transactionId, setTransactionId] = useState('');
     const [isModalVisible, setModalVisible] = useState(false);
 
-    const handleSubmitPress = () => {
+    const handleSubmitPress = async () => {
         if (transactionId.trim() === '') {
             // Show toast message if the input is empty
             ToastAndroid.show('Transaction ID cannot be blank!', ToastAndroid.SHORT);
         } else {
-            // Show modal if input is not empty
-            setModalVisible(true);
+
+            const payload = {
+                paymentId : paymentId,
+                transactionId : transactionId,
+                status : "PAID"
+            };
+
+            console.log("payload data", payload);
+
+            try {
+                const data = await postData('/api/v1/payment/submit-verification', payload);
+                console.log(data);
+
+                setModalVisible(true);
+
+            } catch (error) {
+                console.error('Error during payment:', error);
+                showToast('error', 'An Error Occured. Try again.')
+            }
         }
     };
+
+    const showToast = (type, message1, message2 = '') => {
+            Toast.show({
+                type: type,
+                position: 'bottom',
+                text1: message1,
+                text2: message2,
+                visibilityTime: 3000, // How long the toast is visible
+                autoHide: true, // Hide after time
+            });
+        };
 
     const handleModalClose = () => {
         // Close the modal and navigate to the next screen
@@ -53,6 +83,14 @@ function TransactionIDScreen() {
                         multiline={false}
                         value={transactionId}
                         onChangeText={setTransactionId}
+                    />
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder={paymentId}
+                        placeholderTextColor="#B0B0B0"
+                        multiline={false}
+                        editable={false}
                     />
 
                     <TouchableOpacity style={styles.submitButton} onPress={handleSubmitPress}>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, StatusBar, Image, TouchableOpacity, TextInput, Platform, KeyboardAvoidingView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, StatusBar, Image, TouchableOpacity, TextInput, Platform, KeyboardAvoidingView, BackHandler } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
@@ -52,9 +52,25 @@ const CreateCustomContestScreen = () => {
         });
     };
 
+    useEffect(() => {
+        // Function to handle back press behavior
+        const handleBackPress = () => {
+          navigation.goBack();  // This takes you to the previous screen
+          return true;  // Prevent default back behavior (app exit)
+        };
+      
+        // Add event listener for back press
+        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+      
+        // Clean up the event listener when the component unmounts
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+        };
+      }, [navigation]);
+
     return (
         <KeyboardAvoidingView style={styles.container}>
-            <Image source={require('../assets/Group.png')} style={styles.backgroundImage} />
+            <Image source={require('../assets/Group2.png')} style={styles.backgroundImage} />
             <StatusBar hidden={true} />
 
             <View style={styles.header}>
@@ -130,7 +146,6 @@ const CreateCustomContestScreen = () => {
                 <Text style={styles.nextText}>Next</Text>
             </TouchableOpacity>
 
-            <Image source={require('../assets/k.png')} style={styles.bottomImage} />
         </KeyboardAvoidingView>
     );
 };
@@ -144,10 +159,9 @@ const styles = StyleSheet.create({
     },
     backgroundImage: {
         width: '100%',
-        height: '80%',
+        height: '100%',
         position: 'absolute',
-        resizeMode: 'contain',
-        top: 90,
+        resizeMode: 'stretch',
         left: 0,
         opacity: 0.8,
     },

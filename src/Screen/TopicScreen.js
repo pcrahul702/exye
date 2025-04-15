@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, StatusBar, Image, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, StatusBar, Image, Text, TouchableOpacity, BackHandler } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { getAccessToken } from '../Utils/getAccessToken';
 import { getData } from '../Utils/api';
@@ -72,6 +72,22 @@ const TopicScreen = () => {
         }
         return result;
     };
+
+    useEffect(() => {
+        // Function to handle back press behavior
+        const handleBackPress = () => {
+          navigation.goBack();  // This takes you to the previous screen
+          return true;  // Prevent default back behavior (app exit)
+        };
+      
+        // Add event listener for back press
+        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+      
+        // Clean up the event listener when the component unmounts
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+        };
+      }, [navigation]);
 
     const rows = chunkArray(data, 2);
 

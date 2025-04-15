@@ -9,6 +9,7 @@ function WithdrawalScreen() {
 
     const navigation = useNavigation();
     const [withdrawAmount, setWithdrawAmount] = useState('');
+    const [upiInput, setUpiInput] = useState('');
     const [guideText, setguideText] = useState('Place a withdrawal request');
     const [guideColor, setGuideColor] = useState(1);//1-green, 0-red
     const [walletData, setWalletData] = useState([]);
@@ -48,15 +49,13 @@ function WithdrawalScreen() {
         const token = await getAccessToken();
         console.log("Access Token: ", token);
 
+        const payload = {
+            amount: withdrawAmount,
+            upiId: upiInput
+        };
+
         try {
-            const data = await postData(`/api/v1/profile/wallet/withdraw-money?amount=${withdrawAmount}`,
-                {},
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                }
-            );
+            const data = await postData(`/api/v1/profile/wallet/withdraw-money`,payload);
 
             console.log(data);
             setguideText('Your request is successfully processed');
@@ -101,6 +100,12 @@ function WithdrawalScreen() {
                         keyboardType="numeric"
                         value={withdrawAmount}
                         onChangeText={setWithdrawAmount}
+                    />
+                    <TextInput
+                        style={styles.input1}
+                        placeholder="Enter your UPI ID"
+                        value={upiInput}
+                        onChangeText={setUpiInput}
                     />
 
                     {guideColor ? (
@@ -243,6 +248,19 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         paddingHorizontal: 10,
         marginVertical: 20,
+        backgroundColor: 'white',
+        fontSize: 20,
+        color: 'black',
+        fontFamily: 'Poppins-Regular',
+    },
+    input1: {
+        width: '60%',
+        height: 70,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 16,
+        paddingHorizontal: 10,
+        marginTop:0,
         backgroundColor: 'white',
         fontSize: 20,
         color: 'black',

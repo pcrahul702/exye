@@ -1,4 +1,4 @@
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, ScrollView, Alert, BackHandler } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
@@ -44,6 +44,23 @@ const LiveDetailsScreen = () => {
     const handleBackPress = () => {
         navigation.goBack(); // This will take the user to the previous screen
     };
+
+
+    useEffect(() => {
+        // Function to handle back press behavior
+        const handleBackPress = () => {
+            navigation.goBack();  // This takes you to the previous screen
+            return true;  // Prevent default back behavior (app exit)
+        };
+
+        // Add event listener for back press
+        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+        // Clean up the event listener when the component unmounts
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+        };
+    }, [navigation]);
 
     const handleJoinContest = async () => {
 

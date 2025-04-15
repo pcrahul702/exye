@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, TouchableOpacity, TextInput, Alert, Modal } from 'react-native';
+import { View, StyleSheet, Image, Text, TouchableOpacity, Linking } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { postData } from '../Utils/api';
+import Toast from 'react-native-toast-message';
 
 
 
@@ -18,10 +20,45 @@ function PaymentSummaryScreen() {
 
     const navigation = useNavigation();
 
-    const handleConfirmPress = () => {
-        navigation.navigate('UPI', { netPayable });
+    const handleConfirmPress = async () => {
+
+        const payload = {
+            amount: netPayable,
+            note: "Game play",
+            upiId: "rishabh@ybl"
+        };
+
+        console.log("payload data", payload);
+
+        try {
+            const data = await postData('/api/v1/payment/manual', payload);
+            console.log(data);
+
+            // const paymentUrl = data.paymentUrl; 
+            const paymentUrl = 'upi://pay?pa=7256809689@ybl&pn=RISHABH%20KUMAR&am=10.00&cu=INR&tn=Game%20play'; 
+
+            console.log(paymentUrl);
+            Linking.openURL(paymentUrl).catch(err => console.error("Failed to open URL:", err));
+
+            navigation.navigate('TransactionID', { paymentId: data.paymentId });
+
+        } catch (error) {
+            console.error('Error during payment initiation:', error);
+            showToast('error', 'Payment could not be initiated. Try again.')
+        }
+
     };
 
+    const showToast = (type, message1, message2 = '') => {
+        Toast.show({
+            type: type,
+            position: 'bottom',
+            text1: message1,
+            text2: message2,
+            visibilityTime: 3000, // How long the toast is visible
+            autoHide: true, // Hide after time
+        });
+    };
 
     return (
         <View style={styles.container}>

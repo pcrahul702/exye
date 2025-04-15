@@ -13,6 +13,7 @@ import {
   Alert,
   Animated,
   Dimensions,
+  BackHandler,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
@@ -35,8 +36,8 @@ const HomeScreen = () => {
     getDashboardData();
     
     const interval = setInterval(() => {
-      getDashboardData(); // Fetch updated contests every 30 seconds
-    }, 30000); // 30 seconds polling interval
+      getDashboardData(); 
+    }, 5000);
 
     // Clean up interval when the component unmounts
     return () => clearInterval(interval);
@@ -137,23 +138,57 @@ const HomeScreen = () => {
   };
 
   const handleContestClick = (contest) => {
-    console.log(contest);
-    if (contest.userContestStatus === 'NEW')
+    console.log(contest.userContestStatus);
+    if (contest.userContestStatus === 'NEW'){
+      console.log('5555');
       navigation.navigate('LiveDetails', { contestId: contest.contestId });
-    else if (contest.userContestStatus === 'JOINED' || contest.userContestStatus === 'STARTED') {
+    }
+    else if (contest.userContestStatus === 'JOINED') {
+      console.log('6666');
+      showToast('info', 'You have already joined this contest.')
+      navigation.navigate('QuizChoice', { contestId: contest.contestId, topicId: contest.topicId });
+    }
+    else if (contest.userContestStatus === 'STARTED') {
+      console.log('7777');
+      console.log('heyy');
       showToast('info', 'You have already joined this contest.')
       navigation.navigate('QuizChoice', { contestId: contest.contestId, topicId: contest.topicId });
     }
     else if (contest.userContestStatus === 'ENDED') {
+      console.log('8888');
       showToast('info', 'You have already played this contest.')
       navigation.navigate('PreviousDetails', { contestId: contest.contestId });
-
     }
   };
 
   const handleDrawerOpen = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
+
+  useEffect(() => {
+    // Function to handle back press behavior on HomeScreen
+    const handleBackPress = () => {
+      const currentScreen = navigation.getState().routes[navigation.getState().index].name;
+      console.log(currentScreen);
+
+      // If we're on the Home screen, exit the app
+      if (currentScreen === 'Dashboard') {
+        BackHandler.exitApp(); // Exit the app
+        return true; // Prevent default back behavior
+      } else {
+        // Let React Navigation handle the back action
+        return false;
+      }
+    };
+
+    // Add the event listener for back press
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+    // Clean up the listener when the component is unmounted
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    };
+  }, [navigation]);
 
   return (
     <View style={styles.bg}>
@@ -290,8 +325,7 @@ const HomeScreen = () => {
             />
           </LinearGradient>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Topic')}
+        {/* <TouchableOpacity onPress={() => navigation.navigate('Topic')}
          activeOpacity={0.7}
           style={styles.shadowBox}>
           <View style={styles.view4}>
@@ -301,7 +335,9 @@ const HomeScreen = () => {
               style={styles.cardImage}
             />
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+
+        
       </ScrollView>
 
       {/* Bottom Navigation Bar */}

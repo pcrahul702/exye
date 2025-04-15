@@ -65,7 +65,7 @@ const CustomDrawer = (props) => {
   };
 
   const handleAddMoneyNavigation = () => {
-    navigation.navigate('AddMoney');
+    navigation.navigate('AddMoneyLaunch');
   };
 
   const handleLogout = async () => {
