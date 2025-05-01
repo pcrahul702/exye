@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, TouchableOpacity, Linking } from 'react-native';
+import { View, StyleSheet, Image, Text, TouchableOpacity, Linking, ToastAndroid } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { ScrollView } from 'react-native-gesture-handler';
 import { postData } from '../Utils/api';
 import Toast from 'react-native-toast-message';
@@ -34,8 +35,7 @@ function PaymentSummaryScreen() {
             const data = await postData('/api/v1/payment/manual', payload);
             console.log(data);
 
-            // const paymentUrl = data.paymentUrl; 
-            const paymentUrl = 'upi://pay?pa=7256809689@ybl&pn=RISHABH%20KUMAR&am=10.00&cu=INR&tn=Game%20play'; 
+            const paymentUrl = data.paymentUrl;
 
             console.log(paymentUrl);
             Linking.openURL(paymentUrl).catch(err => console.error("Failed to open URL:", err));
@@ -46,6 +46,37 @@ function PaymentSummaryScreen() {
             console.error('Error during payment initiation:', error);
             showToast('error', 'Payment could not be initiated. Try again.')
         }
+
+    };
+
+    const handlePaidPress = async () => {
+
+
+        const payload = {
+            amount: netPayable,
+            note: "Game play",
+            upiId: "rishabh@ybl"
+        };
+
+        console.log("payload data", payload);
+
+        try {
+            const data = await postData('/api/v1/payment/manual', payload);
+            console.log(data);
+
+
+            navigation.navigate('TransactionID', { paymentId: data.paymentId });
+
+        } catch (error) {
+            console.error('Error during payment initiation:', error);
+            showToast('error', 'Payment could not be initiated. Try again.')
+        }
+
+    };
+    const handleCopy = () => {
+
+        Clipboard.setString('vyapar.173575993339@hdfcbank');
+        ToastAndroid.show('UPI ID copied', ToastAndroid.SHORT);
 
     };
 
@@ -92,12 +123,22 @@ function PaymentSummaryScreen() {
                     </View>
 
 
-                    <Text style={styles.headingText}>You are paying :</Text>
-                    <Text style={styles.netPayableStyle}>₹ {netPayable}</Text>
+                    <Text style={styles.headingText}>Pay ₹ {netPayable} on following UPI ID</Text>
 
-                    <TouchableOpacity style={styles.confirmButton}
+
+                    <TouchableOpacity
+                        onPress={handleCopy}>
+                        <Text style={styles.netPayableStyle}>vyapar.173575993339@hdfcbank</Text>
+                    </TouchableOpacity>
+
+                    {/* <TouchableOpacity style={styles.confirmButton}
                         onPress={handleConfirmPress}>
                         <Text style={styles.confirmText}>Confirm</Text>
+                    </TouchableOpacity> */}
+
+                    <TouchableOpacity style={styles.confirmButton}
+                        onPress={handlePaidPress}>
+                        <Text style={styles.confirmText}>Paid</Text>
                     </TouchableOpacity>
 
                 </View>
@@ -207,7 +248,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     netPayableStyle: {
-        fontSize: 20,
+        fontSize: 16,
         color: 'white',
         fontWeight: '700',
         textShadowColor: 'rgba(0, 0, 0, 0.75)',

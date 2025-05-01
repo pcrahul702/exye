@@ -22,9 +22,9 @@ function TransactionIDScreen() {
         } else {
 
             const payload = {
-                paymentId : paymentId,
-                transactionId : transactionId,
-                status : "PAID"
+                paymentId: paymentId,
+                transactionId: transactionId,
+                status: "PAID"
             };
 
             console.log("payload data", payload);
@@ -43,15 +43,15 @@ function TransactionIDScreen() {
     };
 
     const showToast = (type, message1, message2 = '') => {
-            Toast.show({
-                type: type,
-                position: 'bottom',
-                text1: message1,
-                text2: message2,
-                visibilityTime: 3000, // How long the toast is visible
-                autoHide: true, // Hide after time
-            });
-        };
+        Toast.show({
+            type: type,
+            position: 'bottom',
+            text1: message1,
+            text2: message2,
+            visibilityTime: 3000, // How long the toast is visible
+            autoHide: true, // Hide after time
+        });
+    };
 
     const handleModalClose = () => {
         // Close the modal and navigate to the next screen
