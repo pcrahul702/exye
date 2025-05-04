@@ -100,7 +100,7 @@ const Previous = () => {
         )}
       </ScrollView>
 
-      <TouchableOpacity onPress={handleHomeNavigation} style={styles.xyz}>
+      <TouchableOpacity onPress={handleHomeNavigation} style={styles.HomeIcon}>
         <Image source={require("../assets/unfilledHome.png")} style={styles.bottomNavIcons} />
       </TouchableOpacity>
       <TouchableOpacity onPress={handleWalletNavigation} style={styles.WalletIcon}>
@@ -169,21 +169,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     padding: 8,
   },
-  xyz: {
-    position: 'absolute',
-    bottom: 0,
-    zIndex: 1,
-    height: 70,
-    width: 70,
-    left: '35%',
-  },
   WalletIcon: {
     position: 'absolute',
     bottom: 0,
     zIndex: 1,
     height: 70,
     width: 70,
-    left: '1%',
+    left: '5%',
+  },
+  HomeIcon: {
+    position: 'absolute',
+    bottom: 0,
+    zIndex: 1,
+    height: 70,
+    width: 70,
+    alignSelf: 'center'
   },
   NotificationIcon: {
     position: 'absolute',
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     height: 70,
     width: 70,
-    right: '10%',
+    right: '5%',
   },
   bottomNavIcons: {
     position: 'absolute',
@@ -199,8 +199,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     height: 70,
     width: 70,
-    left: '40%',
-  },
+  },  
   scrollViewContainer: {
     marginTop: 10,
     padding: 10,

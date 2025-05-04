@@ -18,6 +18,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
 import Toast from 'react-native-toast-message';
+import { getAccessToken } from '../Utils/getAccessToken';
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,9 +35,9 @@ const HomeScreen = () => {
   useEffect(() => {
 
     getDashboardData();
-    
+
     const interval = setInterval(() => {
-      getDashboardData(); 
+      getDashboardData();
     }, 5000);
 
     // Clean up interval when the component unmounts
@@ -45,6 +46,8 @@ const HomeScreen = () => {
 
   const getDashboardData = async () => {
     try {
+
+
       const res = await getData('/api/v1/dashboard');
       setDashboardData(res);
       setLiveContestsData(res.liveContests);
@@ -63,8 +66,13 @@ const HomeScreen = () => {
 
       setImageUris(imageUris);  // Update state with all the image URIs
     } catch (error) {
-      console.log('error', error);
-      Alert.alert(error?.response?.data?.message || 'Please check internet.');
+      if (error.response && error.response.status === 401) {
+        console.log('Unauthorized access - 401');
+        navigation.navigate('Login');
+      }
+      else {
+        Alert.alert(error?.response?.data?.message || 'Please check internet.');
+      }
     }
   };
 
@@ -139,7 +147,7 @@ const HomeScreen = () => {
 
   const handleContestClick = (contest) => {
     console.log(contest.userContestStatus);
-    if (contest.userContestStatus === 'NEW'){
+    if (contest.userContestStatus === 'NEW') {
       console.log('5555');
       navigation.navigate('LiveDetails', { contestId: contest.contestId });
     }
@@ -164,6 +172,7 @@ const HomeScreen = () => {
   const handleDrawerOpen = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
+  
 
   useEffect(() => {
     // Function to handle back press behavior on HomeScreen
@@ -241,7 +250,7 @@ const HomeScreen = () => {
         ) : (
           <TouchableOpacity
             style={styles.view1}
-            onPress={() =>showToast('info','No upcoming quiz at present ')}
+            onPress={() => showToast('info', 'No upcoming quiz at present ')}
           >
             <Text style={styles.text1}>No upcoming quiz... </Text>
             <Image
@@ -311,7 +320,7 @@ const HomeScreen = () => {
           <Text style={styles.loadingText}>No live contests available</Text>
         )}
 
-        <TouchableOpacity onPress={handleLiveNavigation}  activeOpacity={0.7} >
+        <TouchableOpacity onPress={handleLiveNavigation} activeOpacity={0.7} >
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
@@ -337,22 +346,25 @@ const HomeScreen = () => {
           </View>
         </TouchableOpacity> */}
 
-        
+
       </ScrollView>
 
       {/* Bottom Navigation Bar */}
-      <TouchableOpacity onPress={() => { }} style={styles.xyz}>
-        <Image
-          source={require('../assets/filledHome.png')}
-          style={styles.bottomNavIcons}
-        />
-      </TouchableOpacity>
+
       <TouchableOpacity onPress={handleWalletNavigation} style={styles.WalletIcon}>
         <Image
           source={require('../assets/unfilledWallet.png')}
           style={styles.bottomNavIcons}
         />
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => { }} style={styles.HomeIcon}>
+        <Image
+          source={require('../assets/filledHome.png')}
+          style={styles.bottomNavIcons}
+        />
+      </TouchableOpacity>
+
       <TouchableOpacity onPress={handlePavailionNavigation} style={styles.NotificationIcon}>
         <Image
           source={require('../assets/notification.png')}
@@ -424,6 +436,7 @@ const styles = StyleSheet.create({
   iconImage2: {
     width: 30,
     height: 30,
+    resizeMode:'contain',
   },
   logo: {
     flex: 1,
@@ -617,21 +630,21 @@ const styles = StyleSheet.create({
     width: '100%',
     resizeMode: 'stretch',
   },
-  xyz: {
-    position: 'absolute',
-    bottom: 0,
-    zIndex: 1,
-    height: 70,
-    width: 70,
-    left: '35%',
-  },
   WalletIcon: {
     position: 'absolute',
     bottom: 0,
     zIndex: 1,
     height: 70,
     width: 70,
-    left: '1%',
+    left: '5%',
+  },
+  HomeIcon: {
+    position: 'absolute',
+    bottom: 0,
+    zIndex: 1,
+    height: 70,
+    width: 70,
+    alignSelf: 'center'
   },
   NotificationIcon: {
     position: 'absolute',
@@ -639,7 +652,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     height: 70,
     width: 70,
-    right: '10%',
+    right: '5%',
   },
   bottomNavIcons: {
     position: 'absolute',
@@ -647,7 +660,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     height: 70,
     width: 70,
-    left: '40%',
   },
   loadingText: {
     fontSize: 20,

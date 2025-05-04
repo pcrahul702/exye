@@ -19,7 +19,7 @@ export default function DrawerNavigator({navigation}) {
     const openTermsAndConditions = () => {
 
         Linking.openURL('https://www.exye.in/terms-and-conditions') // Replace with your actual URL
-            .catch(err => console.error('An error occurred', err));
+            .catch(err => console.error('An error occurred', err));            
 
     };
 

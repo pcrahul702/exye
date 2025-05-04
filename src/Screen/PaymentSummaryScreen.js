@@ -138,7 +138,7 @@ function PaymentSummaryScreen() {
 
                     <TouchableOpacity style={styles.confirmButton}
                         onPress={handlePaidPress}>
-                        <Text style={styles.confirmText}>Paid</Text>
+                        <Text style={styles.confirmText}>Click after the Payment</Text>
                     </TouchableOpacity>
 
                 </View>
@@ -280,7 +280,9 @@ const styles = StyleSheet.create({
     },
     confirmText: {
         color: '#FFFFFF',
-        fontSize: 28,
+        fontSize: 20,
+        alignSelf:'center',
+        textAlign:'center',
         fontWeight: '900',
         fontFamily: 'Poppins-Regular',
         padding: 10,

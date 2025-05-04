@@ -12,7 +12,7 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { DrawerActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getData } from '../Utils/api';
 
@@ -61,8 +61,10 @@ const CustomDrawer = (props) => {
   };
 
   const handleWalletNavigation = () => {
-    navigation.navigate('Wallet');  // Navigate to the Wallet screen
-  };
+    navigation.dispatch(DrawerActions.closeDrawer());
+    navigation.navigate('Wallet');
+};
+
 
   const handleAddMoneyNavigation = () => {
     navigation.navigate('AddMoneyLaunch');

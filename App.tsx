@@ -5,7 +5,6 @@ import 'react-native-gesture-handler';
 import LoginScreen from './src/Screen/LoginScreen';
 import SignUpScreen from './src/Screen/SignUpScreen';
 import GetStartedScreen from './src/Screen/GetStartedScreen';
-import HomeScreen from './src/Screen/HomeScreen';
 import TopicScreen from './src/Screen/TopicScreen';
 import ProgressScreen from './src/Screen/ProgressScreen';
 import QuestionScreen from './src/Screen/QuestionScreen';
@@ -58,7 +57,6 @@ function App() {
       <View style={styles.container}>
         <NavigationContainer>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
-
 
             <Stack.Screen name="Start" component={GetStartedScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />

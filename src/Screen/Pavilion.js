@@ -89,7 +89,7 @@ const Pavilion = () => {
 
       </ScrollView>
 
-      <TouchableOpacity onPress={handleHomeNavigation} style={styles.xyz}>
+      <TouchableOpacity onPress={handleHomeNavigation} style={styles.HomeIcon}>
         <Image source={require("../assets/unfilledHome.png")} style={styles.bottomNavIcons} />
       </TouchableOpacity>
       <TouchableOpacity onPress={handleWalletNavigation} style={styles.WalletIcon}>
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   iconImage2: {
     width: 30,
     height: 30,
-
+    resizeMode:'contain',
   },
   logo: {
     flex: 1,
@@ -210,21 +210,21 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 90,
   },
-  xyz: {
-    position: 'absolute',
-    bottom: 0,
-    zIndex: 1,
-    height: 70,
-    width: 70,
-    left: '35%',
-  },
   WalletIcon: {
     position: 'absolute',
     bottom: 0,
     zIndex: 1,
     height: 70,
     width: 70,
-    left: '1%',
+    left: '5%',
+  },
+  HomeIcon: {
+    position: 'absolute',
+    bottom: 0,
+    zIndex: 1,
+    height: 70,
+    width: 70,
+    alignSelf: 'center'
   },
   NotificationIcon: {
     position: 'absolute',
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     height: 70,
     width: 70,
-    right: '10%',
+    right: '5%',
   },
   bottomNavIcons: {
     position: 'absolute',
@@ -240,8 +240,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     height: 70,
     width: 70,
-    left: '40%',
-  },
+  },  
   view4: {
     width: '90%',
     height: 'auto',

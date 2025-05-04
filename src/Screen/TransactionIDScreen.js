@@ -268,7 +268,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
     homeIcon: {
-        zIndex: 1,
         height: 70,
         width: 70,
         zIndex: 1,

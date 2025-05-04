@@ -313,7 +313,7 @@ const LiveScreen = () => {
       )}
 
 
-      <TouchableOpacity onPress={handleHomeNavigation} style={styles.xyz}>
+      <TouchableOpacity onPress={handleHomeNavigation} style={styles.HomeIcon}>
         <Image
           source={require('../assets/unfilledHome.png')}
           style={styles.bottomNavIcons}
@@ -447,6 +447,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'gray',
     marginTop: 20,
+    marginBottom: 20,
     textAlign: 'center',
     fontFamily: 'Poppins-Regular',
   },
@@ -559,21 +560,21 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 90,
   },
-  xyz: {
-    position: 'absolute',
-    bottom: 0,
-    zIndex: 1,
-    height: 70,
-    width: 70,
-    left: '35%',
-  },
   WalletIcon: {
     position: 'absolute',
     bottom: 0,
     zIndex: 1,
     height: 70,
     width: 70,
-    left: '1%',
+    left: '5%',
+  },
+  HomeIcon: {
+    position: 'absolute',
+    bottom: 0,
+    zIndex: 1,
+    height: 70,
+    width: 70,
+    alignSelf: 'center'
   },
   NotificationIcon: {
     position: 'absolute',
@@ -581,7 +582,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     height: 70,
     width: 70,
-    right: '10%',
+    right: '5%',
   },
   bottomNavIcons: {
     position: 'absolute',
@@ -589,7 +590,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     height: 70,
     width: 70,
-    left: '40%',
   },  
   shimmerImage: {
     alignSelf: 'center',
