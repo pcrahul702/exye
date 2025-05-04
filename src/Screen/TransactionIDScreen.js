@@ -54,7 +54,7 @@ function TransactionIDScreen() {
     };
 
     const handleModalClose = () => {
-        // Close the modal and navigate to the next screen
+        console.log("Navigating to Home");
         setModalVisible(false);
         navigation.navigate('Home');
     };
@@ -116,13 +116,16 @@ function TransactionIDScreen() {
                             source={require('../assets/modalBackdrop.png')}
                             style={styles.modalImage}
                         />
-                        <TouchableOpacity onPress={handleModalClose}>
+
+                        <TouchableOpacity onPress={() => handleModalClose()} style={styles.homeButton}>
                             <Image
                                 source={require('../assets/unfilledHome.png')}
                                 style={styles.homeIcon}
                             />
                         </TouchableOpacity>
+
                     </View>
+
                 </View>
             </Modal>
         </View>
@@ -267,13 +270,20 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         alignSelf: 'center',
     },
-    homeIcon: {
+    homeButton: {
         height: 70,
         width: 70,
         zIndex: 1,
         alignSelf: 'center',
         top: -85,
         left: 12,
+    },
+    homeIcon: {
+        height: 70,
+        width: 70,
+        zIndex: 1,
+        alignSelf: 'center',
+        
     },
 });
 
