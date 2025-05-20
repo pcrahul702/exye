@@ -146,13 +146,13 @@ function PaymentSummaryScreen() {
 
 
 
-            <View style={styles.bottomContainer}>
-                <Image
-                    source={require('../assets/leftArrowWhite.png')}
-                    style={styles.arrowIcon}
-                />
-                <Text style={styles.bottomText}>Swipe to go back</Text>
-            </View>
+           <TouchableOpacity
+             style={styles.bottomContainer}
+             onPress={() => navigation.goBack()}
+           >
+                               <Image source={require('../assets/leftArrowWhite.png')} style={styles.arrowIcon} />
+                           <Text style={styles.bottomText}>Swipe to go back</Text>
+           </TouchableOpacity>
 
         </View>
     );

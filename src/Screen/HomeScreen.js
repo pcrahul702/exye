@@ -80,7 +80,7 @@ const HomeScreen = () => {
     try {
       const res = await getData(`/api/v1/profile/topic/${id}`);
       return {
-        imageUri: { uri: res.data.preSignedTopicUrl },
+        imageUri: { uri: res.data.topicImageUrl },
         topicName: res.data.topicName // Assuming the API response has `topicName`
       };
     } catch (error) {
@@ -148,7 +148,6 @@ const HomeScreen = () => {
   const handleContestClick = (contest) => {
     console.log(contest.userContestStatus);
     if (contest.userContestStatus === 'NEW') {
-      console.log('5555');
       navigation.navigate('LiveDetails', { contestId: contest.contestId });
     }
     else if (contest.userContestStatus === 'JOINED') {

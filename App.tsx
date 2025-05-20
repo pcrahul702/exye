@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React from 'react';
 import 'react-native-gesture-handler';
 
@@ -41,10 +41,10 @@ import CreateCustomContestScreen from './src/Screen/CreateCustomContestScreen';
 // Import the DrawerNavigator
 import DrawerNavigator from './src/Screen/Drawer';
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
 
-import { Provider } from 'react-redux';
+import {Provider} from 'react-redux';
 import store from './src/Redux/store';
 import Toast from 'react-native-toast-message';
 
@@ -53,11 +53,10 @@ function App() {
 
   return (
     <Provider store={store}>
-
       <View style={styles.container}>
         <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-
+          <Stack.Navigator
+            screenOptions={{headerShown: false, gestureEnabled: true}}>
             <Stack.Screen name="Start" component={GetStartedScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
@@ -76,24 +75,36 @@ function App() {
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="UploadPan" component={UploadPanScreen} />
             <Stack.Screen name="UploadBank" component={UploadBankScreen} />
-            <Stack.Screen
-              name="PreviousDetails"
-              component={PreviousDetails}
-            />
+            <Stack.Screen name="PreviousDetails" component={PreviousDetails} />
             <Stack.Screen name="AddMoney" component={AddMoneyScreen} />
-            <Stack.Screen name="AddMoneyLaunch" component={AddMoneyLaunchScreen} />
+            <Stack.Screen
+              name="AddMoneyLaunch"
+              component={AddMoneyLaunchScreen}
+            />
             <Stack.Screen name="Payment" component={PaymentScreen} />
-            <Stack.Screen name="PaymentLaunch" component={PaymentLaunchScreen} />
-            <Stack.Screen name="PaymentSummary" component={PaymentSummaryScreen} />
+            <Stack.Screen
+              name="PaymentLaunch"
+              component={PaymentLaunchScreen}
+            />
+            <Stack.Screen
+              name="PaymentSummary"
+              component={PaymentSummaryScreen}
+            />
             <Stack.Screen name="UPI" component={UPIScreen} />
-            <Stack.Screen name="TransactionID" component={TransactionIDScreen} />
+            <Stack.Screen
+              name="TransactionID"
+              component={TransactionIDScreen}
+            />
             <Stack.Screen
               name="TransactionHistory"
               component={TransactionHistoryScreen}
             />
             <Stack.Screen name="Refer" component={ReferScreen} />
             <Stack.Screen name="Withdraw" component={WithdrawalScreen} />
-            <Stack.Screen name="WithdrawalStatus" component={WithdrawalStatusScreen} />
+            <Stack.Screen
+              name="WithdrawalStatus"
+              component={WithdrawalStatusScreen}
+            />
             <Stack.Screen name="WithdrawList" component={WithdrawListScreen} />
             <Stack.Screen name="LiveDetails" component={LiveDetailsScreen} />
             <Stack.Screen name="NewComplaint" component={NewComplaintPage} />
@@ -101,16 +112,18 @@ function App() {
             <Stack.Screen name="BankDetails" component={BankDetailsScreen} />
             <Stack.Screen name="PANDetails" component={PANDetailsScreen} />
             <Stack.Screen name="QuizChoice" component={QuizChoiceScreen} />
-            <Stack.Screen name="CustomContest" component={CustomContestScreen} />
-            <Stack.Screen name="CreateCustomContest" component={CreateCustomContestScreen} />
-
-
+            <Stack.Screen
+              name="CustomContest"
+              component={CustomContestScreen}
+            />
+            <Stack.Screen
+              name="CreateCustomContest"
+              component={CreateCustomContestScreen}
+            />
           </Stack.Navigator>
           <Toast></Toast>
-
         </NavigationContainer>
       </View>
-
     </Provider>
   );
 }

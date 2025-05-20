@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, ScrollView, Dimensions, Alert } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, ScrollView, Dimensions, Alert,TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { getData } from '../Utils/api';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,6 +15,8 @@ const PreviousDetails = () => {
     const [loading, setLoading] = useState(true);  // Loading state
 
     const route = useRoute();
+    const navigation = useNavigation();
+
     const { contestId } = route.params;
 
     useFocusEffect(
@@ -94,13 +97,18 @@ const PreviousDetails = () => {
 
             <Image source={require('../assets/BottomNav3.png')} style={styles.bottomNav} />
 
-            <View style={styles.bottomContainer}>
-                <Image
-                    source={require('../assets/leftArrowWhite.png')} // Replace with your actual arrow image path
-                    style={styles.arrowIcon}
-                />
-                <Text style={[styles.bottomText, { fontSize: width * 0.07 }]}>Swipe to go back</Text>
-            </View>
+        <TouchableOpacity
+  style={styles.bottomContainer}
+  onPress={() => navigation.goBack()}
+>
+  <Image
+    source={require('../assets/leftArrowWhite.png')}
+    style={styles.arrowIcon}
+  />
+  <Text style={[styles.bottomText, { fontSize: width * 0.07 }]}>
+    Swipe to go back
+  </Text>
+</TouchableOpacity>
         </SafeAreaView>
     );
 };

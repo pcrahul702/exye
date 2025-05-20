@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Image, Text, ScrollView, Alert, ActivityIndicator ,TouchableOpacity} from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import failedIcon from '../assets/failedIcon.png';
 import addSuccessIcon from '../assets/addSuccessIcon.png';
@@ -141,10 +141,13 @@ function TransactionHistoryScreen() {
 
             <Image source={require('../assets/BottomNav4.png')} resizeMode="contain" style={styles.bottomNav} />
 
-            <View style={styles.bottomContainer}>
-                <Image source={require('../assets/leftArrowWhite.png')} style={styles.arrowIcon} />
+ <TouchableOpacity
+  style={styles.bottomContainer}
+  onPress={() => navigation.goBack()}
+>
+                    <Image source={require('../assets/leftArrowWhite.png')} style={styles.arrowIcon} />
                 <Text style={styles.bottomText}>Swipe to go back</Text>
-            </View>
+</TouchableOpacity>
         </View >
     );
 }
