@@ -23,6 +23,7 @@ import { getAccessToken } from '../Utils/getAccessToken';
 const { width, height } = Dimensions.get('window');
 
 const HomeScreen = () => {
+  
   const [dashboardData, setDashboardData] = useState([]);
   const [liveContestsData, setLiveContestsData] = useState([]);
   const [isContestVisible, setIsContestVisible] = useState(false);
@@ -45,6 +46,8 @@ const HomeScreen = () => {
   }, []);
 
   const getDashboardData = async () => {
+    const token = await getAccessToken();
+    console.log(token);
     try {
 
 

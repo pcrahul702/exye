@@ -33,9 +33,10 @@ function TransactionHistoryScreen() {
         }
     };
 
-    
+
 
     const renderTransactionStatus = (status, type) => {
+        console.log('Transaction status:', status, 'Transaction type:', type, 'Type of transaction type:', typeof type);
         if (type === 'DEPOSIT') {
             if (status === 'SUCCESS')
                 return { icon: addSuccessIcon, text: 'Deposit Successful', color: 'green' };
@@ -76,8 +77,17 @@ function TransactionHistoryScreen() {
             else if (status === 'FAILED')
                 return { icon: failedIcon, text: 'Contest Charge', color: '#FF0000' };
         }
+        else if (type === null) {
+            if (status === 'SUCCESS')
+                return { icon: addSuccessIcon, text: 'Transaction Successfull', color: 'green' };
+            else if (status === 'PENDING')
+                return { icon: failedIcon, text: 'Contest Charge Pending', color: '#FF8800' };
+            else if (status === 'FAILED')
+                return { icon: failedIcon, text: 'Contest Charge Failed', color: '#FF0000' };
+        }
 
-        return { icon: failedIcon, text: 'Transaction Pending', color: '#FF8800' }; // Default if status is null or unknown
+        // Default case if none of the above conditions match
+        return { icon: failedIcon, text: 'Transaction Pending', color: '#FF8800' };
     };
 
     return (
@@ -89,10 +99,10 @@ function TransactionHistoryScreen() {
             <ScrollView contentContainerStyle={styles.scrollViewContainer}>
                 {loading ? (
 
-                    Array.from({ length: 10 }).map((_, index) => (
+                    Array.from({ length: 10 }).map((_, i) => (
 
 
-                        <View style={styles.listItemContainer}>
+                        <View key={`shimmer-${i}`} style={styles.listItemContainer}>
 
                             <Shimmer autoRun={true} style={styles.shimmerImage} >
                                 <Image source={addSuccessIcon} style={styles.statusIcon} />
@@ -116,7 +126,10 @@ function TransactionHistoryScreen() {
                     ))
                 ) : Array.isArray(transactionsData) && transactionsData.length > 0 ? (
                     transactionsData.map((item) => {
-                        const { icon, text, color } = renderTransactionStatus(item.transactionStatus, item.transactionType);
+                        // Ensure we have valid values for status and type
+                        const status = item.transactionStatus || 'PENDING';
+                        const type = item.transactionType;
+                        const { icon, text, color } = renderTransactionStatus(status, type);
                         return (
                             <View key={item.id} style={styles.listItemContainer}>
                                 <Image source={icon} style={styles.statusIcon} />
