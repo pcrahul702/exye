@@ -13,6 +13,7 @@ const PreviousDetails = () => {
     const [leaderboardData, setLeaderboardData] = useState([]);
     const [APIData, setAPIData] = useState(null);
     const [loading, setLoading] = useState(true);  // Loading state
+    const [winner, setWinner] = useState(null);  // State to store the winner
 
     const route = useRoute();
     const navigation = useNavigation();
@@ -31,6 +32,11 @@ const PreviousDetails = () => {
             if (Array.isArray(res.data)) {
                 setLeaderboardData(res.data);
                 setAPIData(res);  // Set the API response data
+
+                // Find the winner (player with rank 1)
+                const winnerPlayer = res.data.find(player => player.rank === 1);
+                setWinner(winnerPlayer);
+
                 setLoading(false); // Data is loaded, set loading to false
                 console.log('API Data Loaded', res);
             } else {
@@ -68,13 +74,29 @@ const PreviousDetails = () => {
                 </Text>
             </View>
 
+            {/* Winner Section */}
+            {!loading && winner && (
+                <View style={styles.winnerContainer}>
+                    <Text style={styles.winnerLabel}>🏆 WINNER 🏆</Text>
+                    <View style={styles.winnerInfoContainer}>
+                        <Image
+                            source={require('../assets/rank1.png')}
+                            style={styles.winnerIcon}
+                        />
+                        <Text style={styles.winnerName}>{winner.username}</Text>
+                    </View>
+                    <Text style={styles.winnerScore}>Score: {winner.score}</Text>
+                </View>
+            )}
+
             <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+                <Text style={styles.leaderboardTitle}>Leaderboard</Text>
                 {loading ? (
                     <Text style={styles.loadingText}>Loading...</Text>  // Add a loading text
                 ) : (
-                    leaderboardData.map((item, index) => {
+                    leaderboardData.map((item) => {
                         // Apply green color and rank icon to the first rank
-                        const isFirstPlace = index === 0;
+                        const isFirstPlace = item.rank === 1;
                         const textColor = isFirstPlace ? '#3DC467' : '#F05A5B'; // Green for first place
                         return (
                             <View key={item.id} style={styles.listItemContainer}>
@@ -122,6 +144,59 @@ const styles = StyleSheet.create({
         color: '#F05A5B',  // Loading text color
         textAlign: 'center',
         marginTop: 20,
+    },
+    winnerContainer: {
+        width: '90%',
+        backgroundColor: '#3DC467',
+        alignSelf: 'center',
+        borderRadius: 20,
+        padding: 15,
+        marginTop: 15,
+        alignItems: 'center',
+        // Shadow properties
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 8,
+    },
+    winnerLabel: {
+        fontSize: width * 0.06,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 10,
+        fontFamily: 'Poppins-Regular',
+    },
+    winnerInfoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 5,
+    },
+    winnerIcon: {
+        width: 40,
+        height: 44,
+        marginRight: 10,
+    },
+    winnerName: {
+        fontSize: width * 0.07,
+        fontWeight: 'bold',
+        color: '#FFF',
+        fontFamily: 'Poppins-Regular',
+    },
+    winnerScore: {
+        fontSize: width * 0.05,
+        color: '#FFF',
+        marginTop: 5,
+        fontFamily: 'Poppins-Regular',
+    },
+    leaderboardTitle: {
+        fontSize: width * 0.06,
+        fontWeight: 'bold',
+        color: '#F05A5B',
+        textAlign: 'center',
+        marginBottom: 15,
+        fontFamily: 'Poppins-Regular',
     },
     uppershape: {
         top: 0,
