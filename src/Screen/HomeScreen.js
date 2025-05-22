@@ -23,11 +23,12 @@ import { getAccessToken } from '../Utils/getAccessToken';
 const { width, height } = Dimensions.get('window');
 
 const HomeScreen = () => {
-  
-  const [dashboardData, setDashboardData] = useState([]);
+
+  const [dashboardData, setDashboardData] = useState({}); // Changed to object instead of array
   const [liveContestsData, setLiveContestsData] = useState([]);
   const [isContestVisible, setIsContestVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
+  const [nextQuizTime, setNextQuizTime] = useState('');
   const [imageUris, setImageUris] = useState({});
   const carouselScrollX = useRef(new Animated.Value(0)).current;
 
@@ -49,26 +50,46 @@ const HomeScreen = () => {
     const token = await getAccessToken();
     console.log(token);
     try {
-
-
+      // Get data from API
       const res = await getData('/api/v1/dashboard');
-      setDashboardData(res);
-      setLiveContestsData(res.liveContests);
+      console.log("res", res);
+
+      // Parse the response if it's a string (JSON)
+      let dashboardData;
+      if (typeof res === 'string') {
+        try {
+          dashboardData = JSON.parse(res);
+        } catch (e) {
+          console.log('Error parsing JSON:', e);
+          dashboardData = res; // Use as is if parsing fails
+        }
+      } else {
+        dashboardData = res; // Use as is if already an object
+      }
+
+      setDashboardData(dashboardData);
+      setLiveContestsData(dashboardData.liveContests || []);
       setIsContestVisible(true);
 
-      startCountdown(res.nextQuizTime); // Start the countdown based on quiz time
+      if (dashboardData.nextQuizTime) {
+        setNextQuizTime(dashboardData.nextQuizTime);
+        startCountdown(dashboardData.nextQuizTime); // Start the countdown based on quiz time
+      }
 
       // Fetch images and topic names for live contests
       const imageUris = {};
-      for (const contest of res.liveContests) {
-        const result = await getImageUri(contest.topicId);
-        if (result) {
-          imageUris[contest.topicId] = result;  // Store both image and topic name by topicId
+      if (dashboardData.liveContests && dashboardData.liveContests.length > 0) {
+        for (const contest of dashboardData.liveContests) {
+          const result = await getImageUri(contest.topicId);
+          if (result) {
+            imageUris[contest.topicId] = result;  // Store both image and topic name by topicId
+          }
         }
       }
 
       setImageUris(imageUris);  // Update state with all the image URIs
     } catch (error) {
+      console.log('Error fetching dashboard data:', error);
       if (error.response && error.response.status === 401) {
         console.log('Unauthorized access - 401');
         navigation.navigate('Login');
@@ -174,7 +195,7 @@ const HomeScreen = () => {
   const handleDrawerOpen = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
-  
+
 
   useEffect(() => {
     // Function to handle back press behavior on HomeScreen
@@ -235,15 +256,12 @@ const HomeScreen = () => {
       </View>
 
       <ScrollView style={styles.scrollContainer}>
-        {dashboardData?.liveContests?.length > 0 ? (
+        {liveContestsData?.length > 0 ? (
           <TouchableOpacity
             style={styles.view1}
-            onPress={() => handleContestClick(dashboardData.liveContests[0])}
+            onPress={() => handleContestClick(liveContestsData[0])}
           >
-
-            <Text style={styles.text1}>Next quiz in {timeLeft}</Text>
-
-
+            <Text style={styles.text1}>Quiz Ends in {timeLeft}</Text>
             <Image
               source={require('../assets/stopwatch_icon.png')}
               style={styles.icon1}
@@ -258,11 +276,12 @@ const HomeScreen = () => {
             <Image
               source={require('../assets/stopwatch_icon.png')}
               style={styles.icon1}
+              resizeMode="contain"
             />
           </TouchableOpacity>
         )}
 
-        {dashboardData?.liveContests?.length > 0 ? (
+        {liveContestsData?.length > 0 ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -272,8 +291,8 @@ const HomeScreen = () => {
             )}
             scrollEventThrottle={16}
             contentContainerStyle={styles.carouselContent}
-          >
-            {dashboardData.liveContests.map((item, index) => (
+           >
+            {liveContestsData.map((item, index) => (
               <TouchableOpacity
                 key={index}
                 onPress={() => handleContestClick(item)}
@@ -284,7 +303,6 @@ const HomeScreen = () => {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-
                   <View style={styles.leftArrowIcon}>
                     <Image source={require('../assets/leftArrowIcon.png')} style={styles.cardArrowImage} />
                   </View>
@@ -293,8 +311,19 @@ const HomeScreen = () => {
                     <Text style={styles.contestText}>
                       Topic : {imageUris[item.topicId]?.topicName || 'Loading...'}
                     </Text>
+                    {/* <Text style={styles.contestText}>Contest : {item.contestName}</Text> */}
                     <Text style={styles.contestText}>Prize : ₹{item.prizePerContestant}</Text>
                     <Text style={styles.contestText}>Entry Fee : ₹{item.entryAmount}</Text>
+                    {item.playerJoined && (
+                      <Text style={styles.contestText}>Players Joined: {item.playerJoined}</Text>
+                    )}
+                    {/* <Text style={[styles.contestText, {
+                      color: item.userContestStatus === 'NEW' ? '#FFFFFF' :
+                             item.userContestStatus === 'JOINED' ? '#00FF00' :
+                             item.userContestStatus === 'ENDED' ? '#FFFF00' : '#FFFFFF'
+                    }]}>
+                      Status : {item.userContestStatus}
+                    </Text> */}
                   </View>
 
                   <View style={styles.rightSide}>
@@ -312,8 +341,6 @@ const HomeScreen = () => {
                   <View style={styles.rightArrowIcon}>
                     <Image source={require('../assets/rightArrowIcon.png')} style={styles.cardArrowImage} />
                   </View>
-
-
                 </LinearGradient>
               </TouchableOpacity>
             ))}
@@ -487,6 +514,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     marginLeft: width * 0.05,
     marginTop: 7,
+    marginBottom: 10, // Added margin bottom for spacing between cards
     borderRadius: 35,
     borderColor: 'white',
     borderWidth: 2,
@@ -494,27 +522,28 @@ const styles = StyleSheet.create({
   },
   leftSide: {
     height: '100%',
-    flex: 1,
+    flex: 1, // Increased flex to give more space for text
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     padding: 14
   },
   contestText: {
-    fontSize: 15,
+    fontSize: 14, // Slightly smaller font to fit more text
     color: 'white',
     fontWeight: '600',
     textAlign: 'left',
     fontFamily: 'Poppins-Regular',
+    marginBottom: 4, // Added margin between text lines
   },
   leftArrowIcon: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 14,
+    marginLeft: 10,
   },
   rightArrowIcon: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 14,
+    marginRight: 10,
   },
   cardArrowImage: {
     flex: 1,
@@ -527,6 +556,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 14,
+   
   },
   topicImage: {
     flex: 1,

@@ -219,13 +219,13 @@ const styles = StyleSheet.create({
     valueBox: {
         width: 'auto',
         height: 40,
-        backgroundColor: '#D9D9D9',
+        // backgroundColor: '#D9D9D9',
         justifyContent: 'center', // Center vertically
         alignItems: 'center', // Center horizontally
         marginRight: 25
     },
     valueText: {
-        color: '#F05A5B',
+        color: '#FFFFFF',
         fontSize: 18,
         padding: 4,
         fontWeight: '500',
