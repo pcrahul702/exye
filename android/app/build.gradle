@@ -75,9 +75,9 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
     ndkVersion "26.1.10909125" // Add or update this line
 
-    namespace "com.exye"
+    namespace "com.aura.exye"
     defaultConfig {
-        applicationId "com.exye"
+        applicationId "com.aura.exye"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2
