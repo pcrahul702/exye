@@ -1,4 +1,4 @@
-import { useNavigation, DrawerActions, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
@@ -8,29 +8,28 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Modal,
-  Pressable,
   Alert,
   Animated,
-  Dimensions,
   BackHandler,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
 import Toast from 'react-native-toast-message';
 import { getAccessToken } from '../Utils/getAccessToken';
-
-const { width, height } = Dimensions.get('window');
+import ContestCard from '../components/ContestCard';
 
 const HomeScreen = () => {
 
-  const [dashboardData, setDashboardData] = useState({}); // Changed to object instead of array
+  const [dashboardData, setDashboardData] = useState({});
   const [liveContestsData, setLiveContestsData] = useState([]);
-  const [isContestVisible, setIsContestVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
-  const [nextQuizTime, setNextQuizTime] = useState('');
   const [imageUris, setImageUris] = useState({});
+  const [currentContestIndex, setCurrentContestIndex] = useState(0);
+  const [countdownIntervals, setCountdownIntervals] = useState({});
+  const [contestTimers, setContestTimers] = useState({}); // Store timer values for each contest
   const carouselScrollX = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef(null);
+  const currentContestIndexRef = useRef(0); // Ref to track current index for intervals
 
   const navigation = useNavigation();
 
@@ -69,11 +68,32 @@ const HomeScreen = () => {
 
       setDashboardData(dashboardData);
       setLiveContestsData(dashboardData.liveContests || []);
-      setIsContestVisible(true);
 
-      if (dashboardData.nextQuizTime) {
-        setNextQuizTime(dashboardData.nextQuizTime);
-        startCountdown(dashboardData.nextQuizTime); // Start the countdown based on quiz time
+      // Start countdown for all live contests
+      if (dashboardData.liveContests && dashboardData.liveContests.length > 0) {
+        // Reset current contest index to 0
+        setCurrentContestIndex(0);
+        currentContestIndexRef.current = 0;
+
+        startMultipleCountdowns(dashboardData.liveContests);
+
+        // Set initial timer display for the first contest
+        const firstContest = dashboardData.liveContests[0];
+        const quizTime = firstContest.nextQuizTime || firstContest.whenToStart;
+        if (quizTime) {
+          // Calculate initial time left for display
+          const now = new Date();
+          const quizDate = new Date(quizTime);
+          const timeDiff = quizDate - now;
+          if (timeDiff > 0) {
+            const remainingSeconds = Math.floor(timeDiff / 1000);
+            setTimeLeft(formatTime(remainingSeconds));
+          } else {
+            setTimeLeft('00:00');
+          }
+        }
+      } else if (dashboardData.nextQuizTime) {
+        startCountdown(dashboardData.nextQuizTime);
       }
 
       // Fetch images and topic names for live contests
@@ -113,32 +133,105 @@ const HomeScreen = () => {
     }
   };
 
-  const startCountdown = (quizTime) => {
-    const interval = setInterval(() => {
-      updateTimeLeft(quizTime, interval);
-    }, 1000);
+  const startMultipleCountdowns = (contests) => {
+    // Clear existing intervals
+    Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
+
+    const newIntervals = {};
+    const initialTimers = {};
+
+    contests.forEach((contest, index) => {
+      const quizTime = contest.nextQuizTime || contest.whenToStart;
+      if (quizTime) {
+        // Calculate initial timer value
+        const now = new Date();
+        const quizDate = new Date(quizTime);
+        const timeDiff = quizDate - now;
+        const remainingSeconds = timeDiff > 0 ? Math.floor(timeDiff / 1000) : 0;
+        initialTimers[index] = remainingSeconds > 0 ? formatTime(remainingSeconds) : '00:00';
+
+        const interval = setInterval(() => {
+          updateTimeLeft(quizTime, interval, index);
+        }, 1000);
+        newIntervals[index] = interval;
+      }
+    });
+
+    setCountdownIntervals(newIntervals);
+    setContestTimers(initialTimers);
   };
 
-  const updateTimeLeft = (quizTime, interval) => {
+  const updateTimeLeft = (quizTime, interval, contestIndex) => {
     const now = new Date();
     const quizDate = new Date(quizTime);
     const timeDiff = quizDate - now;
 
     if (timeDiff > 0) {
-      const remainingSeconds = Math.floor(timeDiff / 1000); // Convert milliseconds to seconds
-      setTimeLeft(formatTime(remainingSeconds)); // Update the countdown with formatted time
+      const remainingSeconds = Math.floor(timeDiff / 1000);
+      const formattedTime = formatTime(remainingSeconds);
+
+      // Update the stored timer value for this contest
+      setContestTimers(prev => ({
+        ...prev,
+        [contestIndex]: formattedTime
+      }));
+
+      // Only update the displayed timeLeft if this is the currently visible contest
+      if (contestIndex === currentContestIndexRef.current) {
+        setTimeLeft(formattedTime);
+      }
     } else {
-      setTimeLeft('00:00');
-      clearInterval(interval); // Stop the countdown once time is up
+      // Update the stored timer value for this contest
+      setContestTimers(prev => ({
+        ...prev,
+        [contestIndex]: '00:00'
+      }));
+
+      // Only update the displayed timeLeft if this is the currently visible contest
+      if (contestIndex === currentContestIndexRef.current) {
+        setTimeLeft('00:00');
+      }
+
+      clearInterval(interval);
+      // Remove this interval from the state
+      setCountdownIntervals(prev => {
+        const updated = { ...prev };
+        delete updated[contestIndex];
+        return updated;
+      });
     }
   };
 
-  const formatTime = (remainingSeconds) => {
-    const hours = Math.floor(remainingSeconds / 3600); // Calculate hours
-    const minutes = Math.floor((remainingSeconds % 3600) / 60); // Calculate remaining minutes
-    const seconds = remainingSeconds % 60; // Calculate remaining seconds
+  const startCountdown = (quizTime) => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const quizDate = new Date(quizTime);
+      const timeDiff = quizDate - now;
 
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      if (timeDiff > 0) {
+        const remainingSeconds = Math.floor(timeDiff / 1000);
+        setTimeLeft(formatTime(remainingSeconds));
+      } else {
+        setTimeLeft('00:00');
+        clearInterval(interval);
+      }
+    }, 1000);
+    return interval;
+  };
+
+  const formatTime = (remainingSeconds) => {
+    const days = Math.floor(remainingSeconds / (24 * 3600));
+    const hours = Math.floor((remainingSeconds % (24 * 3600)) / 3600);
+    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+    const seconds = remainingSeconds % 60;
+
+    if (days > 0) {
+      return `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m`;
+    } else if (hours > 0) {
+      return `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m`;
+    } else {
+      return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
   };
 
 
@@ -196,6 +289,92 @@ const HomeScreen = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
 
+  const scrollToContest = (index) => {
+    if (scrollViewRef.current && liveContestsData.length > 0) {
+      const cardWidth = 335; // contestTouchable width + marginRight
+      scrollViewRef.current.scrollTo({
+        x: index * cardWidth,
+        animated: true
+      });
+      updateCurrentContestTimer(index);
+    }
+  };
+
+  const updateCurrentContestTimer = (index) => {
+    setCurrentContestIndex(index);
+    currentContestIndexRef.current = index; // Update the ref immediately
+
+    // Use the stored timer value if available, otherwise calculate it
+    if (contestTimers[index]) {
+      setTimeLeft(contestTimers[index]);
+    } else {
+      // Fallback: calculate timer for the new contest
+      const contest = liveContestsData[index];
+      const quizTime = contest?.nextQuizTime || contest?.whenToStart;
+      if (quizTime) {
+        const now = new Date();
+        const quizDate = new Date(quizTime);
+        const timeDiff = quizDate - now;
+        if (timeDiff > 0) {
+          const remainingSeconds = Math.floor(timeDiff / 1000);
+          const formattedTime = formatTime(remainingSeconds);
+          setTimeLeft(formattedTime);
+          // Store this calculated value
+          setContestTimers(prev => ({
+            ...prev,
+            [index]: formattedTime
+          }));
+        } else {
+          setTimeLeft('00:00');
+          setContestTimers(prev => ({
+            ...prev,
+            [index]: '00:00'
+          }));
+        }
+      }
+    }
+  };
+
+  const handleLeftArrow = () => {
+    if (currentContestIndex > 0) {
+      scrollToContest(currentContestIndex - 1);
+    }
+  };
+
+  const handleRightArrow = () => {
+    if (currentContestIndex < liveContestsData.length - 1) {
+      scrollToContest(currentContestIndex + 1);
+    }
+  };
+
+
+  useEffect(() => {
+    // Update timer display when currentContestIndex changes
+    currentContestIndexRef.current = currentContestIndex; // Keep ref in sync
+
+    if (liveContestsData.length > 0 && liveContestsData[currentContestIndex]) {
+      // Use stored timer value if available
+      if (contestTimers[currentContestIndex]) {
+        setTimeLeft(contestTimers[currentContestIndex]);
+      } else {
+        // Fallback: calculate timer value
+        const contest = liveContestsData[currentContestIndex];
+        const quizTime = contest?.nextQuizTime || contest?.whenToStart;
+        if (quizTime) {
+          const now = new Date();
+          const quizDate = new Date(quizTime);
+          const timeDiff = quizDate - now;
+          if (timeDiff > 0) {
+            const remainingSeconds = Math.floor(timeDiff / 1000);
+            const formattedTime = formatTime(remainingSeconds);
+            setTimeLeft(formattedTime);
+          } else {
+            setTimeLeft('00:00');
+          }
+        }
+      }
+    }
+  }, [currentContestIndex, liveContestsData, contestTimers]);
 
   useEffect(() => {
     // Function to handle back press behavior on HomeScreen
@@ -219,8 +398,10 @@ const HomeScreen = () => {
     // Clean up the listener when the component is unmounted
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+      // Clean up all countdown intervals
+      Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
     };
-  }, [navigation]);
+  }, [navigation, countdownIntervals]);
 
   return (
     <View style={styles.bg}>
@@ -259,7 +440,7 @@ const HomeScreen = () => {
         {liveContestsData?.length > 0 ? (
           <TouchableOpacity
             style={styles.view1}
-            onPress={() => handleContestClick(liveContestsData[0])}
+            onPress={() => handleContestClick(liveContestsData[currentContestIndex])}
           >
             <Text style={styles.text1}>Quiz Ends in {timeLeft}</Text>
             <Image
@@ -282,69 +463,69 @@ const HomeScreen = () => {
         )}
 
         {liveContestsData?.length > 0 ? (
-          <ScrollView
-            // horizontal
-            showsHorizontalScrollIndicator={false}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { x: carouselScrollX } } }],
-              { useNativeDriver: false }
-            )}
-            scrollEventThrottle={16}
-            contentContainerStyle={styles.carouselContent}
-           >
-            {liveContestsData.map((item, index) => (
+          <View style={styles.contestCarouselWrapper}>
+            {liveContestsData.length > 1 && (
               <TouchableOpacity
-                key={index}
-                onPress={() => handleContestClick(item)}
+                style={styles.carouselArrowLeft}
+                onPress={handleLeftArrow}
+                disabled={currentContestIndex === 0}
               >
-                <LinearGradient
-                  colors={['#F05A5B', '#FFA952']}
-                  style={styles.contestContainer}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                >
-                  <View style={styles.leftArrowIcon}>
-                    <Image source={require('../assets/leftArrowIcon.png')} style={styles.cardArrowImage} />
-                  </View>
-
-                  <View style={styles.leftSide}>
-                    <Text style={styles.contestText}>
-                      Topic : {imageUris[item.topicId]?.topicName || 'Loading...'}
-                    </Text>
-                    {/* <Text style={styles.contestText}>Contest : {item.contestName}</Text> */}
-                    <Text style={styles.contestText}>Prize : ₹{item.prizePerContestant}</Text>
-                    <Text style={styles.contestText}>Entry Fee : ₹{item.entryAmount}</Text>
-                    {item.playerJoined && (
-                      <Text style={styles.contestText}>Players Joined: {item.playerJoined}</Text>
-                    )}
-                    {/* <Text style={[styles.contestText, {
-                      color: item.userContestStatus === 'NEW' ? '#FFFFFF' :
-                             item.userContestStatus === 'JOINED' ? '#00FF00' :
-                             item.userContestStatus === 'ENDED' ? '#FFFF00' : '#FFFFFF'
-                    }]}>
-                      Status : {item.userContestStatus}
-                    </Text> */}
-                  </View>
-
-                  <View style={styles.rightSide}>
-                    {/* Use the fetched image URI */}
-                    {imageUris[item.topicId] ? (
-                      <Image
-                        source={imageUris[item.topicId]?.imageUri} // Correctly access the imageUri
-                        style={styles.topicImage}
-                      />
-                    ) : (
-                      <Text style={[styles.loadingText, { color: 'white' }]}>Loading...</Text>
-                    )}
-                  </View>
-
-                  <View style={styles.rightArrowIcon}>
-                    <Image source={require('../assets/rightArrowIcon.png')} style={styles.cardArrowImage} />
-                  </View>
-                </LinearGradient>
+                <Image
+                  source={require('../assets/leftArrowIcon.png')}
+                  style={[styles.carouselArrowIcon, { opacity: currentContestIndex === 0 ? 0.3 : 1 }]}
+                />
               </TouchableOpacity>
-            ))}
-          </ScrollView>
+            )}
+
+            <View style={styles.contestCarouselContainer}>
+              <ScrollView
+                ref={scrollViewRef}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                onScroll={Animated.event(
+                  [{ nativeEvent: { contentOffset: { x: carouselScrollX } } }],
+                  { useNativeDriver: false }
+                )}
+                scrollEventThrottle={16}
+                contentContainerStyle={styles.carouselContent}
+                style={styles.carouselContainer}
+                onMomentumScrollEnd={(event) => {
+                  const cardWidth = 335; // contestTouchable width + marginRight
+                  const newIndex = Math.round(event.nativeEvent.contentOffset.x / cardWidth);
+                  if (newIndex !== currentContestIndex && newIndex >= 0 && newIndex < liveContestsData.length) {
+                    updateCurrentContestTimer(newIndex);
+                  }
+                }}
+                pagingEnabled={false}
+                snapToInterval={335} // 320 + 15 (card width + margin)
+                snapToAlignment="start"
+                decelerationRate="fast"
+              >
+                {liveContestsData.map((item, index) => (
+                  <ContestCard
+                    key={index}
+                    contest={item}
+                    imageUri={imageUris[item.topicId]?.imageUri}
+                    topicName={imageUris[item.topicId]?.topicName}
+                    onPress={handleContestClick}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+
+            {liveContestsData.length > 1 && (
+              <TouchableOpacity
+                style={styles.carouselArrowRight}
+                onPress={handleRightArrow}
+                disabled={currentContestIndex === liveContestsData.length - 1}
+              >
+                <Image
+                  source={require('../assets/rightArrowIcon.png')}
+                  style={[styles.carouselArrowIcon, { opacity: currentContestIndex === liveContestsData.length - 1 ? 0.3 : 1 }]}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         ) : (
           <Text style={styles.loadingText}>No live contests available</Text>
         )}
@@ -564,10 +745,52 @@ const styles = StyleSheet.create({
     resizeMode: 'stretch',
     borderRadius: 14,
   },
+  contestCarouselWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+    paddingHorizontal: 10,
+  },
+  contestCarouselContainer: {
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  carouselArrowLeft: {
+    padding: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  carouselArrowRight: {
+    padding: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  carouselArrowIcon: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
+    tintColor: '#F05A5B',
+  },
+  carouselContainer: {
+    flex: 1,
+  },
   carouselContent: {
     alignItems: 'center',
- 
-
+    paddingRight: 20,
   },
   view3: {
     
