@@ -283,7 +283,7 @@ const HomeScreen = () => {
 
         {liveContestsData?.length > 0 ? (
           <ScrollView
-            horizontal
+            // horizontal
             showsHorizontalScrollIndicator={false}
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { x: carouselScrollX } } }],
@@ -349,7 +349,7 @@ const HomeScreen = () => {
           <Text style={styles.loadingText}>No live contests available</Text>
         )}
 
-        <TouchableOpacity onPress={handleLiveNavigation} activeOpacity={0.7} >
+        <TouchableOpacity onPress={handleLiveNavigation} activeOpacity={0.7}  >
           <LinearGradient
             colors={['#FFA952', '#F05A5B']}
             style={styles.view3}
@@ -475,11 +475,11 @@ const styles = StyleSheet.create({
   scrollContainer: {
     width: '100%',
     margin: 5,
-    padding: '18',
     alignSelf: 'center',
+    paddingHorizontal: 15,
   },
   view1: {
-    width: '90%',
+    width: '100%',
     height: 'auto',
     backgroundColor: '#F05A5B',
     alignSelf: 'center',
@@ -510,9 +510,8 @@ const styles = StyleSheet.create({
   },
   contestContainer: {
     flexDirection: 'row',
-    width: width * 0.9,
+    width: "100%",
     height: 'auto',
-    marginLeft: width * 0.05,
     marginTop: 7,
     marginBottom: 10, // Added margin bottom for spacing between cards
     borderRadius: 35,
@@ -567,10 +566,12 @@ const styles = StyleSheet.create({
   },
   carouselContent: {
     alignItems: 'center',
-    paddingRight: 15,
+ 
+
   },
   view3: {
-    width: '90%',
+    
+    width: '100%',
     height: 'auto',
     backgroundColor: '#FFA952',
     marginTop: 20,
