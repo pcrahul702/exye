@@ -291,7 +291,7 @@ const HomeScreen = () => {
 
   const scrollToContest = (index) => {
     if (scrollViewRef.current && liveContestsData.length > 0) {
-      const cardWidth = 335; // contestTouchable width + marginRight
+      const cardWidth = 365; // contestTouchable width + marginRight (350 + 15)
       scrollViewRef.current.scrollTo({
         x: index * cardWidth,
         animated: true
@@ -463,20 +463,8 @@ const HomeScreen = () => {
         )}
 
         {liveContestsData?.length > 0 ? (
-          <View style={styles.contestCarouselWrapper}>
-            {liveContestsData.length > 1 && (
-              <TouchableOpacity
-                style={styles.carouselArrowLeft}
-                onPress={handleLeftArrow}
-                disabled={currentContestIndex === 0}
-              >
-                <Image
-                  source={require('../assets/leftArrowIcon.png')}
-                  style={[styles.carouselArrowIcon, { opacity: currentContestIndex === 0 ? 0.3 : 1 }]}
-                />
-              </TouchableOpacity>
-            )}
-
+          <View style={styles.contestSection}>
+            {/* Contest Cards Container - Full Width */}
             <View style={styles.contestCarouselContainer}>
               <ScrollView
                 ref={scrollViewRef}
@@ -490,14 +478,14 @@ const HomeScreen = () => {
                 contentContainerStyle={styles.carouselContent}
                 style={styles.carouselContainer}
                 onMomentumScrollEnd={(event) => {
-                  const cardWidth = 335; // contestTouchable width + marginRight
+                  const cardWidth = 365; // contestTouchable width + marginRight (350 + 15)
                   const newIndex = Math.round(event.nativeEvent.contentOffset.x / cardWidth);
                   if (newIndex !== currentContestIndex && newIndex >= 0 && newIndex < liveContestsData.length) {
                     updateCurrentContestTimer(newIndex);
                   }
                 }}
                 pagingEnabled={false}
-                snapToInterval={335} // 320 + 15 (card width + margin)
+                snapToInterval={365} // 350 + 15 (card width + margin)
                 snapToAlignment="start"
                 decelerationRate="fast"
               >
@@ -513,20 +501,47 @@ const HomeScreen = () => {
               </ScrollView>
             </View>
 
+            {/* Navigation Arrows Below Cards */}
             {liveContestsData.length > 1 && (
-              <TouchableOpacity
-                style={styles.carouselArrowRight}
-                onPress={handleRightArrow}
-                disabled={currentContestIndex === liveContestsData.length - 1}
-              >
-                <Image
-                  source={require('../assets/rightArrowIcon.png')}
-                  style={[styles.carouselArrowIcon, { opacity: currentContestIndex === liveContestsData.length - 1 ? 0.3 : 1 }]}
-                />
-              </TouchableOpacity>
+              <View style={styles.arrowsContainer}>
+                <TouchableOpacity
+                  style={styles.carouselArrowLeft}
+                  onPress={handleLeftArrow}
+                  disabled={currentContestIndex === 0}
+                >
+                  <Image
+                    source={require('../assets/leftArrowIcon.png')}
+                    style={[styles.carouselArrowIcon, { opacity: currentContestIndex === 0 ? 0.3 : 1 }]}
+                  />
+                </TouchableOpacity>
+
+                {/* Contest Indicator Dots */}
+                <View style={styles.dotsContainer}>
+                  {liveContestsData.map((_, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.dot,
+                        { backgroundColor: index === currentContestIndex ? '#F05A5B' : '#D3D3D3' }
+                      ]}
+                    />
+                  ))}
+                </View>
+
+                <TouchableOpacity
+                  style={styles.carouselArrowRight}
+                  onPress={handleRightArrow}
+                  disabled={currentContestIndex === liveContestsData.length - 1}
+                >
+                  <Image
+                    source={require('../assets/rightArrowIcon.png')}
+                    style={[styles.carouselArrowIcon, { opacity: currentContestIndex === liveContestsData.length - 1 ? 0.3 : 1 }]}
+                  />
+                </TouchableOpacity>
+              </View>
             )}
           </View>
-        ) : (
+         ) : (
           <Text style={styles.loadingText}>No live contests available</Text>
         )}
 
@@ -745,22 +760,37 @@ const styles = StyleSheet.create({
     resizeMode: 'stretch',
     borderRadius: 14,
   },
-  contestCarouselWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-    paddingHorizontal: 10,
+  contestSection: {
+    marginVertical: 5,
   },
   contestCarouselContainer: {
+    // paddingHorizontal: 20,
+  },
+  arrowsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 80,
+    marginTop: 15,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     flex: 1,
-    marginHorizontal: 10,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
   },
   carouselArrowLeft: {
-    padding: 15,
+    padding: 12,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 25,
+    borderRadius: 20,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -768,11 +798,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   carouselArrowRight: {
-    padding: 15,
+    padding: 12,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 25,
+    borderRadius: 20,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -780,15 +810,17 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   carouselArrowIcon: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     resizeMode: 'contain',
     tintColor: '#F05A5B',
   },
   carouselContainer: {
     flex: 1,
+    // width:"100%"
   },
   carouselContent: {
+    // width:"100%",
     alignItems: 'center',
     paddingRight: 20,
   },
