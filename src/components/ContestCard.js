@@ -13,13 +13,13 @@ const ContestCard = ({
   imageUri, 
   topicName, 
   onPress,
-  style 
+  style,
+  screenWidth 
 }) => {
   return (
     <TouchableOpacity
       onPress={() => onPress(contest)}
-      style={{  ...style}}
-      // style={[styles.contestTouchable, style]}
+      style={[styles.contestTouchable, { width: screenWidth }, style]}
     >
       <LinearGradient
         colors={['#F05A5B', '#FFA952']}
@@ -71,13 +71,13 @@ const ContestCard = ({
 
 const styles = StyleSheet.create({
   contestTouchable: {
-    width: 350, // Increased width since arrows are now below
-    marginRight: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 15, // Add padding to center the card content
   },
   contestContainer: {
     flexDirection: 'row',
-    flex: 1,
-    // marginVertical: 10,
+    width: 350, // Fixed width for the actual card content
     borderRadius: 35,
     borderColor: 'white',
     borderWidth: 2,

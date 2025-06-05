@@ -11,6 +11,7 @@ import {
   Alert,
   Animated,
   BackHandler,
+    Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
@@ -19,6 +20,8 @@ import { getAccessToken } from '../Utils/getAccessToken';
 import ContestCard from '../components/ContestCard';
 
 const HomeScreen = () => {
+ const { width: screenWidth } = Dimensions.get('window');
+  const cardWidth = screenWidth; // Full screen width for proper centering
 
   const [dashboardData, setDashboardData] = useState({});
   const [liveContestsData, setLiveContestsData] = useState([]);
@@ -72,14 +75,18 @@ const HomeScreen = () => {
       // Start countdown for all live contests
       if (dashboardData.liveContests && dashboardData.liveContests.length > 0) {
         // Reset current contest index to 0
-        setCurrentContestIndex(0);
-        currentContestIndexRef.current = 0;
+  if (currentContestIndex >= dashboardData.liveContests.length) {
+          setCurrentContestIndex(0);
+          currentContestIndexRef.current = 0;
+        }
 
         startMultipleCountdowns(dashboardData.liveContests);
 
         // Set initial timer display for the first contest
-        const firstContest = dashboardData.liveContests[0];
-        const quizTime = firstContest.nextQuizTime || firstContest.whenToStart;
+  
+        // Set initial timer display for the current contest
+        const currentContest = dashboardData.liveContests[currentContestIndexRef.current] || dashboardData.liveContests[0];
+        const quizTime = currentContest.nextQuizTime || currentContest.whenToStart;
         if (quizTime) {
           // Calculate initial time left for display
           const now = new Date();
@@ -291,7 +298,6 @@ const HomeScreen = () => {
 
   const scrollToContest = (index) => {
     if (scrollViewRef.current && liveContestsData.length > 0) {
-      const cardWidth = 365; // contestTouchable width + marginRight (350 + 15)
       scrollViewRef.current.scrollTo({
         x: index * cardWidth,
         animated: true
@@ -478,15 +484,14 @@ const HomeScreen = () => {
                 contentContainerStyle={styles.carouselContent}
                 style={styles.carouselContainer}
                 onMomentumScrollEnd={(event) => {
-                  const cardWidth = 365; // contestTouchable width + marginRight (350 + 15)
                   const newIndex = Math.round(event.nativeEvent.contentOffset.x / cardWidth);
                   if (newIndex !== currentContestIndex && newIndex >= 0 && newIndex < liveContestsData.length) {
                     updateCurrentContestTimer(newIndex);
                   }
                 }}
-                pagingEnabled={false}
-                snapToInterval={365} // 350 + 15 (card width + margin)
-                snapToAlignment="start"
+              pagingEnabled={true}
+                snapToInterval={cardWidth}
+                snapToAlignment="center"
                 decelerationRate="fast"
               >
                 {liveContestsData.map((item, index) => (
@@ -496,6 +501,7 @@ const HomeScreen = () => {
                     imageUri={imageUris[item.topicId]?.imageUri}
                     topicName={imageUris[item.topicId]?.topicName}
                     onPress={handleContestClick}
+                    screenWidth={screenWidth}
                   />
                 ))}
               </ScrollView>
@@ -765,6 +771,7 @@ const styles = StyleSheet.create({
   },
   contestCarouselContainer: {
     // paddingHorizontal: 20,
+       flex: 1,
   },
   arrowsContainer: {
     flexDirection: 'row',
@@ -796,6 +803,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
+    zIndex: 2,
   },
   carouselArrowRight: {
     padding: 12,
@@ -820,9 +828,7 @@ const styles = StyleSheet.create({
     // width:"100%"
   },
   carouselContent: {
-    // width:"100%",
     alignItems: 'center',
-    paddingRight: 20,
   },
   view3: {
     

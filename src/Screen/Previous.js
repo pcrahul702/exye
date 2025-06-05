@@ -24,6 +24,7 @@ const Previous = () => {
   const getWalletData = async () => {
     try {
       const res = await getData('/api/v1/quiz/user/contests');
+      console.log("previous details",res.data)
       setPreviousContestData(res.data);
     } catch (error) {
       console.log('error', error);
