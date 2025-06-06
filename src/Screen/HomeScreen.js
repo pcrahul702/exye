@@ -36,6 +36,18 @@ const HomeScreen = () => {
 
   const navigation = useNavigation();
 
+  // Create responsive styles inside the component
+  const responsiveStyles = {
+    text1: {
+      fontSize: screenWidth < 350 ? 18 : screenWidth < 400 ? 20 : 22, // Responsive font size
+    },
+    icon1: {
+      width: screenWidth < 350 ? 32 : 36, // Responsive icon size
+      height: screenWidth < 350 ? 32 : 36,
+      borderRadius: screenWidth < 350 ? 16 : 18,
+    },
+  };
+
   useEffect(() => {
 
     getDashboardData();
@@ -448,10 +460,10 @@ const HomeScreen = () => {
             style={styles.view1}
             onPress={() => handleContestClick(liveContestsData[currentContestIndex])}
           >
-            <Text style={styles.text1}>Quiz Ends in {timeLeft}</Text>
+            <Text style={[styles.text1, responsiveStyles.text1]}>Quiz Ends in {timeLeft}</Text>
             <Image
               source={require('../assets/stopwatch_icon.png')}
-              style={styles.icon1}
+              style={[styles.icon1, responsiveStyles.icon1]}
               resizeMode="contain"
             />
           </TouchableOpacity>
@@ -460,10 +472,10 @@ const HomeScreen = () => {
             style={styles.view1}
             onPress={() => showToast('info', 'No upcoming quiz at present ')}
           >
-            <Text style={styles.text1}>No upcoming quiz... </Text>
+            <Text style={[styles.text1, responsiveStyles.text1]}>No upcoming quiz... </Text>
             <Image
               source={require('../assets/stopwatch_icon.png')}
-              style={styles.icon1}
+              style={[styles.icon1, responsiveStyles.icon1]}
               resizeMode="contain"
             />
           </TouchableOpacity>
@@ -701,7 +713,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10, // Add horizontal padding
   },
   text1: {
-    fontSize: screenWidth < 350 ? 18 : screenWidth < 400 ? 20 : 22, // Responsive font size
     color: 'white',
     fontWeight: '700',
     fontFamily: 'Poppins-Regular',
@@ -710,9 +721,6 @@ const styles = StyleSheet.create({
     flexShrink: 1, // Allow text to shrink if needed
   },
   icon1: {
-    width: screenWidth < 350 ? 32 : 36, // Responsive icon size
-    height: screenWidth < 350 ? 32 : 36,
-    borderRadius: screenWidth < 350 ? 16 : 18,
     flexShrink: 0, // Prevent icon from shrinking
   },
   contestContainer: {
