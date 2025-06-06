@@ -19,7 +19,7 @@ const ContestCard = ({
   return (
     <TouchableOpacity
       onPress={() => onPress(contest)}
-      style={[styles.contestTouchable, { width: screenWidth }, style]}
+      style={[styles.contestTouchable, { width: 0.91 * screenWidth }, style]}
     >
       <LinearGradient
         colors={['#F05A5B', '#FFA952']}
@@ -73,16 +73,18 @@ const styles = StyleSheet.create({
   contestTouchable: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 15, // Add padding to center the card content
+    
+   
   },
   contestContainer: {
     flexDirection: 'row',
-    width: 350, // Fixed width for the actual card content
+    width: "100%", // Fixed width for the actual card content
     borderRadius: 35,
     borderColor: 'white',
     borderWidth: 2,
     backgroundColor: 'transparent',
     minHeight: 160,
+    
   },
   leftSide: {
     height: '100%',

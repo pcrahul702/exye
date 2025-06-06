@@ -452,6 +452,7 @@ const HomeScreen = () => {
             <Image
               source={require('../assets/stopwatch_icon.png')}
               style={styles.icon1}
+              resizeMode="contain"
             />
           </TouchableOpacity>
         ) : (
@@ -685,7 +686,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     backgroundColor: '#F05A5B',
     alignSelf: 'center',
-    margin: 15,
+    margin: 10,
     borderRadius: 10,
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -700,7 +701,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: 'white',
     fontWeight: '700',
-    marginLeft: 15,
+    marginLeft: 5,
     fontFamily: 'Poppins-Regular',
   },
   icon1: {
@@ -768,17 +769,19 @@ const styles = StyleSheet.create({
   },
   contestSection: {
     marginVertical: 5,
+
   },
   contestCarouselContainer: {
     // paddingHorizontal: 20,
        flex: 1,
+       
   },
   arrowsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 80,
-    marginTop: 15,
+    marginTop: 10,
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -818,24 +821,27 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   carouselArrowIcon: {
-    width: 18,
-    height: 18,
+    width: 12,
+    height: 12,
     resizeMode: 'contain',
     tintColor: '#F05A5B',
   },
   carouselContainer: {
     flex: 1,
+
     // width:"100%"
   },
   carouselContent: {
     alignItems: 'center',
+    gap:20
+
   },
   view3: {
     
     width: '100%',
     height: 'auto',
     backgroundColor: '#FFA952',
-    marginTop: 20,
+    marginTop: 10,
     alignSelf: 'center',
     borderRadius: 35,
     shadowColor: 'black',

@@ -32,6 +32,7 @@ const QuizChoiceScreen = () => {
             console.log('Start Quiz Response data:', res.data);
 
             if (res.data && Array.isArray(res.data)) {
+                console.log('Response data:', res.data);
                 if (res.data[0].questions) {
                     setQuestionsData(res.data[0].questions);
                 } else {

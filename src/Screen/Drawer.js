@@ -15,7 +15,6 @@ import {
     DrawerItemList,
 } from '@react-navigation/drawer';
 import {
-    DrawerActions,
     useFocusEffect,
     useNavigation,
 } from '@react-navigation/native';
@@ -26,7 +25,6 @@ import Profile from './ProfileScreen';
 import Support from './SupportPage';
 import Pavilion from './Pavilion';
 import WalletPage from './WalletPage';
-import SettingsScreen from './SettingsScreen';
 import { getData } from '../Utils/api';
 
 const Drawer = createDrawerNavigator();
@@ -90,6 +88,8 @@ const CustomDrawer = (props) => {
         });
     };
 
+
+
     if (loading) return null;
 
     return (
@@ -136,7 +136,7 @@ const CustomDrawer = (props) => {
                     </TouchableOpacity>
                 </View>
 
-                <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: 10 }}>
+                <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: 10, paddingBottom: 80 }}>
                     <DrawerItemList {...props} />
                 </View>
             </DrawerContentScrollView>
@@ -157,6 +157,27 @@ export default function DrawerNavigator() {
     const openTermsAndConditions = () => {
         Linking.openURL('https://www.exye.in/terms-and-conditions').catch((err) =>
             console.error('An error occurred', err)
+        );
+    };
+
+    const handleDeleteAccount = () => {
+        Alert.alert(
+            'Delete Account',
+            'You will be redirected to the delete account page. Are you sure you want to continue?',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Continue',
+                    onPress: () => {
+                        Linking.openURL('https://exye.in/delete-account').catch((err) =>
+                            console.error('An error occurred', err)
+                        );
+                    },
+                },
+            ]
         );
     };
 
@@ -226,11 +247,17 @@ export default function DrawerNavigator() {
                 }}
             />
             <Drawer.Screen
-                name="Settings"
-                component={SettingsScreen}
+                name="Delete Account"
+                component={() => null}
+                listeners={{
+                    drawerItemPress: (e) => {
+                        e.preventDefault();
+                        handleDeleteAccount();
+                    },
+                }}
                 options={{
                     drawerIcon: () => (
-                        <Image source={require('../assets/settings_icon.png')} style={styles.icon} />
+                        <Image source={require('../assets/logout_icon.png')} style={styles.icon} />
                     ),
                 }}
             />
@@ -310,12 +337,20 @@ const styles = StyleSheet.create({
     },
     logoutButton: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 0,
+        left: 0,
+        right: 0,
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
         padding: 15,
         backgroundColor: '#FFA952',
+        zIndex: 1000,
+        elevation: 5,
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
     },
     logoutText: {
         color: 'black',
