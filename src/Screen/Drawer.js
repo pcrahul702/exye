@@ -26,6 +26,7 @@ import Profile from './ProfileScreen';
 import Support from './SupportPage';
 import Pavilion from './Pavilion';
 import WalletPage from './WalletPage';
+import SettingsScreen from './SettingsScreen';
 import { getData } from '../Utils/api';
 
 const Drawer = createDrawerNavigator();
@@ -221,6 +222,15 @@ export default function DrawerNavigator() {
                 options={{
                     drawerIcon: () => (
                         <Image source={require('../assets/support_icon.png')} style={styles.icon} />
+                    ),
+                }}
+            />
+            <Drawer.Screen
+                name="Settings"
+                component={SettingsScreen}
+                options={{
+                    drawerIcon: () => (
+                        <Image source={require('../assets/settings_icon.png')} style={styles.icon} />
                     ),
                 }}
             />

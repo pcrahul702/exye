@@ -37,6 +37,7 @@ import PANDetailsScreen from './src/Screen/PANDetailsScreen';
 import QuizChoiceScreen from './src/Screen/QuizChoiceScreen';
 import CustomContestScreen from './src/Screen/CustomContestScreen';
 import CreateCustomContestScreen from './src/Screen/CreateCustomContestScreen';
+import SettingsScreen from './src/Screen/SettingsScreen';
 
 // Import the DrawerNavigator
 import DrawerNavigator from './src/Screen/Drawer';
@@ -120,6 +121,7 @@ function App() {
               name="CreateCustomContest"
               component={CreateCustomContestScreen}
             />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
           </Stack.Navigator>
           <Toast></Toast>
         </NavigationContainer>
