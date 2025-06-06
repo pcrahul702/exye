@@ -1,5 +1,4 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
-    "git.enabled": true,
-    "zencoder.enableRepoIndexing": true
+    "git.enabled": true
 }
