@@ -684,6 +684,7 @@ const styles = StyleSheet.create({
   view1: {
     width: '100%',
     height: 'auto',
+    minHeight: 60, // Ensure minimum height
     backgroundColor: '#F05A5B',
     alignSelf: 'center',
     margin: 10,
@@ -696,20 +697,23 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+    paddingVertical: 8, // Add vertical padding
+    paddingHorizontal: 10, // Add horizontal padding
   },
   text1: {
-    fontSize: 24,
+    fontSize: screenWidth < 350 ? 18 : screenWidth < 400 ? 20 : 22, // Responsive font size
     color: 'white',
     fontWeight: '700',
-    marginLeft: 5,
     fontFamily: 'Poppins-Regular',
+    flex: 1, // Allow text to take available space
+    marginRight: 10, // Space between text and icon
+    flexShrink: 1, // Allow text to shrink if needed
   },
   icon1: {
-    width: 40,
-    height: 40,
-    borderRadius: 42.5,
-    margin: 6,
-    marginRight: 15,
+    width: screenWidth < 350 ? 32 : 36, // Responsive icon size
+    height: screenWidth < 350 ? 32 : 36,
+    borderRadius: screenWidth < 350 ? 16 : 18,
+    flexShrink: 0, // Prevent icon from shrinking
   },
   contestContainer: {
     flexDirection: 'row',
