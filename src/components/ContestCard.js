@@ -19,7 +19,7 @@ const ContestCard = ({
   return (
     <TouchableOpacity
       onPress={() => onPress(contest)}
-      style={[styles.contestTouchable, { width: 0.91 * screenWidth }, style]}
+      style={[styles.contestTouchable, { width: 0.92 * screenWidth }, style]}
     >
       <LinearGradient
         colors={['#F05A5B', '#FFA952']}
