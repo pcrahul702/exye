@@ -11,6 +11,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Dimensions,
+  BackHandler,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -35,6 +36,13 @@ const ProfileScreen = () => {
   useFocusEffect(
       React.useCallback(() => {
         getProfiledata();
+        // Add back handler
+        const onBackPress = () => {
+          navigation.goBack();
+          return true; // prevent default behavior (exit app)
+        };
+        BackHandler.addEventListener('hardwareBackPress', onBackPress);
+        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
       }, [])
     );
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Alert } from 'react-native';
+import { View, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Alert, BackHandler } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getAccessToken } from '../Utils/getAccessToken';
 import { getData, postData } from '../Utils/api';
@@ -17,6 +17,13 @@ function WithdrawalScreen() {
     useFocusEffect(
         React.useCallback(() => {
             getWalletData();
+            // Add back handler
+            const onBackPress = () => {
+                navigation.goBack();
+                return true; // prevent default behavior (exit app)
+            };
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
 

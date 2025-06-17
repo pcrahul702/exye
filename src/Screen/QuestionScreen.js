@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ScrollView, Alert, BackHandler } from 'react-native';
+import { StatusBar, StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getData, postData } from '../Utils/api';
 import { getAccessToken } from '../Utils/getAccessToken';
+import { useNavigateOnBack } from '../Utils/useBackHandler';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,11 +21,13 @@ const QuestionScreen = () => {
     ]);
 
     const navigation = useNavigation();
+    const route = useRoute();
+    const { contestId, topicId, quizId } = route.params;
 
     const fontSize = width * 0.05;
 
-    const route = useRoute();
-    const { contestId, topicId, quizId } = route.params;
+    // Navigate to Home screen when back is pressed during quiz
+    useNavigateOnBack('Home');
 
 
     useEffect(() => {
@@ -32,19 +35,7 @@ const QuestionScreen = () => {
         getQuestionOptions();
     }, [contestId]);
 
-    useEffect(() => {
-        const backAction = () => {
-            navigation.navigate('Home'); // Navigate to the 'Home' screen when back is pressed
-            return true; // This prevents the default behavior of going back to the previous screen
-        };
 
-        BackHandler.addEventListener('hardwareBackPress', backAction);
-
-        // Clean up the event listener when the component is unmounted
-        return () => {
-            BackHandler.removeEventListener('hardwareBackPress', backAction);
-        };
-    }, [navigation]);
 
     const getQuestionOptions = async () => {
         try {

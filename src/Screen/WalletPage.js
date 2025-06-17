@@ -31,6 +31,13 @@ function WalletPage() {
   useFocusEffect(
     React.useCallback(() => {
       getWalletData();
+      // Add back handler
+      const onBackPress = () => {
+        navigation.goBack();
+        return true; // prevent default behavior (exit app)
+      };
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     }, [])
   ); 
 

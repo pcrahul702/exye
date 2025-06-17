@@ -1,12 +1,25 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StatusBar, StyleSheet, View, Image, Text, Animated, Dimensions, BackHandler, AppState } from 'react-native';
+import { StatusBar, StyleSheet, View, Image, Text, Animated, Dimensions, AppState } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
+import { usePreventBack } from '../Utils/useBackHandler';
 
 const ProgressScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const { contestId, topicId, quizId } = route.params;
+
+    // Show toast message when user tries to go back
+    const showBackPreventedMessage = () => {
+        Toast.show({
+            type: 'info',
+            text1: 'You cannot go back from here',
+            position: 'bottom',
+        });
+    };
+
+    // Use the back handler hook to prevent back navigation with message
+    usePreventBack(showBackPreventedMessage);
 
     const [countdown, setCountdown] = useState(3); // Initial countdown value
     const [isNavigating, setIsNavigating] = useState(false); // State to manage navigation
@@ -84,19 +97,11 @@ const ProgressScreen = () => {
     };
 
     useEffect(() => {
-        const backAction = () => {
-            showToast('info', 'You cannot go back from here');
-            return true;
-        };
-
-        BackHandler.addEventListener('hardwareBackPress', backAction);
-
-        // Clean up the event listener when the component is unmounted
+        // Clean up countdown when component unmounts
         return () => {
-            BackHandler.removeEventListener('hardwareBackPress', backAction);
             stopCountdown();
         };
-    }, [navigation]);
+    }, []);
 
     useEffect(() => {
         // Handle app state changes

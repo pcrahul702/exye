@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, TouchableOpacity, TextInput, Modal, ToastAndroid } from 'react-native';
+import { View, StyleSheet, Image, Text, TouchableOpacity, TextInput, Modal, ToastAndroid, BackHandler } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { postData } from '../Utils/api';
@@ -58,6 +58,16 @@ function TransactionIDScreen() {
         setModalVisible(false);
         navigation.navigate('Home');
     };
+
+    React.useEffect(() => {
+        // Add back handler
+        const onBackPress = () => {
+            navigation.goBack();
+            return true; // prevent default behavior (exit app)
+        };
+        BackHandler.addEventListener('hardwareBackPress', onBackPress);
+        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [navigation]);
 
     return (
         <View style={styles.container}>

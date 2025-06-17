@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, ScrollView, Dimensions, Alert,TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, ScrollView, Dimensions, Alert,TouchableOpacity, BackHandler } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
@@ -23,6 +23,13 @@ const PreviousDetails = () => {
     useFocusEffect(
         React.useCallback(() => {
             getLeaderboardData();
+            // Add back handler
+            const onBackPress = () => {
+                navigation.goBack();
+                return true; // prevent default behavior (exit app)
+            };
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
 

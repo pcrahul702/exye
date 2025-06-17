@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Text, ScrollView, Alert, ActivityIndicator ,TouchableOpacity} from 'react-native';
+import { View, StyleSheet, Image, Text, ScrollView, Alert, ActivityIndicator ,TouchableOpacity, BackHandler} from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import failedIcon from '../assets/failedIcon.png';
 import addSuccessIcon from '../assets/addSuccessIcon.png';
@@ -14,6 +14,13 @@ function TransactionHistoryScreen() {
     useFocusEffect(
         React.useCallback(() => {
             getWalletTransactionsData();
+            // Add back handler
+            const onBackPress = () => {
+                navigation.goBack();
+                return true; // prevent default behavior (exit app)
+            };
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
 
@@ -73,17 +80,17 @@ function TransactionHistoryScreen() {
             if (status === 'SUCCESS')
                 return { icon: withdrawSuccessIcon, text: 'Contest Charge', color: 'green' };
             else if (status === 'PENDING')
-                return { icon: failedIcon, text: 'Contest Charge', color: '#FF8800' };
-            else if (status === 'FAILED')
-                return { icon: failedIcon, text: 'Contest Charge', color: '#FF0000' };
-        }
-        else if (type === null) {
-            if (status === 'SUCCESS')
-                return { icon: addSuccessIcon, text: 'Transaction Successfull', color: 'green' };
-            else if (status === 'PENDING')
                 return { icon: failedIcon, text: 'Contest Charge Pending', color: '#FF8800' };
             else if (status === 'FAILED')
                 return { icon: failedIcon, text: 'Contest Charge Failed', color: '#FF0000' };
+        }
+        else if (type === null) {
+            if (status === 'SUCCESS')
+                return { icon: addSuccessIcon, text: 'Transaction Successful', color: 'green' };
+            else if (status === 'PENDING')
+                return { icon: failedIcon, text: 'Transaction Pending', color: '#FF8800' };
+            else if (status === 'FAILED')
+                return { icon: failedIcon, text: 'Transaction Failed', color: '#FF0000' };
         }
 
         // Default case if none of the above conditions match

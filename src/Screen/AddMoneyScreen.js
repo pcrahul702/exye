@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, SafeAreaView, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, Dimensions, KeyboardAvoidingView, Alert } from 'react-native';
+import { View, SafeAreaView, StyleSheet, Image, Text, TouchableOpacity, TextInput, ScrollView, Dimensions, KeyboardAvoidingView, Alert, BackHandler } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getData } from '../Utils/api';
 
@@ -15,6 +15,13 @@ function AddMoneyScreen() {
     useFocusEffect(
         React.useCallback(() => {
             getWalletData();
+            // Add back handler
+            const onBackPress = () => {
+                navigation.goBack();
+                return true; // prevent default behavior (exit app)
+            };
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
 

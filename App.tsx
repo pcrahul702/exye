@@ -56,14 +56,54 @@ function App() {
       <View style={styles.container}>
         <NavigationContainer>
           <Stack.Navigator
-            screenOptions={{headerShown: false, gestureEnabled: true}}>
-            <Stack.Screen name="Start" component={GetStartedScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
+            screenOptions={{
+              headerShown: false,
+              gestureEnabled: true,
+              // Enable back gesture for all screens
+              gestureDirection: 'horizontal',
+            }}>
+            <Stack.Screen
+              name="Start"
+              component={GetStartedScreen}
+              options={{
+                // Prevent going back from start screen
+                gestureEnabled: false,
+              }}
+            />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{
+                // Prevent going back from login screen
+                gestureEnabled: false,
+              }}
+            />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
-            <Stack.Screen name="Home" component={DrawerNavigator} />
+            <Stack.Screen
+              name="Home"
+              component={DrawerNavigator}
+              options={{
+                // Prevent going back from home screen
+                gestureEnabled: false,
+              }}
+            />
             <Stack.Screen name="Topic" component={TopicScreen} />
-            <Stack.Screen name="Progress" component={ProgressScreen} />
-            <Stack.Screen name="Question" component={QuestionScreen} />
+            <Stack.Screen
+              name="Progress"
+              component={ProgressScreen}
+              options={{
+                // Prevent going back during quiz progress
+                gestureEnabled: false,
+              }}
+            />
+            <Stack.Screen
+              name="Question"
+              component={QuestionScreen}
+              options={{
+                // Prevent going back during questions
+                gestureEnabled: false,
+              }}
+            />
             <Stack.Screen
               name="LoadingPavilion"
               component={LoadingPavilionScreen}

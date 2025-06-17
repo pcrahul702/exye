@@ -10,14 +10,14 @@ import {
   ScrollView,
   Alert,
   Animated,
-  BackHandler,
-    Dimensions,
+  Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { getData } from '../Utils/api';
 import Toast from 'react-native-toast-message';
 import { getAccessToken } from '../Utils/getAccessToken';
 import ContestCard from '../components/ContestCard';
+import { useExitAppOnBack } from '../Utils/useBackHandler';
 
 const HomeScreen = () => {
  const { width: screenWidth } = Dimensions.get('window');
@@ -35,6 +35,9 @@ const HomeScreen = () => {
   const currentContestIndexRef = useRef(0); // Ref to track current index for intervals
 
   const navigation = useNavigation();
+
+  // Use the back handler hook to exit app on back press (since this is the main screen)
+  useExitAppOnBack();
 
   // Create responsive styles inside the component
   const responsiveStyles = {
@@ -395,31 +398,11 @@ const HomeScreen = () => {
   }, [currentContestIndex, liveContestsData, contestTimers]);
 
   useEffect(() => {
-    // Function to handle back press behavior on HomeScreen
-    const handleBackPress = () => {
-      const currentScreen = navigation.getState().routes[navigation.getState().index].name;
-      console.log(currentScreen);
-
-      // If we're on the Home screen, exit the app
-      if (currentScreen === 'Dashboard') {
-        BackHandler.exitApp(); // Exit the app
-        return true; // Prevent default back behavior
-      } else {
-        // Let React Navigation handle the back action
-        return false;
-      }
-    };
-
-    // Add the event listener for back press
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-
-    // Clean up the listener when the component is unmounted
+    // Clean up countdown intervals when component unmounts
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-      // Clean up all countdown intervals
       Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
     };
-  }, [navigation, countdownIntervals]);
+  }, [countdownIntervals]);
 
   return (
     <View style={styles.bg}>

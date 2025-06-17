@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, ScrollView, ActivityIndicator, BackHandler } from 'react-native'
 import React, { useState } from 'react'
 import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
@@ -18,6 +18,13 @@ const Previous = () => {
   useFocusEffect(
     React.useCallback(() => {
       getWalletData();
+      // Add back handler
+      const onBackPress = () => {
+        navigation.goBack();
+        return true; // prevent default behavior (exit app)
+      };
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     }, [])
   );
 

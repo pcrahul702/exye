@@ -52,21 +52,7 @@ const CreateCustomContestScreen = () => {
         });
     };
 
-    useEffect(() => {
-        // Function to handle back press behavior
-        const handleBackPress = () => {
-          navigation.goBack();  // This takes you to the previous screen
-          return true;  // Prevent default back behavior (app exit)
-        };
-      
-        // Add event listener for back press
-        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-      
-        // Clean up the event listener when the component unmounts
-        return () => {
-          BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-        };
-      }, [navigation]);
+    // Removed custom back handler - let React Navigation handle it
 
     return (
         <KeyboardAvoidingView style={styles.container}>
