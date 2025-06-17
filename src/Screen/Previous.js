@@ -84,23 +84,32 @@ const Previous = () => {
           <Text style={styles.noHistoryText}>No history found</Text> // Show message if no contests are found
         ) : (
           previousContestData.map(item => {
-            const isProfit = item.correctAnswers > 0;
-            const cardBackgroundColor = isProfit ? '#3DC467' : '#A92204';
-            const pnlTextColor = isProfit ? '#28a745' : '#dc3545';
-            const contestValueText = `Correct Answer - ${item.correctAnswers}`;
-            const pnlText = isProfit ? 'You Won' : 'You Lost';
-
             return (
               <TouchableOpacity key={item.id} onPress={() => seeDetails(item.contestId)} activeOpacity={0.8}>
-                <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
-                  <Text style={styles.dateText}>{getDate(item.responseTime)}</Text>
-                  <Text style={styles.contestValueText}>{contestValueText}</Text>
-                  <Text style={[styles.pnlText, { color: pnlTextColor }]}>{pnlText}</Text>
-                  <Text style={styles.bottomRightText}>Click for details</Text>
-                  <Image
-                    source={require('../assets/semiRect.png')}
-                    style={styles.cardImage}
-                  />
+                <View style={styles.card}>
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.dateText}>{getDate(item.responseTime)}</Text>
+                    <Text style={styles.scoreText}>{item.obtainedScore}/{item.totalScore}</Text>
+                  </View>
+                  
+                  <View style={styles.cardContent}>
+                    <View style={styles.statsRow}>
+                      <View style={styles.statItem}>
+                        <Text style={styles.statLabel}>Correct</Text>
+                        <Text style={styles.statValue}>{item.correctAnswers}</Text>
+                      </View>
+                      <View style={styles.statItem}>
+                        <Text style={styles.statLabel}>Incorrect</Text>
+                        <Text style={styles.statValue}>{item.incorrectAnswers}</Text>
+                      </View>
+                    </View>
+                    
+                    {/* <Text style={styles.contestIdText}>Contest: {item.contestId}</Text> */}
+                  </View>
+                  
+                  <View style={styles.cardFooter}>
+                    <Text style={styles.tapText}>Tap to view details</Text>
+                  </View>
                 </View>
               </TouchableOpacity>
             );
@@ -217,62 +226,79 @@ const styles = StyleSheet.create({
   },
   card: {
     alignSelf: 'center',
-    height: 'auto',
     width: '90%',
-    marginBottom: 20,
-    borderRadius: 11,
-    elevation: 5,
+    marginBottom: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    position: 'relative',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    padding: 16,
   },
-  cardImage: {
-    top: 0,
-    left: 0,
-    position: 'absolute',
-    height: '100%',
-    width: '75%',
-    resizeMode: 'stretch',
-    zIndex: 0,
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
   dateText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
+    fontFamily: 'Poppins-Regular',
+  },
+  scoreText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFA952',
+    fontFamily: 'Poppins-Regular',
+  },
+  cardContent: {
+    marginBottom: 12,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 12,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666666',
+    fontFamily: 'Poppins-Regular',
+    marginBottom: 4,
+  },
+  statValue: {
     fontSize: 20,
-    marginLeft: 10,
-    marginBottom: 7,
-    marginTop: 5,
-    fontWeight: '500',
-    color: 'black',
-    zIndex: 1,
+    fontWeight: '600',
+    color: '#333333',
     fontFamily: 'Poppins-Regular',
   },
-  contestValueText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: 'black',
-    marginLeft: 10,
-    marginBottom: 7,
-    zIndex: 1,
+  contestIdText: {
+    fontSize: 12,
+    color: '#888888',
     fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
   },
-  pnlText: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginLeft: 10,
-    marginBottom: 7,
-    zIndex: 1,
-    fontFamily: 'Poppins-Regular',
+  cardFooter: {
+    alignItems: 'center',
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
   },
-  bottomRightText: {
-    fontSize: 13,
-    position: 'absolute',
-    fontWeight: '500',
-    bottom: 5,
-    right: 7,
-    color: '#ffffff',
-    zIndex: 1,
+  tapText: {
+    fontSize: 12,
+    color: '#FFA952',
     fontFamily: 'Poppins-Regular',
+    fontWeight: '500',
   },
   noHistoryText: {
     fontSize: 18,
