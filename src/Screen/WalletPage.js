@@ -27,10 +27,15 @@ function WalletPage() {
   const navigation = useNavigation();
   const [walletData, setWalletData] = useState([]);
   const [isBankLinked, setIsBankLinked] = useState(false);
+  const [showPanModal, setShowPanModal] = useState(false);
+    const [showBankModal, setShowBankModal] = useState(false);
+   const [panCardUploaded, setPanCardUploaded] = useState(false);
+    const [bankDetailsUploaded, setBankDetailsUploaded] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
       getWalletData();
+      getProfiledata();
       // Add back handler
       const onBackPress = () => {
         navigation.goBack();
@@ -54,6 +59,34 @@ function WalletPage() {
     }
   };
 
+  const getProfiledata = async () => {
+      try {
+        const response = await getData('/api/v1/profile')
+    
+  
+        // Check if Pan Card is uploaded
+        if (response.document?.panDetails?.panNumber) {
+          setPanCardUploaded(true);
+          
+        } else {
+          setPanCardUploaded(false);
+        
+        }
+  
+        // Check if Bank is uploaded
+        if (response.document?.bankDetails?.url) {
+          setBankDetailsUploaded(true);
+        } else {
+          setBankDetailsUploaded(false);
+        }
+  
+        console.log("response.data", response)
+      } catch (error) {
+        console.log('error', error);
+        Alert.alert(error?.response?.data?.message);
+      }
+    }
+
   const handleHomeNavigation = () => {
     navigation.navigate('Dashboard');
   };
@@ -63,7 +96,11 @@ function WalletPage() {
   };
 
   const handleAddMoneyNavigation = () => {
-    navigation.navigate('AddMoneyLaunch');
+    if (panCardUploaded) {
+      navigation.navigate('AddMoneyLaunch');
+    } else {
+      setShowPanModal(true);
+    }
   };
 
   const handleTransactionHistoryNavigation = () => {
@@ -75,7 +112,11 @@ function WalletPage() {
   };
 
   const handleWithdrawNavigation = () => {
+     if (bankDetailsUploaded) {
     navigation.navigate('Withdraw', { currentBalance: walletData.walletAmount || 0});
+    } else {
+      setShowBankModal(true);
+    }
   };
 
   const handleProfileNavigation = () => {
@@ -223,6 +264,28 @@ function WalletPage() {
         source={require('../assets/BottomNav.png')}
         style={styles.bottomNav}
       />
+
+      {/* PAN Card Modal */}
+      {showPanModal && (
+        <View style={{position:'absolute', top:0, left:0, right:0, bottom:0, backgroundColor:'rgba(0,0,0,0.5)', justifyContent:'center', alignItems:'center', zIndex:10}}>
+          <View style={{backgroundColor:'white', padding:30, borderRadius:10, alignItems:'center'}}>
+            <Text style={{fontSize:18, color:'black', marginBottom:20}}>Please Add your PAN Card</Text>
+            <TouchableOpacity onPress={()=>setShowPanModal(false)} style={{backgroundColor:'#EF5A5A', padding:10, borderRadius:5}}>
+              <Text style={{color:'white'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+       {showBankModal && (
+        <View style={{position:'absolute', top:0, left:0, right:0, bottom:0, backgroundColor:'rgba(0,0,0,0.5)', justifyContent:'center', alignItems:'center', zIndex:10}}>
+          <View style={{backgroundColor:'white', padding:30, borderRadius:10, alignItems:'center'}}>
+            <Text style={{fontSize:18, color:'black', marginBottom:20}}>Please Add your Bank Details</Text>
+            <TouchableOpacity onPress={()=>setShowBankModal(false)} style={{backgroundColor:'#EF5A5A', padding:10, borderRadius:5}}>
+              <Text style={{color:'white'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }

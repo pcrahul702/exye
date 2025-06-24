@@ -34,6 +34,9 @@ const CustomDrawer = (props) => {
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(true);
     const [walletData, setWalletData] = useState([]);
+     const [showPanModal, setShowPanModal] = useState(false);
+      const [panCardUploaded, setPanCardUploaded] = useState(false);
+    
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -57,6 +60,7 @@ const CustomDrawer = (props) => {
     useFocusEffect(
         React.useCallback(() => {
             getWalletData();
+              getProfiledata();
         }, [])
     );
 
@@ -70,12 +74,34 @@ const CustomDrawer = (props) => {
         }
     };
 
+    const getProfiledata = async () => {
+        try {
+          const response = await getData('/api/v1/profile');
+    
+          // Check if Pan Card is uploaded
+          if (response.document?.panDetails?.panNumber) {
+            setPanCardUploaded(true);
+          } else {
+            setPanCardUploaded(false);
+          }
+    
+          console.log('response.data', response);
+        } catch (error) {
+          console.log('error', error);
+          Alert.alert(error?.response?.data?.message);
+        }
+      };
+
     const handleWalletNavigation = () => {
         props.navigation.navigate('Wallet'); // 👈 NOT `useNavigation()`
       };
 
     const handleAddMoneyNavigation = () => {
-        navigation.navigate('AddMoneyLaunch');
+        if (panCardUploaded) {
+      navigation.navigate('AddMoneyLaunch');
+    } else {
+      setShowPanModal(true);
+    }
     };
 
     const handleLogout = async () => {
@@ -148,6 +174,42 @@ const CustomDrawer = (props) => {
                 />
                 <Text style={styles.logoutText}>Log Out</Text>
             </TouchableOpacity>
+
+              {showPanModal && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 10,
+                      }}>
+                      <View
+                        style={{
+                          backgroundColor: 'white',
+                          padding: 30,
+                          borderRadius: 10,
+                          alignItems: 'center',
+                        }}>
+                        <Text style={{fontSize: 18, color: 'black', marginBottom: 20}}>
+                          Please Add your PAN Card
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => setShowPanModal(false)}
+                          style={{
+                            backgroundColor: '#EF5A5A',
+                            padding: 10,
+                            borderRadius: 5,
+                          }}>
+                          <Text style={{color: 'white'}}>Close</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
         </View>
     );
 };
@@ -273,6 +335,9 @@ export default function DrawerNavigator() {
                     ),
                 }}
             />
+
+
+            
         </Drawer.Navigator>
     );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -12,14 +12,21 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import { DrawerActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import {
+  DrawerActions,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getData } from '../Utils/api';
+import {getData} from '../Utils/api';
 
-const CustomDrawer = (props) => {
-  const [name, setName] = useState('');  // State to store the name
+const CustomDrawer = props => {
+  const [name, setName] = useState(''); // State to store the name
   const [loading, setLoading] = useState(true);
   const [walletData, setWalletData] = useState([]);
+  const [showPanModal, setShowPanModal] = useState(false);
+  const [panCardUploaded, setPanCardUploaded] = useState(false);
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -31,21 +38,22 @@ const CustomDrawer = (props) => {
           storedName = await AsyncStorage.getItem('name');
         }
 
-        setName(storedName || '');  // Set the name from storage (or default to empty)
-        setLoading(false);  // Set loading to false once the name is fetched
+        setName(storedName || ''); // Set the name from storage (or default to empty)
+        setLoading(false); // Set loading to false once the name is fetched
       } catch (error) {
         console.error('Error retrieving name:', error);
-        setLoading(false);  // Set loading to false if there is an error
+        setLoading(false); // Set loading to false if there is an error
       }
     };
 
     getNameFromStorage();
-  }, []);  // Empty dependency array to run once when the component mounts
+  }, []); // Empty dependency array to run once when the component mounts
 
   useFocusEffect(
     React.useCallback(() => {
       getWalletData();
-    }, [])
+      getProfiledata();
+    }, []),
   );
 
   const getWalletData = async () => {
@@ -53,7 +61,24 @@ const CustomDrawer = (props) => {
       const res = await getData('/api/v1/profile/wallet');
 
       setWalletData(res?.data);
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(error?.response?.data?.message);
+    }
+  };
 
+  const getProfiledata = async () => {
+    try {
+      const response = await getData('/api/v1/profile');
+
+      // Check if Pan Card is uploaded
+      if (response.document?.panDetails?.panNumber) {
+        setPanCardUploaded(true);
+      } else {
+        setPanCardUploaded(false);
+      }
+
+      console.log('response.data', response);
     } catch (error) {
       console.log('error', error);
       Alert.alert(error?.response?.data?.message);
@@ -63,35 +88,38 @@ const CustomDrawer = (props) => {
   const handleWalletNavigation = () => {
     navigation.dispatch(DrawerActions.closeDrawer());
     navigation.navigate('Wallet');
-};
-
+  };
 
   const handleAddMoneyNavigation = () => {
-    navigation.navigate('AddMoneyLaunch');
+    if (panCardUploaded) {
+      navigation.navigate('AddMoneyLaunch');
+    } else {
+      setShowPanModal(true);
+    }
   };
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('name');
-    console.log("Logged out");
+    console.log('Logged out');
     // Navigate to Login screen
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Login' }],
+      routes: [{name: 'Login'}],
     });
   };
 
   if (loading) {
-    return null;  // Don't render the drawer until the name is fetched
+    return null; // Don't render the drawer until the name is fetched
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: '#FFA952' }}>
-        <ImageBackground
-          backgroundColor='#FFA952'
-          style={{ padding: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <View style={{flex: 1}}>
+      <DrawerContentScrollView
+        {...props}
+        contentContainerStyle={{backgroundColor: '#FFA952'}}>
+        <ImageBackground backgroundColor="#FFA952" style={{padding: 20}}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Image
               source={require('../assets/profile_icon.png')}
               style={{
@@ -101,7 +129,7 @@ const CustomDrawer = (props) => {
                 marginBottom: 10,
               }}
             />
-            <View style={{ marginLeft: 12 }}>
+            <View style={{marginLeft: 12}}>
               <Text
                 style={{
                   color: '#fff',
@@ -110,7 +138,7 @@ const CustomDrawer = (props) => {
                   marginBottom: 5,
                   fontWeight: '700',
                 }}>
-                {name || 'User'}  {/* Display name or fallback to 'User' */}
+                {name || 'User'} {/* Display name or fallback to 'User' */}
               </Text>
               <Text
                 style={{
@@ -125,8 +153,10 @@ const CustomDrawer = (props) => {
           </View>
         </ImageBackground>
 
-        <View style={{ paddingHorizontal: 18, marginBottom: 18 }}>
-          <TouchableOpacity style={{ zIndex: 1 }} onPress={handleWalletNavigation}>
+        <View style={{paddingHorizontal: 18, marginBottom: 18}}>
+          <TouchableOpacity
+            style={{zIndex: 1}}
+            onPress={handleWalletNavigation}>
             <View style={styles.balanceButton}>
               <Image
                 source={require('../assets/wallet_icon.png')}
@@ -138,12 +168,14 @@ const CustomDrawer = (props) => {
                 }}
               />
               <Text style={styles.balanceButtonText}>My Balance</Text>
-              <Text style={styles.balanceButtonText2}>₹ {walletData.walletAmount || 0}</Text>
+              <Text style={styles.balanceButtonText2}>
+                ₹ {walletData.walletAmount || 0}
+              </Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={{ marginTop: 0, zIndex: 0 }}
+            style={{marginTop: 0, zIndex: 0}}
             onPress={handleAddMoneyNavigation}>
             <View style={styles.addMoneyButton}>
               <Text style={styles.addMoneyText}>Add Money</Text>
@@ -151,7 +183,7 @@ const CustomDrawer = (props) => {
           </TouchableOpacity>
         </View>
 
-        <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: 10 }}>
+        <View style={{flex: 1, backgroundColor: '#fff', paddingTop: 10}}>
           <DrawerItemList {...props} />
         </View>
       </DrawerContentScrollView>
@@ -163,6 +195,41 @@ const CustomDrawer = (props) => {
         />
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
+      {showPanModal && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10,
+          }}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 30,
+              borderRadius: 10,
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 18, color: 'black', marginBottom: 20}}>
+              Please Add your PAN Card
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowPanModal(false)}
+              style={{
+                backgroundColor: '#EF5A5A',
+                padding: 10,
+                borderRadius: 5,
+              }}>
+              <Text style={{color: 'white'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
