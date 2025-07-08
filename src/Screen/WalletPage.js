@@ -113,7 +113,7 @@ function WalletPage() {
 
   const handleWithdrawNavigation = () => {
      if (bankDetailsUploaded) {
-    navigation.navigate('Withdraw', { currentBalance: walletData.walletAmount || 0});
+    navigation.navigate('Withdraw', { CurrentBalance: walletData.walletAmount || 0});
     } else {
       setShowBankModal(true);
     }

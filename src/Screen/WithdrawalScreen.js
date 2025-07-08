@@ -69,6 +69,8 @@ function WithdrawalScreen() {
             setGuideColor(1);
             Alert.alert("Withdrawal Request Placed Successfully.");
             getWalletData();
+            setWithdrawAmount();
+            setUpiInput('');
 
         } catch (error) {
 
@@ -101,16 +103,17 @@ function WithdrawalScreen() {
                     <Text style={styles.text1}>Current Balance :</Text>
                     <Text style={styles.text2}>₹ {walletData.walletAmount || 0}</Text>
                     <Text style={styles.text3}>Amount to be Withdrawn :</Text>
+                    <Text style={styles.label}>Enter Amount:</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter amount"
                         keyboardType="numeric"
                         value={withdrawAmount}
                         onChangeText={setWithdrawAmount}
                     />
+
+                    <Text style={styles.label}>Enter UPI ID:</Text>
                     <TextInput
                         style={styles.input1}
-                        placeholder="Enter your UPI ID"
                         value={upiInput}
                         onChangeText={setUpiInput}
                     />
@@ -254,7 +257,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 16,
         paddingHorizontal: 10,
-        marginVertical: 20,
+        marginVertical: 10,
         backgroundColor: 'white',
         fontSize: 20,
         color: 'black',
@@ -267,11 +270,22 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 16,
         paddingHorizontal: 10,
-        marginTop:0,
+        marginVertical: 10,
         backgroundColor: 'white',
         fontSize: 20,
         color: 'black',
         fontFamily: 'Poppins-Regular',
+    },
+    label: {
+        fontSize: 20,
+        color: 'white',
+        fontWeight: '600',
+        marginTop: 15,
+        alignSelf: 'center',
+        fontFamily: 'Poppins-Regular',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: { width: 2, height: 2 },
+        textShadowRadius: 4,
     },
     additionalText: {
         fontSize: 20,

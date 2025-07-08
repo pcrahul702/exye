@@ -4,7 +4,7 @@ import backgroundImage from '../assets/Group.png';
 import uppershaper from '../assets/uppershape.png';
 import upperLog from '../assets/Upperlogo2.png';
 
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { getData, postData } from '../Utils/api';
 import { getAccessToken } from '../Utils/getAccessToken';
 
@@ -15,6 +15,7 @@ const LiveDetailsScreen = () => {
     const navigation = useNavigation();
 
     const [contestData, setContestData] = useState([]);
+  const [walletData, setWalletData] = useState([]);
 
     const route = useRoute();
     const { contestId } = route.params;
@@ -24,6 +25,19 @@ const LiveDetailsScreen = () => {
             getContestData(contestId);
         }
     }, [contestId]);
+
+     useFocusEffect(
+            React.useCallback(() => {
+                getWalletData();
+                // Add back handler
+                const onBackPress = () => {
+                    navigation.goBack();
+                    return true; // prevent default behavior (exit app)
+                };
+                BackHandler.addEventListener('hardwareBackPress', onBackPress);
+                return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            }, [])
+        );
 
     const getContestData = async (id) => {
         try {
@@ -37,6 +51,19 @@ const LiveDetailsScreen = () => {
         }
     };
 
+     const getWalletData = async () => {
+        try {
+          const res = await getData('/api/v1/profile/wallet');
+    
+          setWalletData(res?.data);
+        
+    
+        } catch (error) {
+          console.log('error', error);
+          Alert.alert(error?.response?.data?.message);
+        }
+      };
+
     const handleTopicNavigation = () => {
         navigation.navigate('Topic');
     };
@@ -49,6 +76,24 @@ const LiveDetailsScreen = () => {
     // Removed custom back handler - let React Navigation handle it
 
     const handleJoinContest = async () => {
+        // Check wallet balance before allowing join
+        if (
+            Number(contestData.entryAmount) > Number(walletData.walletAmount) ||
+            Number(walletData.walletAmount) === 0
+        ) {
+            Alert.alert(
+                'Insufficient Balance',
+                'Your wallet balance is too low. Please add money to continue.',
+                [
+                    {
+                        text: 'Add Money',
+                        onPress: () => navigation.navigate('Wallet'),
+                    },
+                    { text: 'Cancel', style: 'cancel' },
+                ]
+            );
+            return;
+        }
 
         const token = await getAccessToken();
         console.log(token);
