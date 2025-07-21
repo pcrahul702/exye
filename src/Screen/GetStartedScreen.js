@@ -50,7 +50,7 @@ const GetStartedScreen = ({ navigation }) => {
 
       console.log("isAuthenticated", isAuthenticated);
       isAuthenticated ?
-        navigation.navigate('Home') : navigation.navigate('Login');
+        navigation.navigate('Home') : navigation.navigate('SignUp');
 
     } catch (error) {
       if (error.message === 'Network Error') {
